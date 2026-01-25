@@ -1,0 +1,120 @@
+#!/usr/bin/env python3
+"""
+=============================================================================
+Kulüp Admin Seed Script - ÖRNEK ŞABLON
+=============================================================================
+Bu dosya kulüp yöneticilerini veritabanına eklemek için kullanılır.
+
+Kullanım:
+1. Bu dosyayı seed_admins.py olarak kopyalayın:
+   cp seed_admins.py.example seed_admins.py
+
+2. MANAGERS listesini kendi bilgilerinizle doldurun
+
+3. Çalıştırın:
+   python -m database.seed_admins
+=============================================================================
+"""
+import os
+import sys
+from flask import Flask
+from werkzeug.security import generate_password_hash
+from sqlalchemy.exc import IntegrityError
+
+# Proje kök dizinini path'e ekle
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
+from config import DATABASE_URI, SECRET_KEY
+from database.initdb import db
+from database.user import User
+from database.kulupler import Kulupler
+from database.kulupyonetim import KulupYonetim
+
+app = Flask(__name__)
+app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
+app.config["SECRET_KEY"] = SECRET_KEY
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+db.init_app(app)
+
+# Tabloları oluştur
+with app.app_context():
+    db.create_all()
+    print("✓ Tablolar kontrol edildi / oluşturuldu")
+
+# =============================================================================
+# BURAYA KENDİ ADMİN BİLGİLERİNİZİ GİRİN
+# =============================================================================
+MANAGERS = [
+    {
+        "name": "Örnek Yönetici",
+        "email": "ornek@stu.thk.edu.tr",
+        "password": "guvenli-sifre-123",  # Güçlü bir şifre kullanın!
+        "club": "Örnek Kulüp"
+    },
+    # Daha fazla yönetici ekleyin...
+    # {
+    #     "name": "Diğer Yönetici",
+    #     "email": "diger@stu.thk.edu.tr",
+    #     "password": "baska-sifre-456",
+    #     "club": "Diğer Kulüp"
+    # },
+]
+
+
+def get_or_create_user(name: str, email: str, password: str) -> User:
+    """Kullanıcıyı bul veya oluştur."""
+    user = User.query.filter_by(email=email).first()
+    if user:
+        return user
+    user = User(
+        public_id=email,
+        name=name,
+        email=email,
+        password=generate_password_hash(password)
+    )
+    db.session.add(user)
+    db.session.commit()
+    return user
+
+
+def get_or_create_club(name: str) -> Kulupler:
+    """Kulübü bul veya oluştur."""
+    club = Kulupler.query.filter_by(kulup_adi=name).first()
+    if club:
+        return club
+    try:
+        club = Kulupler(kulup_adi=name)
+        db.session.add(club)
+        db.session.commit()
+        return club
+    except IntegrityError:
+        db.session.rollback()
+        return Kulupler.query.filter_by(kulup_adi=name).first()
+
+
+def assign_admin(user: User, club: Kulupler):
+    """Kullanıcıyı kulüp admini olarak ata."""
+    if club is None:
+        raise ValueError("Kulüp bulunamadı veya oluşturulamadı")
+    existing = KulupYonetim.query.filter_by(
+        kullanici_id=user.id,
+        kulup_id=club.id
+    ).first()
+    if existing:
+        return existing
+    ky = KulupYonetim(yetki='admin', kullanici_id=user.id, kulup_id=club.id)
+    db.session.add(ky)
+    db.session.commit()
+    return ky
+
+
+if __name__ == '__main__':
+    with app.app_context():
+        print('Kulüp adminleri ekleniyor...')
+        for m in MANAGERS:
+            club = get_or_create_club(m['club'])
+            user = get_or_create_user(m['name'], m['email'], m['password'])
+            assign_admin(user, club)
+            print(f"✓ {m['club']}: {m['email']}")
+        print('✅ Admin ekleme tamamlandı.')

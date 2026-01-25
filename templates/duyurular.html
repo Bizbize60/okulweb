@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duyurular - THKÜ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #181c24 0%, #232a3a 100%);
+            color: #eaf0fa;
+            font-family: 'Montserrat', Arial, sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        .glass-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: rgba(30, 36, 54, 0.55);
+            border-radius: 32px;
+            box-shadow: 0 8px 48px #0a0a1a88, 0 1.5px 8px #0a0a1a44;
+            padding: 48px 32px 32px 32px;
+            margin-top: 60px;
+            margin-bottom: 60px;
+            border: 1.5px solid rgba(255,255,255,0.08);
+            position: relative;
+            backdrop-filter: blur(18px) saturate(1.2);
+            -webkit-backdrop-filter: blur(18px) saturate(1.2);
+        }
+        .glass-tabs {
+            position: absolute;
+            right: 0; top: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 2;
+        }
+        .glass-tab {
+            background: rgba(40, 50, 80, 0.7);
+            color: #b6c8e6;
+            font-family: 'Montserrat', Arial, sans-serif;
+            font-size: 1.1rem;
+            padding: 8px 18px 8px 18px;
+            border-radius: 0 0 18px 18px;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 8px #0a0a1a44;
+            border: 1.5px solid rgba(255,255,255,0.08);
+            cursor: pointer;
+            user-select: none;
+            transition: background .2s, color .2s;
+            text-shadow: 0 2px 8px #232a3a99;
+        }
+        .glass-tab.active, .glass-tab:hover {
+            background: rgba(60, 80, 120, 0.9);
+            color: #fff;
+        }
+        .section-title {
+            font-size: 2.7rem;
+            font-family: 'Montserrat', Arial, sans-serif;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            color: #eaf0fa;
+            text-align: left;
+            margin-top: 0;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 24px #0a0a1a99, 0 1px 0 #fff1;
+            padding-left: 48px;
+        }
+        .section-desc {
+            color: #b6c8e6;
+            font-size: 1.25rem;
+            text-align: left;
+            margin-bottom: 40px;
+            margin-left: 48px;
+            font-family: 'Montserrat', Arial, sans-serif;
+        }
+        .duyuru-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 38px 32px;
+            margin-left: 38px;
+        }
+        .duyuru-card {
+            background: #f9f7f2 url('https://www.transparenttextures.com/patterns/paper.png');
+            border-radius: 18px 18px 32px 32px/18px 18px 40px 40px;
+            box-shadow: 0 2px 16px #b6a98b33, 0 1.5px 8px #b6a98b22;
+            min-width: 320px;
+            max-width: 370px;
+            flex: 1 1 340px;
+            min-height: 220px;
+            margin-bottom: 18px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid #e2d6c2;
+            transition: box-shadow .3s, transform .3s;
+            opacity: 0;
+            animation: fadeInCard .9s cubic-bezier(.4,1.4,.6,1) forwards;
+        }
+        .duyuru-card:before {
+            content: '';
+            position: absolute;
+            left: 18px; top: -18px;
+            width: 48px; height: 24px;
+            background: url('https://i.imgur.com/6QKQ7Qp.png') no-repeat center/contain;
+            opacity: 0.7;
+        }
+        .duyuru-card:after {
+            content: '';
+            position: absolute;
+            right: 18px; bottom: -18px;
+            width: 48px; height: 24px;
+            background: url('https://i.imgur.com/2Qw1QwB.png') no-repeat center/contain;
+            opacity: 0.7;
+        }
+        .duyuru-card:hover {
+            box-shadow: 0 8px 40px #b6a98b55, 0 0 80px #e2d6c2aa;
+            transform: translateY(-7px) scale(1.025) rotateZ(-0.5deg);
+        }
+        @keyframes fadeInCard {
+            from { opacity: 0; transform: translateY(30px) scale(0.98); }
+            to { opacity: 1; transform: none; }
+        }
+        .duyuru-content {
+            flex: 1;
+            padding: 32px 28px 20px 28px;
+            display: flex;
+            flex-direction: column;
+        }
+        .duyuru-title {
+            font-size: 1.32rem;
+            font-family: 'Permanent Marker', cursive;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: #3a2d1a;
+            text-shadow: 0 2px 12px #e2d6c2cc, 0 1px 0 #fff;
+            letter-spacing: -0.01em;
+        }
+        .duyuru-desc {
+            font-size: 1.09rem;
+            color: #7c6a4a;
+            margin-bottom: 18px;
+            font-family: 'Indie Flower', cursive;
+            font-weight: 500;
+        }
+        .duyuru-date {
+            font-size: 1.05rem;
+            color: #a08c6a;
+            margin-bottom: 12px;
+            font-family: 'Indie Flower', cursive;
+        }
+        .duyuru-actions { margin-top: auto; }
+        .duyuru-btn {
+            display: inline-block;
+            background: #e2d6c2;
+            color: #6b4e1e;
+            border-radius: 10px;
+            padding: 10px 28px;
+            font-family: 'Permanent Marker', cursive;
+            font-weight: 700;
+            font-size: 1.08rem;
+            text-decoration: none;
+            box-shadow: 0 0 0 1.5px #b6a98b88, 0 4px 12px #e2d6c2aa;
+            transition: background .2s, box-shadow .2s, transform .2s, filter .2s;
+            filter: drop-shadow(0 2px 8px #e2d6c2aa);
+        }
+        .duyuru-btn:hover {
+            background: #f7e9c7;
+            box-shadow: 0 0 0 2px #b6a98b, 0 8px 24px #e2d6c2cc;
+            transform: scale(1.06) translateY(-2px);
+            filter: brightness(1.08);
+        }
+        .handwritten-meta {
+            font-family: 'Indie Flower', cursive;
+            font-size: 1.01rem;
+            color: #a08c6a;
+            margin-top: 6px;
+            margin-left: 8px;
+            margin-bottom: 0;
+            letter-spacing: 0.01em;
+        }
+        .sketch-loading {
+            width: 100%;
+            text-align: center;
+            font-family: 'Indie Flower', cursive;
+            color: #b6a98b;
+            font-size: 1.2rem;
+            padding: 48px 0;
+            animation: sketchDraw 1.2s infinite alternate;
+        }
+        @keyframes sketchDraw {
+            from { opacity: 0.5; letter-spacing: 0.1em; }
+            to { opacity: 1; letter-spacing: 0.18em; }
+        }
+        .loader-circle {
+            width: 38px;
+            height: 38px;
+            border: 4px solid #3a7bd5;
+            border-top: 4px solid #eaf0fa;
+            border-radius: 50%;
+            margin: 0 auto 12px auto;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @media (max-width: 900px) {
+            .duyuru-grid { flex-direction: column; gap: 24px 0; }
+            .sketchbook { padding: 24px 6px 18px 6px; }
+            .section-title, .section-desc { padding-left: 18px; margin-left: 0; }
+        }
+    </style>
+    </style>
+</head>
+<body>
+    <main style="margin-top:60px;">
+        <div class="sketchbook">
+            <div class="sketchbook-tabs">
+                 <!-- Tabs removed as requested -->
+            </div>
+            <div class="section-title">Tüm Duyurular</div>
+            <div class="section-desc">Üniversitemizden en güncel duyurular, ihaleler ve başvurular burada.</div>
+            <div class="duyuru-grid" id="duyuruGrid" style="display:none;"></div>
+            <div id="duyuruLoading" class="sketch-loading">
+                <div class="loader-circle"></div>
+                <div>Yükleniyor...</div>
+            </div>
+        </div>
+    </main>
+    <script>
+        const grid = document.getElementById('duyuruGrid');
+        const loading = document.getElementById('duyuruLoading');
+        function showLoading() {
+            loading.style.display = 'block';
+            grid.style.display = 'none';
+        }
+        function hideLoading() {
+            loading.style.display = 'none';
+            grid.style.display = 'flex';
+        }
+        showLoading();
+        fetch('/api/duyurular')
+            .then(r => r.json())
+            .then(data => {
+                grid.innerHTML = '';
+                if (data.duyurular && data.duyurular.length > 0) {
+                    data.duyurular.forEach(duyuru => {
+                        const card = document.createElement('div');
+                        card.className = 'duyuru-card';
+                        // Eğer link # ise butonu pasif yap
+                        let btnHtml = '';
+                        if (duyuru.link && duyuru.link !== '#') {
+                            btnHtml = `<a class=\"duyuru-btn\" href=\"${duyuru.link}\" target=\"_blank\" rel=\"noopener\">İncele</a>`;
+                        } else {
+                            btnHtml = `<span class=\"duyuru-btn\" style=\"background:#888;cursor:not-allowed;pointer-events:none;\">İncele</span>`;
+                        }
+                        card.innerHTML = `
+                            <div class=\"duyuru-content\">`
+                                + `<div class=\"duyuru-title\">${duyuru.title}</div>`
+                                + `<div class=\"duyuru-desc\">${duyuru.description}</div>`
+                                + `<div class=\"duyuru-date\">${duyuru.date || ''}</div>`
+                                + `<div class=\"handwritten-meta\">${duyuru.meta ? duyuru.meta : ''}</div>`
+                                + `<div class=\"duyuru-actions\">${btnHtml}</div>`
+                            + `</div>`;
+                        grid.appendChild(card);
+                    });
+                } else {
+                    grid.innerHTML = '<div class="sketch-loading">Şu anda duyuru bulunamadı.<br><span style="font-size:1.5em;">✏️</span></div>';
+                }
+                hideLoading();
+            })
+            .catch(() => { hideLoading(); });
+    </script>
+</body>
+</html>

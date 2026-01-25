@@ -1,0 +1,87 @@
+# Python derleme ve cache dosyaları
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Sanal ortamlar
+env/
+.venv/
+venv/
+ENV/
+
+# Flask ve diğer framework cache/instance dosyaları
+instance/
+.webassets-cache
+
+# Veritabanı dosyaları
+*.db
+*.sqlite
+*.sqlite3
+
+# Seed ve script dosyaları (hassas veri içerebilir)
+database/seed_admins.py
+database/seed_kulupler.py
+database/add_club_admin.py
+
+# Config ve kişisel bilgiler
+config.py
+.env
+.env.*
+*.env
+secrets.*
+*.secret
+*.pem
+*.key
+*.crt
+
+# API anahtarları ve özel dosyalar
+*.token
+*.apikey
+*.p12
+*.pfx
+
+# Proje özel dosyalar (anahtar, test, veri)
+durak.py
+test_otobus.py
+yemek.xlsx
+
+# IDE ve editör dosyaları
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS dosyaları
+.DS_Store
+Thumbs.db
+
+# Log dosyaları
+*.log
+
+# Uploads (kullanıcı verileri)
+uploads/kulup/*
+uploads/notes/*
+uploads/pazar/*
+!uploads/kulup/.gitkeep
+!uploads/notes/.gitkeep
+!uploads/pazar/.gitkeep
+
+# Yedekler ve geçici dosyalar
+*.bak
+*.tmp
+*.old
+*.orig
+*.backup
+
+# Çöp dosyalar
+*.~*
+
+
+# Sistem ve Gereksiz Dosyalar
+.DS_Store
+Thumbs.db
+Desktop/
+Accounting/
+bot/

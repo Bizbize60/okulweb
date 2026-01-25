@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kulüp Yönetimi - THKÜ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+            padding: 20px;
+            color: #2d3748;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 24px 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        h1 {
+            color: #1a202c;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .btn-back {
+            padding: 10px 20px;
+            background: #3182ce;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s;
+            font-size: 0.9em;
+        }
+
+        .btn-back:hover {
+            background: #2c5282;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #4a5568;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 0.95em;
+            transition: all 0.2s;
+            background: white;
+            font-family: inherit;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #3182ce;
+            box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+        }
+
+        .file-upload-area {
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #f7fafc;
+        }
+
+        .file-upload-area:hover {
+            border-color: #3182ce;
+            background: #edf2f7;
+        }
+
+        .file-upload-area.dragover {
+            border-color: #3182ce;
+            background: #ebf8ff;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .file-hint {
+            color: #718096;
+            font-size: 0.85em;
+            margin-top: 8px;
+            display: block;
+        }
+
+        .selected-file {
+            margin-top: 12px;
+            padding: 10px 14px;
+            background: #edf2f7;
+            border-radius: 6px;
+            font-size: 0.9em;
+            color: #2d3748;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .selected-file.show {
+            display: flex;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .success-message,
+        .error-message {
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 0.9em;
+        }
+
+        .success-message {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #fc8181;
+        }
+
+        .success-message.show,
+        .error-message.show {
+            display: block;
+        }
+
+        .upload-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .form-card {
+                padding: 24px;
+            }
+
+            h1 {
+                font-size: 1.3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Kulüp Yönetim Paneli</h1>
+            <a href="/" class="btn-back">← Ana Sayfa</a>
+        </div>
+
+        <div class="form-card">
+            <div class="success-message" id="successMessage">
+                ✓ Fotoğraf başarıyla yüklendi!
+            </div>
+            <div class="error-message" id="errorMessage">
+                ✗ Bir hata oluştu. Lütfen tekrar deneyin.
+            </div>
+
+            <form id="kulupForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="aciklama">İçerik Açıklaması</label>
+                    <textarea 
+                        id="aciklama" 
+                        name="aciklama" 
+                        placeholder="İçerik hakkında kısa bir açıklama yazın..." 
+                        required
+                    ></textarea>
+                    <span class="file-hint">İçeriğin ne hakkında olduğunu belirtin</span>
+                </div>
+
+                <div class="form-group">
+                    <label>Fotoğraf Yükle</label>
+                    <div class="file-upload-area" id="fileUploadArea" onclick="document.getElementById('fileInput').click()">
+                        <div class="upload-icon">📸</div>
+                        <div style="font-weight: 500; color: #2d3748; margin-bottom: 8px;">
+                            Fotoğraf seçmek için tıklayın veya sürükleyin
+                        </div>
+                        <span class="file-hint">
+                            Desteklenen formatlar: PNG, JPG, JPEG, GIF
+                        </span>
+                    </div>
+                    <input 
+                        type="file" 
+                        id="fileInput" 
+                        name="file" 
+                        accept=".png,.jpg,.jpeg,.gif"
+                        required
+                    >
+                    <div class="selected-file" id="selectedFile">
+                        <span>📸</span>
+                        <span id="fileName"></span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    Fotoğrafı Yükle
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('kulupForm');
+            const fileInput = document.getElementById('fileInput');
+            const fileUploadArea = document.getElementById('fileUploadArea');
+            const selectedFile = document.getElementById('selectedFile');
+            const fileName = document.getElementById('fileName');
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            const submitBtn = document.getElementById('submitBtn');
+
+            // Dosya seçildiğinde
+            fileInput.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    fileName.textContent = this.files[0].name;
+                    selectedFile.classList.add('show');
+                }
+            });
+
+            // Drag & drop
+            fileUploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('dragover');
+            });
+
+            fileUploadArea.addEventListener('dragleave', function() {
+                this.classList.remove('dragover');
+            });
+
+            fileUploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+                if (e.dataTransfer.files.length > 0) {
+                    fileInput.files = e.dataTransfer.files;
+                    fileName.textContent = e.dataTransfer.files[0].name;
+                    selectedFile.classList.add('show');
+                }
+            });
+
+            // Form gönderimi
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Mesajları temizle
+                successMessage.classList.remove('show');
+                errorMessage.classList.remove('show');
+
+                // Buton durumunu değiştir
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Yükleniyor...';
+
+                const formData = new FormData(form);
+
+                fetch('/api/kulupler', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message && data.message.includes('başarıyla')) {
+                        successMessage.textContent = '✓ ' + data.message;
+                        successMessage.classList.add('show');
+
+                        // Formu temizle
+                        form.reset();
+                        selectedFile.classList.remove('show');
+                    } else {
+                        errorMessage.textContent = '✗ ' + (data.message || 'Bir hata oluştu');
+                        errorMessage.classList.add('show');
+                    }
+                })
+                .catch(error => {
+                    console.error('Hata:', error);
+                    errorMessage.textContent = '✗ Bir hata oluştu. Lütfen tekrar deneyin.';
+                    errorMessage.classList.add('show');
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Fotoğrafı Yükle';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

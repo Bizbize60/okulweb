@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Not Ekle - THKÜ</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      background: #f8f9fa;
+      min-height: 100vh;
+      padding: 20px;
+      color: #2d3748;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: white;
+      border-radius: 12px;
+      padding: 24px 32px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    h1 {
+      color: #1a202c;
+      font-size: 1.5em;
+      font-weight: 600;
+    }
+
+    .btn-back {
+      padding: 10px 20px;
+      background: #3182ce;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.2s;
+      font-size: 0.9em;
+    }
+
+    .btn-back:hover {
+      background: #2c5282;
+    }
+
+    .form-card {
+      background: white;
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e2e8f0;
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: #4a5568;
+      font-weight: 500;
+      font-size: 0.9em;
+    }
+
+    input[type="text"],
+    input[type="file"] {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid #cbd5e0;
+      border-radius: 8px;
+      font-size: 0.95em;
+      transition: all 0.2s;
+      background: white;
+    }
+
+    input[type="text"]:focus,
+    input[type="file"]:focus {
+      outline: none;
+      border-color: #3182ce;
+      box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+    }
+
+    .file-hint {
+      font-size: 0.8em;
+      color: #718096;
+      margin-top: 6px;
+      display: block;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 12px;
+      background: #38a169;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95em;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 8px;
+    }
+
+    .submit-btn:hover {
+      background: #2f855a;
+    }
+
+    .submit-btn:active {
+      transform: scale(0.98);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .message {
+      margin-top: 20px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-weight: 500;
+      text-align: center;
+      display: none;
+      font-size: 0.9em;
+    }
+
+    .message.success {
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      color: #047857;
+      border-left: 4px solid #059669;
+    }
+
+    .message.error {
+      background: linear-gradient(135deg, #fee, #fdd);
+      color: #c33;
+      border-left: 4px solid #dc2626;
+    }
+
+    .file-preview {
+      margin-top: 10px;
+      padding: 10px;
+      background: #e8f4f8;
+      border-radius: 8px;
+      font-size: 0.9em;
+      color: #1e3c72;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📝 Yeni Not Ekle</h1>
+      <a href="/ders-notlari" class="btn-back">← Geri Dön</a>
+    </div>
+
+    <div class="form-card">
+      <form id="uploadForm" enctype="multipart/form-data">
+        <div class="form-group">
+          <label for="ders_adi">Ders Adı *</label>
+          <input 
+            type="text" 
+            id="ders_adi" 
+            name="ders_adi" 
+            required 
+            placeholder="Örn: Veri Yapıları ve Algoritmalar"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="dosya">Dosya Seç (PDF veya Word) *</label>
+          <input 
+            type="file" 
+            id="dosya" 
+            name="dosya" 
+            required 
+            accept=".pdf,.doc,.docx"
+          >
+          <span class="file-hint">* Sadece PDF veya Word (.doc, .docx) dosyaları kabul edilir</span>
+          <div id="filePreview" class="file-preview"></div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">
+          📤 Notu Yükle
+        </button>
+
+        <div id="message" class="message"></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('uploadForm');
+    const fileInput = document.getElementById('dosya');
+    const filePreview = document.getElementById('filePreview');
+    const submitBtn = document.getElementById('submitBtn');
+    const message = document.getElementById('message');
+
+    // File preview
+    fileInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const fileSize = (file.size / 1024 / 1024).toFixed(2);
+        filePreview.style.display = 'block';
+        filePreview.textContent = `📎 Seçilen dosya: ${file.name} (${fileSize} MB)`;
+      } else {
+        filePreview.style.display = 'none';
+      }
+    });
+
+    // Form submit
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const dersAdi = document.getElementById('ders_adi').value;
+      const dosya = fileInput.files[0];
+
+      if (!dersAdi || !dosya) {
+        showMessage('Lütfen tüm alanları doldurun!', 'error');
+        return;
+      }
+
+      // Check file type
+      const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      if (!allowedTypes.includes(dosya.type)) {
+        showMessage('Lütfen sadece PDF veya Word dosyası yükleyin!', 'error');
+        return;
+      }
+
+      // Prepare form data
+      const formData = new FormData();
+      formData.append('ders_adi', dersAdi);
+      formData.append('file', dosya);  // Backend 'file' bekliyor
+
+      // Disable button
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ Yükleniyor...';
+
+      try {
+        const response = await fetch('/api/not-ekle', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error('Yükleme başarısız oldu');
+        }
+
+        const result = await response.json();
+        showMessage('Not başarıyla eklendi! 🎉', 'success');
+        
+        // Reset form after 2 seconds
+        setTimeout(() => {
+          form.reset();
+          filePreview.style.display = 'none';
+          message.style.display = 'none';
+        }, 2000);
+
+      } catch (error) {
+        showMessage('Hata: ' + error.message, 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '📤 Notu Yükle';
+      }
+    });
+
+    function showMessage(text, type) {
+      message.textContent = text;
+      message.className = `message ${type}`;
+      message.style.display = 'block';
+    }
+  </script>
+</body>
+</html>

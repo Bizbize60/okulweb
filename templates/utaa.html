@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UTAA Music Club</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --bg-alt: #111214;
+      --fg: #ffffff;
+      --muted: #cfcfcf;
+      --border: #1e1f22;
+      --accent: #eaeaea; /* soft white accent */
+      --accent2: #8ef0ff; /* subtle neon touch for music vibe */
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.6;
+    }
+    /* Navigation */
+    header {
+      position: sticky; top: 0; z-index: 50;
+      backdrop-filter: saturate(150%) blur(6px);
+      background: rgba(10,10,10,0.6);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav {
+      max-width: 1280px; margin: 0 auto; padding: 0.75rem 1rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    }
+    .nav-left { display: flex; align-items: center; gap: 0.75rem; }
+    .logo {
+      width: 44px; height: 44px; border-radius: 8px; overflow: hidden;
+      background: #000; border: 1px solid var(--border);
+    }
+    .logo img { width: 100%; height: 100%; object-fit: cover; }
+    .brand {
+      font-family: Montserrat, sans-serif; font-weight: 700; letter-spacing: 0.02em; font-size: 1rem;
+    }
+    .nav-links { display: flex; align-items: center; gap: 1rem; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none; font-weight: 500; font-size: 0.95rem;
+      padding: 0.5rem 0.75rem; border-radius: 8px; transition: 200ms ease;
+    }
+    .nav-links a:hover { color: var(--fg); background: #151618; }
+
+    /* Hero */
+    .hero {
+      max-width: 1280px; margin: 0 auto; padding: 3rem 1rem 2rem;
+      display: grid; grid-template-columns: 1.2fr 1fr; gap: 2rem;
+    }
+    .hero-card {
+      background: var(--bg-alt); border: 1px solid var(--border); border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .hero-img {
+      width: 100%; height: 48vh; min-height: 360px; background: #000;
+    }
+    .hero-img img { width: 100%; height: 100%; object-fit: cover; }
+    .hero-content { padding: 1.25rem 1.5rem; }
+    .hero-title { font-family: Montserrat, sans-serif; font-size: 2rem; font-weight: 700; margin: 0 0 0.5rem; }
+    .hero-sub { color: var(--muted); font-size: 1rem; }
+
+    .about {
+      background: var(--bg-alt); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem;
+    }
+    .section-title { font-family: Montserrat, sans-serif; font-size: 1.25rem; font-weight: 700; }
+    .section-desc { color: var(--muted); }
+
+    /* Cards */
+    .section { max-width: 1280px; margin: 0 auto; padding: 1rem; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+    .card {
+      background: var(--bg-alt); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; transition: transform 200ms ease, box-shadow 200ms ease;
+    }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.35); }
+    .card h3 { font-size: 1.05rem; margin: 0; }
+    .card p { color: var(--muted); margin: 0; }
+    .date { color: var(--accent2); font-weight: 600; font-size: 0.9rem; }
+
+    /* Gallery placeholder */
+    .gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
+    .thumb { background: #0c0d0f; border: 1px dashed #2a2c31; border-radius: 10px; height: 140px; }
+
+    /* Contact */
+    .contact { background: var(--bg-alt); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; }
+
+    /* Footer */
+    footer { border-top: 1px solid var(--border); margin-top: 2rem; }
+    .foot { max-width: 1280px; margin: 0 auto; padding: 1rem; color: var(--muted); font-size: 0.9rem; }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .hero { grid-template-columns: 1fr; }
+      .hero-img { height: 40vh; }
+      .grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .gallery { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .grid { grid-template-columns: 1fr; }
+      .gallery { grid-template-columns: repeat(2, 1fr); }
+      .hero-title { font-size: 1.6rem; }
+    }
+
+    /* Lightbox Modal */
+    .lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:9999;display:none;align-items:center;justify-content:center;cursor:zoom-out}
+    .lightbox.show{display:flex}
+    .lightbox img{max-width:90vw;max-height:90vh;object-fit:contain;border-radius:var(--radius);box-shadow:0 0 40px rgba(142,240,255,0.3)}
+    .lightbox-close{position:absolute;top:20px;right:30px;color:var(--accent2);font-size:40px;cursor:pointer;transition:transform 200ms}
+    .lightbox-close:hover{transform:scale(1.2)}
+    .lightbox-caption{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:var(--fg);font-family:Montserrat,sans-serif;text-align:center;max-width:80%}
+  </style>
+</head>
+<body>
+  <!-- Lightbox Modal -->
+  <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+    <span class="lightbox-close">&times;</span>
+    <img id="lightboxImg" alt="Büyük Görsel" />
+    <div class="lightbox-caption" id="lightboxCaption"></div>
+  </div>
+
+  <header>
+    <nav class="nav">
+      <div class="nav-left">
+        <div class="logo">
+          <!-- Place the shared UTAA logo under static as utaa_logo.jpg -->
+          <img src="/static/utaa_logo.jpg" alt="UTAA Music Club Logo" />
+        </div>
+        <div class="brand">UTAA Music Club</div>
+      </div>
+      <div class="nav-links"></div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="section" style="padding-top: 1.25rem;">
+      <div class="about-banner" style="display:flex; align-items:center; gap:1rem; background: var(--bg-alt); border:1px solid var(--border); border-radius: var(--radius); padding: 0.75rem 1rem;">
+        <img src="/static/utaa_logo.jpg" alt="UTAA" style="width:56px; height:56px; border-radius:8px; object-fit:cover;" />
+        <div>
+          <div class="section-title" style="margin:0">UTAA Music Club</div>
+          <div class="section-desc">Son gönderi ve eski gönderiler</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Hero: Son Gönderi -->
+    <section id="hero" class="section">
+      <div id="heroCard" class="hero-card" style="display:none;">
+        <div class="hero-img"><img id="heroImg" alt="Son Gönderi" /></div>
+        <div class="hero-content">
+          <div class="date" id="heroDate"></div>
+          <h2 class="hero-title" id="heroTitle"></h2>
+          <p class="hero-sub" id="heroDesc"></p>
+        </div>
+      </div>
+      <div id="heroEmpty" style="display:none; background:var(--bg-alt); border:1px solid var(--border); border-radius:var(--radius); padding:1.25rem; text-align:center; color: var(--muted);">Henüz gönderi yok.</div>
+    </section>
+
+    <!-- Eski Gönderiler -->
+    <section id="archive" class="section">
+      <div class="section-title">Eski Gönderiler</div>
+      <div id="archiveGrid" class="grid"></div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="foot">© 2026 UTAA Music Club • Tüm Hakları Saklıdır</div>
+  </footer>
+
+  <script>
+    // Micro-interactions: smooth hover pulse for cards
+    document.querySelectorAll('.card').forEach(c => {
+      c.addEventListener('mouseenter', () => c.style.boxShadow = '0 10px 24px rgba(0,0,0,0.45)');
+      c.addEventListener('mouseleave', () => c.style.boxShadow = '');
+    });
+
+    // UTAA: single page (hero + archive). Frontend stores club name.
+    const CLUB_NAME = 'UTAA Music Club';
+
+    function renderHero(item) {
+      const heroCard = document.getElementById('heroCard');
+      const heroImg = document.getElementById('heroImg');
+      const heroDate = document.getElementById('heroDate');
+      const heroTitle = document.getElementById('heroTitle');
+      const heroDesc = document.getElementById('heroDesc');
+      const d = new Date(item.yuklenme_tarihi);
+      const dateStr = d.toLocaleDateString('tr-TR', { year:'numeric', month:'long', day:'numeric' });
+      heroImg.src = item.dosya_url;
+      heroDate.textContent = dateStr;
+      heroTitle.textContent = item.aciklama || 'Gönderi';
+      heroDesc.textContent = '';
+      heroCard.style.display = 'grid';
+    }
+
+    function renderArchive(items) {
+      const grid = document.getElementById('archiveGrid');
+      grid.innerHTML = items.map(item => {
+        const d = new Date(item.yuklenme_tarihi);
+        const dateStr = d.toLocaleDateString('tr-TR', { year:'numeric', month:'long', day:'numeric' });
+        return `
+          <article class="card" data-id="${item.id}" data-src="${item.dosya_url}" data-caption="${item.aciklama || 'Gönderi'}">
+            <div class="thumb" style="overflow:hidden; border-style:solid; height:200px;">
+              <img src="${item.dosya_url}" alt="Gönderi" style="width:100%; height:100%; object-fit:cover; display:block;" />
+            </div>
+            <span class="date">${dateStr}</span>
+            <h3>${item.aciklama || 'Gönderi'}</h3>
+          </article>
+        `;
+      }).join('');
+      grid.querySelectorAll('.card').forEach(card => {
+        card.addEventListener('click', () => {
+          const src = card.getAttribute('data-src');
+          const caption = card.getAttribute('data-caption');
+          openLightbox(src, caption);
+        });
+      });
+    }
+
+    async function loadUTAA() {
+      const heroEmpty = document.getElementById('heroEmpty');
+      heroEmpty.style.display = 'none';
+      try {
+        const res = await fetch(`/api/utaa/news?kulup_adi=${encodeURIComponent(CLUB_NAME)}`);
+        if (!res.ok) throw new Error('Fetch failed');
+        const items = await res.json();
+        if (!items || items.length === 0) {
+          heroEmpty.style.display = 'block';
+          return;
+        }
+        renderHero(items[0]);
+        renderArchive(items.slice(1));
+      } catch (e) {
+        heroEmpty.style.display = 'block';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadUTAA);
+
+    // Lightbox functions
+    function openLightbox(src, caption) {
+      document.getElementById('lightboxImg').src = src;
+      document.getElementById('lightboxCaption').textContent = caption || '';
+      document.getElementById('lightbox').classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('show');
+      document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeLightbox(); });
+  </script>
+</body>
+</html>

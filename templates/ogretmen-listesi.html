@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Öğretmen Değerlendirmeleri - THKÜ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 24px 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        h1 {
+            color: #1a202c;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-add {
+            background: #805ad5;
+            color: white;
+        }
+
+        .btn-add:hover {
+            background: #6b46c1;
+        }
+
+        .btn-home {
+            background: #3182ce;
+            color: white;
+        }
+
+        .btn-home:hover {
+            background: #2c5282;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            background: white;
+            border-radius: 12px;
+            color: #718096;
+            font-size: 1em;
+        }
+
+        .teachers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 24px;
+        }
+
+        .teacher-card {
+            background: white;
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .teacher-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .teacher-name {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .rating-section {
+            margin-bottom: 16px;
+        }
+
+        .rating-title {
+            font-size: 0.875em;
+            color: #718096;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stars-display {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 6px;
+        }
+
+        .star-filled {
+            color: #fbbf24;
+            font-size: 18px;
+        }
+
+        .star-empty {
+            color: #e2e8f0;
+            font-size: 18px;
+        }
+
+        .rating-value {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #805ad5;
+        }
+
+        /* YENİ EKLENEN CSS KISIMLARI: ETİKETLER */
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 15px 0;
+            padding-top: 15px;
+            border-top: 1px dashed #e2e8f0;
+        }
+
+        .tag-badge {
+            background: #edf2f7;
+            color: #4a5568;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .tag-high-rate {
+            background: #e9d8fd;
+            color: #553c9a;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 16px;
+            border-top: 1px solid #e2e8f0;
+            margin-top: auto; /* Kartın en altına itmek için */
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            color: #a0aec0;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .empty-state h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+
+        .empty-state p {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👨‍🏫 Öğretmen Değerlendirmeleri</h1>
+            <nav style="display: flex; gap: 8px; flex: 1; justify-content: center; flex-wrap: wrap;">
+                <a href="/" style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568;">Ana Sayfa</a>
+                <a href="/ders-notlari" style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568;">📚 Ders Notları</a>
+                <a href="/ogretmen-listesi" style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #2d3748; background: #edf2f7;">👨‍🏫 Öğretmenler</a>
+                <a href="/yemekhane" style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568;">🍽️ Yemek Menüsü</a>
+                <a href="/otobus-saatleri" style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568;">🚌 Otobüs Saatleri</a>
+                <a href="/kroki" style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568;">🗺️ Kampüs Krokisi</a>
+            </nav>
+            <div class="nav-buttons">
+                <a href="/ogretmen-degerlendirme" class="btn btn-add">+ Değerlendirme Yap</a>
+                <a href="/" class="btn btn-home">← Ana Sayfa</a>
+            </div>
+        </div>
+
+        <div id="loading" class="loading">
+            Yükleniyor...
+        </div>
+
+        <div id="teachersGrid" class="teachers-grid" style="display: none;"></div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <h2>📚 Henüz Değerlendirme Yok</h2>
+            <p>İlk değerlendirmeyi siz ekleyin!</p>
+            <a href="/ogretmen-degerlendirme" class="btn btn-add">+ Değerlendirme Ekle</a>
+        </div>
+    </div>
+
+    <script>
+        // Etiketlerin Türkçe karşılıkları ve ikonları
+        const etiketIsimleri = {
+            'slayttan_isler': '📽️ Slayttan İşler',
+            'yoklama_alir': '📝 Yoklama Alır',
+            'kitap_onemli': '📚 Kitap Önemli',
+            'kanaat_notu': '✨ Kanaat Kullanır',
+            'projeye_onem': '💻 Proje Önemli'
+        };
+
+        async function loadTeachers() {
+            try {
+                const response = await fetch('/api/ogretmen-degerlendirmeleri');
+                const data = await response.json();
+
+                document.getElementById('loading').style.display = 'none';
+
+                if (data.length === 0) {
+                    document.getElementById('emptyState').style.display = 'block';
+                    return;
+                }
+
+                displayTeachers(data);
+                document.getElementById('teachersGrid').style.display = 'grid';
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loading').innerHTML = '<p style="color: red;">Veriler yüklenirken hata oluştu!</p>';
+            }
+        }
+
+        function displayTeachers(teachers) {
+            const grid = document.getElementById('teachersGrid');
+            grid.innerHTML = '';
+
+            teachers.forEach(teacher => {
+                const card = createTeacherCard(teacher);
+                grid.appendChild(card);
+            });
+        }
+
+        function createTeacherCard(teacher) {
+            const card = document.createElement('div');
+            card.className = 'teacher-card';
+
+            // Etiket HTML'ini oluştur
+            let tagsHtml = '<div class="tags-container">';
+            if (teacher.etiketler) {
+                for (const [key, value] of Object.entries(teacher.etiketler)) {
+                    // Eğer oran %0'dan büyükse göster
+                    if (value > 0) {
+                        // Eğer oran %50'den büyükse vurgulu renk kullan
+                        const activeClass = value > 50 ? 'tag-high-rate' : '';
+                        tagsHtml += `
+                            <span class="tag-badge ${activeClass}">
+                                ${etiketIsimleri[key] || key}: %${Math.round(value)}
+                            </span>
+                        `;
+                    }
+                }
+            }
+            tagsHtml += '</div>';
+
+            card.innerHTML = `
+                <div class="teacher-name">
+                    👨‍🏫 ${teacher.ad} ${teacher.soyad}
+                </div>
+
+                <div class="rating-section">
+                    <div class="rating-title">📚 Ders Anlatma</div>
+                    <div class="stars-display">
+                        ${generateStars(teacher.ders_anlatma_ort)}
+                    </div>
+                    <div class="rating-value">${teacher.ders_anlatma_ort.toFixed(1)} / 5.0</div>
+                </div>
+
+                <div class="rating-section">
+                    <div class="rating-title">📝 Sınav Zorluğu</div>
+                    <div class="stars-display">
+                        ${generateStars(teacher.sinav_zorlugu_ort)}
+                    </div>
+                    <div class="rating-value">${teacher.sinav_zorlugu_ort.toFixed(1)} / 5.0</div>
+                </div>
+
+                ${tagsHtml}
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-label">Genel Ortalama</div>
+                        <div class="stat-value">${teacher.genel_ort.toFixed(1)}</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Değerlendirme Sayısı</div>
+                        <div class="stat-value">${teacher.degerlendirme_sayisi}</div>
+                    </div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        function generateStars(rating) {
+            let stars = '';
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+
+            for (let i = 0; i < fullStars; i++) {
+                stars += '<span class="star-filled">★</span>';
+            }
+
+            if (hasHalfStar && fullStars < 5) {
+                stars += '<span class="star-filled">★</span>';
+            }
+
+            const emptyStars = 5 - Math.ceil(rating);
+            for (let i = 0; i < emptyStars; i++) {
+                stars += '<span class="star-empty">★</span>';
+            }
+
+            return stars;
+        }
+
+        // Sayfa yüklendiğinde verileri getir
+        document.addEventListener('DOMContentLoaded', loadTeachers);
+    </script>
+</body>
+</html>

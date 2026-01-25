@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giriş Yap - THKÜ</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      background: #f8f9fa;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .login-container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e2e8f0;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #1a202c;
+      margin-bottom: 8px;
+      font-size: 1.875em;
+      font-weight: 600;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #718096;
+      margin-bottom: 32px;
+      font-size: 0.9em;
+      font-weight: 400;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: #4a5568;
+      font-weight: 500;
+      font-size: 0.9em;
+    }
+
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid #cbd5e0;
+      border-radius: 8px;
+      font-size: 0.95em;
+      transition: all 0.2s;
+      background: white;
+    }
+
+    input[type="email"]:focus,
+    input[type="password"]:focus {
+      outline: none;
+      border-color: #3182ce;
+      box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+    }
+
+    input[type="email"]::placeholder,
+    input[type="password"]::placeholder {
+      color: #a0aec0;
+    }
+
+    .email-hint {
+      font-size: 0.8em;
+      color: #718096;
+      margin-top: 6px;
+      display: block;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 12px;
+      background: #3182ce;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95em;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 8px;
+    }
+
+    .submit-btn:hover {
+      background: #2c5282;
+    }
+
+    .submit-btn:active {
+      transform: scale(0.98);
+    }
+
+    .register-link {
+      text-align: center;
+      margin-top: 24px;
+      color: #718096;
+      font-size: 0.9em;
+    }
+
+    .register-link a {
+      color: #805ad5;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .register-link a:hover {
+      color: #6b46c1;
+    }
+
+    .home-link {
+      text-align: center;
+      margin-top: 16px;
+    }
+
+    .home-link a {
+      color: #a0aec0;
+      text-decoration: none;
+      font-size: 0.875em;
+      transition: color 0.2s;
+    }
+
+    .home-link a:hover {
+      color: #718096;
+    }
+
+    .error-message {
+      background: #fff5f5;
+      border-left: 3px solid #e53e3e;
+      color: #c53030;
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 0.875em;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h1>Giriş Yap</h1>
+    <p class="subtitle">THKÜ Öğrenci Ofis Sistemi</p>
+
+    <form method="POST" action="/login" id="loginForm">
+      <div class="form-group">
+        <label for="email">Öğrenci E-postası</label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email" 
+          required 
+          placeholder="ornek@stu.thk.edu.tr"
+        >
+        <span class="email-hint">* Sadece @stu.thk.edu.tr uzantılı e-postalar kabul edilir</span>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Şifre</label>
+        <input type="password" id="password" name="password" required placeholder="Şifrenizi girin">
+      </div>
+
+      <button type="submit" class="submit-btn">Giriş Yap</button>
+    </form>
+
+    <div class="register-link">
+      Hesabınız yok mu? <a href="/signup">Kayıt Ol</a>
+    </div>
+
+    <div class="home-link">
+      <a href="/">← Anasayfaya Dön</a>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      const email = document.getElementById('email').value;
+      if (!email.endsWith('@stu.thk.edu.tr')) {
+        e.preventDefault();
+        alert('Lütfen geçerli bir THKÜ öğrenci e-postası kullanın (@stu.thk.edu.tr)');
+        return false;
+      }
+    });
+  </script>
+</body>
+</html>

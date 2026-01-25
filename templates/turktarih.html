@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Türk Tarih Topluluğu - THK Üniversitesi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Noto+Serif:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Türk Tarih Color System - Deep Blues & Gold */
+            --background-deep: #0a1628;
+            --background: #0d1f3c;
+            --background-alt: #132a4e;
+            --background-card: rgba(19, 42, 78, 0.8);
+            --foreground: #e8eef5;
+            --foreground-muted: #8fa3c4;
+            --foreground-subtle: rgba(232, 238, 245, 0.6);
+            --border: rgba(193, 167, 100, 0.3);
+            --border-bright: rgba(193, 167, 100, 0.6);
+            --accent: #c1a764;
+            --accent-bright: #d4bc7a;
+            --accent-glow: rgba(193, 167, 100, 0.25);
+            --wolf-blue: #3d6a99;
+            --wolf-blue-dark: #1e4976;
+            
+            /* Typography */
+            --font-heading: 'Cinzel', serif;
+            --font-body: 'Spectral', serif;
+            --font-accent: 'Noto Serif', serif;
+            
+            /* Effects */
+            --gold-gradient: linear-gradient(180deg, #d4bc7a 0%, #c1a764 50%, #a08a4a 100%);
+            --gold-text-gradient: linear-gradient(135deg, #d4bc7a, #c1a764, #f0e6c0, #c1a764);
+            
+            /* Spacing */
+            --radius: 8px;
+            --radius-lg: 16px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--background-deep);
+            color: var(--foreground);
+            line-height: 1.7;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           BACKGROUND SYSTEM - Wolf & Mountains
+        ═══════════════════════════════════════════════════════════ */
+        .background-system {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-image {
+            position: absolute;
+            inset: 0;
+            background: url('/static/kurt.webp') center center / cover no-repeat;
+            opacity: 0.25;
+        }
+
+        .bg-gradient-overlay {
+            position: absolute;
+            inset: 0;
+            background: 
+                linear-gradient(180deg, 
+                    rgba(10, 22, 40, 0.7) 0%, 
+                    rgba(13, 31, 60, 0.5) 30%,
+                    rgba(13, 31, 60, 0.6) 70%,
+                    rgba(10, 22, 40, 0.95) 100%
+                );
+        }
+
+        .bg-radial {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at top center, rgba(193, 167, 100, 0.08) 0%, transparent 60%);
+        }
+
+        .bg-noise {
+            position: absolute;
+            inset: 0;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        /* Animated Stars */
+        .stars {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+        }
+
+        .star {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           HEADER / NAVIGATION
+        ═══════════════════════════════════════════════════════════ */
+        header {
+            position: relative;
+            z-index: 100;
+            background: linear-gradient(180deg, var(--background-alt) 0%, transparent 100%);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .header-logo {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            padding: 4px;
+            background: var(--background-deep);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .header-logo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px var(--accent-glow);
+        }
+
+        .header-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .header-title {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .header-title h1 {
+            font-family: var(--font-heading);
+            font-size: 1.6rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            background: var(--gold-text-gradient);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: goldShimmer 4s ease infinite;
+        }
+
+        @keyframes goldShimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .header-title span {
+            font-size: 0.85rem;
+            color: var(--foreground-muted);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-link {
+            padding: 0.6rem 1.2rem;
+            color: var(--foreground-muted);
+            text-decoration: none;
+            font-family: var(--font-accent);
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-radius: var(--radius);
+            transition: all 0.25s ease;
+            border: 1px solid transparent;
+        }
+
+        .nav-link:hover {
+            color: var(--accent);
+            background: rgba(193, 167, 100, 0.1);
+            border-color: var(--border);
+        }
+
+        .nav-link.active {
+            color: var(--accent);
+            background: rgba(193, 167, 100, 0.15);
+            border-color: var(--border);
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--foreground-muted);
+            font-family: var(--font-accent);
+            font-size: 0.85rem;
+            border-radius: var(--radius);
+            text-decoration: none;
+            transition: all 0.25s ease;
+        }
+
+        .btn-back:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(193, 167, 100, 0.1);
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           HERO SECTION
+        ═══════════════════════════════════════════════════════════ */
+        .hero {
+            position: relative;
+            z-index: 10;
+            padding: 6rem 2rem 4rem;
+            text-align: center;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero-emblem {
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 2rem;
+            border-radius: 50%;
+            border: 3px solid var(--accent);
+            padding: 8px;
+            background: var(--background-deep);
+            box-shadow: 
+                0 0 40px var(--accent-glow),
+                inset 0 0 20px rgba(193, 167, 100, 0.1);
+            animation: emblemGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes emblemGlow {
+            0%, 100% { box-shadow: 0 0 40px var(--accent-glow), inset 0 0 20px rgba(193, 167, 100, 0.1); }
+            50% { box-shadow: 0 0 60px var(--accent-glow), inset 0 0 30px rgba(193, 167, 100, 0.15); }
+        }
+
+        .hero-emblem img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .hero-title {
+            font-family: var(--font-heading);
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+            background: var(--gold-text-gradient);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: goldShimmer 4s ease infinite;
+            text-shadow: 0 0 40px var(--accent-glow);
+        }
+
+        .hero-subtitle {
+            font-family: var(--font-body);
+            font-size: 1.2rem;
+            color: var(--foreground-muted);
+            font-style: italic;
+            margin-bottom: 2rem;
+            line-height: 1.8;
+        }
+
+        .hero-quote {
+            font-family: var(--font-heading);
+            font-size: 1.1rem;
+            color: var(--accent);
+            letter-spacing: 0.05em;
+            padding: 1.5rem 2rem;
+            border-left: 3px solid var(--accent);
+            border-right: 3px solid var(--accent);
+            background: rgba(193, 167, 100, 0.05);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           MAIN CONTENT
+        ═══════════════════════════════════════════════════════════ */
+        .main-wrapper {
+            position: relative;
+            z-index: 10;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem 4rem;
+        }
+
+        /* Section Headers */
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-tag {
+            display: inline-block;
+            font-family: var(--font-heading);
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 0.75rem;
+            padding: 0.5rem 1.5rem;
+            border: 1px solid var(--border);
+            background: rgba(193, 167, 100, 0.05);
+        }
+
+        .section-title {
+            font-family: var(--font-heading);
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            color: var(--foreground);
+            margin-bottom: 0.5rem;
+        }
+
+        .section-subtitle {
+            font-size: 1rem;
+            color: var(--foreground-muted);
+            font-style: italic;
+        }
+
+        /* Decorative Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin: 3rem 0;
+        }
+
+        .divider-line {
+            flex: 1;
+            max-width: 200px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-bright), transparent);
+        }
+
+        .divider-icon {
+            color: var(--accent);
+            font-size: 1.25rem;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           FEATURED POST (HERO CARD)
+        ═══════════════════════════════════════════════════════════ */
+        .featured-section {
+            margin-bottom: 4rem;
+        }
+
+        .featured-card {
+            background: var(--background-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .featured-card:hover {
+            border-color: var(--border-bright);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 40px var(--accent-glow);
+            transform: translateY(-4px);
+        }
+
+        .featured-image-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            overflow: hidden;
+        }
+
+        .featured-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .featured-card:hover .featured-image {
+            transform: scale(1.05);
+        }
+
+        .featured-image-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent 0%, transparent 40%, var(--background-deep) 100%);
+        }
+
+        .featured-badge {
+            position: absolute;
+            top: 1.5rem;
+            left: 1.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--accent);
+            color: var(--background-deep);
+            font-family: var(--font-heading);
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            border-radius: var(--radius);
+        }
+
+        .featured-content {
+            padding: 2rem;
+        }
+
+        .featured-date {
+            font-size: 0.85rem;
+            color: var(--accent);
+            margin-bottom: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        .featured-title {
+            font-family: var(--font-heading);
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--foreground);
+            margin-bottom: 1rem;
+            letter-spacing: 0.02em;
+        }
+
+        .featured-description {
+            font-size: 1.05rem;
+            color: var(--foreground-muted);
+            line-height: 1.8;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           ARCHIVE GRID
+        ═══════════════════════════════════════════════════════════ */
+        .archive-section {
+            margin-bottom: 4rem;
+        }
+
+        .archive-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .archive-card {
+            background: var(--background-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            transition: all 0.35s ease;
+            cursor: pointer;
+        }
+
+        .archive-card:hover {
+            border-color: var(--border-bright);
+            transform: translateY(-6px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3), 0 0 30px var(--accent-glow);
+        }
+
+        .archive-image-container {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .archive-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .archive-card:hover .archive-image {
+            transform: scale(1.08);
+        }
+
+        .archive-image-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent 50%, var(--background-deep) 100%);
+        }
+
+        .archive-content {
+            padding: 1.25rem;
+        }
+
+        .archive-date {
+            font-size: 0.8rem;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.05em;
+        }
+
+        .archive-title {
+            font-family: var(--font-heading);
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--foreground);
+            letter-spacing: 0.02em;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           ABOUT SECTION
+        ═══════════════════════════════════════════════════════════ */
+        .about-section {
+            margin-bottom: 4rem;
+            padding: 3rem;
+            background: var(--background-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            backdrop-filter: blur(10px);
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .about-content {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .about-text h3 {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            letter-spacing: 0.05em;
+        }
+
+        .about-text p {
+            color: var(--foreground-muted);
+            line-height: 1.9;
+            margin-bottom: 1rem;
+        }
+
+        .about-features {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(193, 167, 100, 0.05);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            border-color: var(--border-bright);
+            background: rgba(193, 167, 100, 0.1);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--background-deep);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .feature-text h4 {
+            font-family: var(--font-heading);
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--foreground);
+            margin-bottom: 0.25rem;
+            letter-spacing: 0.03em;
+        }
+
+        .feature-text p {
+            font-size: 0.9rem;
+            color: var(--foreground-muted);
+            margin: 0;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           EVENTS TABLE
+        ═══════════════════════════════════════════════════════════ */
+        .events-section {
+            margin-bottom: 4rem;
+        }
+
+        .events-table-container {
+            background: var(--background-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .events-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .events-table th {
+            font-family: var(--font-heading);
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--accent);
+            background: var(--background-deep);
+            padding: 1rem 1.25rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .events-table td {
+            padding: 1rem 1.25rem;
+            color: var(--foreground-muted);
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
+
+        .events-table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .events-table tbody tr:hover {
+            background: rgba(193, 167, 100, 0.05);
+        }
+
+        .events-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .event-name {
+            font-family: var(--font-accent);
+            font-weight: 500;
+            color: var(--foreground);
+        }
+
+        .event-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            border-radius: 100px;
+            text-transform: uppercase;
+        }
+
+        .event-badge.upcoming {
+            background: rgba(74, 222, 128, 0.15);
+            color: #4ade80;
+            border: 1px solid rgba(74, 222, 128, 0.3);
+        }
+
+        .event-badge.past {
+            background: rgba(148, 163, 184, 0.15);
+            color: #94a3b8;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           FOOTER
+        ═══════════════════════════════════════════════════════════ */
+        footer {
+            position: relative;
+            z-index: 10;
+            background: var(--background-deep);
+            border-top: 1px solid var(--border);
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 1rem;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            padding: 4px;
+            background: var(--background);
+        }
+
+        .footer-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .footer-title {
+            font-family: var(--font-heading);
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--accent);
+            letter-spacing: 0.08em;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-subtitle {
+            font-size: 0.9rem;
+            color: var(--foreground-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: var(--foreground-subtle);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--accent);
+        }
+
+        .footer-copyright {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            font-size: 0.8rem;
+            color: var(--foreground-subtle);
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           LIGHTBOX MODAL
+        ═══════════════════════════════════════════════════════════ */
+        .lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(10, 22, 40, 0.95);
+            backdrop-filter: blur(10px);
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox-content {
+            position: relative;
+            max-width: 90vw;
+            max-height: 90vh;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: -50px;
+            right: 0;
+            width: 40px;
+            height: 40px;
+            background: var(--background-card);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            color: var(--foreground);
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .lightbox-close:hover {
+            background: var(--accent);
+            color: var(--background-deep);
+            border-color: var(--accent);
+        }
+
+        .lightbox-image {
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+            border-radius: var(--radius-lg);
+            border: 2px solid var(--border);
+        }
+
+        .lightbox-caption {
+            text-align: center;
+            padding: 1rem;
+            color: var(--foreground-muted);
+            font-style: italic;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           EMPTY STATE
+        ═══════════════════════════════════════════════════════════ */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--background-card);
+            border: 1px dashed var(--border);
+            border-radius: var(--radius-lg);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--foreground);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-text {
+            color: var(--foreground-muted);
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           RESPONSIVE
+        ═══════════════════════════════════════════════════════════ */
+        @media (max-width: 768px) {
+            .header-container {
+                padding: 1rem;
+            }
+
+            .header-nav {
+                display: none;
+            }
+
+            .hero {
+                padding: 4rem 1rem 3rem;
+            }
+
+            .hero-emblem {
+                width: 100px;
+                height: 100px;
+            }
+
+            .hero-quote {
+                padding: 1rem;
+                font-size: 1rem;
+            }
+
+            .main-wrapper {
+                padding: 0 1rem 3rem;
+            }
+
+            .featured-image-container {
+                height: 250px;
+            }
+
+            .featured-content {
+                padding: 1.5rem;
+            }
+
+            .about-section {
+                padding: 1.5rem;
+            }
+
+            .events-table th,
+            .events-table td {
+                padding: 0.75rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           LOADING STATE
+        ═══════════════════════════════════════════════════════════ */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background System -->
+    <div class="background-system">
+        <div class="bg-image"></div>
+        <div class="bg-gradient-overlay"></div>
+        <div class="bg-radial"></div>
+        <div class="bg-noise"></div>
+        <div class="stars" id="stars"></div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <div class="header-left">
+                <div class="header-logo">
+                    <img src="/static/turktarih.jpg" alt="Türk Tarih Topluluğu Logo">
+                </div>
+                <div class="header-title">
+                    <h1>TÜRK TARİH TOPLULUĞU</h1>
+                    <span>THK Üniversitesi</span>
+                </div>
+            </div>
+            <nav class="header-nav">
+                <a href="#featured" class="nav-link active">Haberler</a>
+                <a href="#archive" class="nav-link">Arşiv</a>
+                <a href="#about" class="nav-link">Hakkımızda</a>
+                <a href="#events" class="nav-link">Etkinlikler</a>
+            </nav>
+            <a href="/" class="btn-back">
+                <span>←</span> Ana Sayfa
+            </a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-emblem">
+                <img src="/static/turktarih.jpg" alt="Türk Tarih Topluluğu">
+            </div>
+            <h1 class="hero-title">TÜRK TARİH TOPLULUĞU</h1>
+            <p class="hero-subtitle">
+                Tarihimizi öğrenmek, araştırmak ve gelecek nesillere aktarmak için bir araya geliyoruz.
+            </p>
+            <blockquote class="hero-quote">
+                "Tarih yazmak, tarih yapmak kadar mühimdir. Yazan, yapana sadık kalmazsa, 
+                değişmeyen hakikat, insanlığı şaşırtacak bir mahiyet alır."
+                <br><small>— Mustafa Kemal Atatürk</small>
+            </blockquote>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-wrapper">
+        <!-- Featured Post Section -->
+        <section class="featured-section" id="featured">
+            <div class="section-header">
+                <span class="section-tag">✦ Son Paylaşım ✦</span>
+                <h2 class="section-title">Öne Çıkan İçerik</h2>
+            </div>
+            
+            <div id="featuredPost">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider">
+            <div class="divider-line"></div>
+            <span class="divider-icon">☽</span>
+            <div class="divider-line"></div>
+        </div>
+
+        <!-- Archive Section -->
+        <section class="archive-section" id="archive">
+            <div class="section-header">
+                <span class="section-tag">✦ Arşiv ✦</span>
+                <h2 class="section-title">Geçmiş Paylaşımlar</h2>
+                <p class="section-subtitle">Topluluk faaliyetlerimizden kareler</p>
+            </div>
+            
+            <div id="archiveGrid" class="archive-grid">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider">
+            <div class="divider-line"></div>
+            <span class="divider-icon">🐺</span>
+            <div class="divider-line"></div>
+        </div>
+
+        <!-- About Section -->
+        <section class="about-section" id="about">
+            <div class="section-header">
+                <span class="section-tag">✦ Hakkımızda ✦</span>
+                <h2 class="section-title">Topluluğumuz</h2>
+            </div>
+
+            <div class="about-content">
+                <div class="about-text">
+                    <h3>Misyonumuz</h3>
+                    <p>
+                        Türk Tarih Topluluğu olarak, binlerce yıllık Türk tarihini ve kültürünü 
+                        araştırmak, korumak ve yaygınlaştırmak amacıyla kurulduk.
+                    </p>
+                    <p>
+                        Ergenekon'dan Anadolu'ya, Orta Asya'dan dünya tarihine uzanan bu büyük 
+                        medeniyetin izlerini takip ederek, geçmişimizi anlıyor, geleceğimizi aydınlatıyoruz.
+                    </p>
+                </div>
+                <div class="about-features">
+                    <div class="feature-item">
+                        <div class="feature-icon">📜</div>
+                        <div class="feature-text">
+                            <h4>Tarih Seminerleri</h4>
+                            <p>Uzman konuşmacılarla haftalık seminerler</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🏛️</div>
+                        <div class="feature-text">
+                            <h4>Müze Gezileri</h4>
+                            <p>Ankara ve çevresindeki tarihi mekanları keşfet</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">📚</div>
+                        <div class="feature-text">
+                            <h4>Kitap Kulübü</h4>
+                            <p>Aylık tarih kitabı okumaları ve tartışmalar</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🎬</div>
+                        <div class="feature-text">
+                            <h4>Belgesel Gösterimleri</h4>
+                            <p>Özel tarih belgeselleri ve film geceleri</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider">
+            <div class="divider-line"></div>
+            <span class="divider-icon">⚔</span>
+            <div class="divider-line"></div>
+        </div>
+
+        <!-- Events Section -->
+        <section class="events-section" id="events">
+            <div class="section-header">
+                <span class="section-tag">✦ Etkinlik Takvimi ✦</span>
+                <h2 class="section-title">Yaklaşan Etkinlikler</h2>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="/static/turktarih.jpg" alt="Türk Tarih Topluluğu">
+            </div>
+            <h3 class="footer-title">TÜRK TARİH TOPLULUĞU</h3>
+            <p class="footer-subtitle">THK Üniversitesi Öğrenci Kulübü</p>
+            <div class="footer-links">
+                <a href="/" class="footer-link">Ana Sayfa</a>
+                <a href="#featured" class="footer-link">Haberler</a>
+                <a href="#about" class="footer-link">Hakkımızda</a>
+                <a href="#events" class="footer-link">Etkinlikler</a>
+            </div>
+            <p class="footer-copyright">
+                © 2026 Türk Tarih Topluluğu — THK Üniversitesi
+            </p>
+        </div>
+    </footer>
+
+    <!-- Lightbox Modal -->
+    <div class="lightbox" id="lightbox">
+        <div class="lightbox-content">
+            <button class="lightbox-close" onclick="closeLightbox()">×</button>
+            <img src="" alt="" class="lightbox-image" id="lightboxImage">
+            <p class="lightbox-caption" id="lightboxCaption"></p>
+        </div>
+    </div>
+
+    <script>
+        // Generate stars
+        function generateStars() {
+            const starsContainer = document.getElementById('stars');
+            const starCount = 50;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 60 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (2 + Math.random() * 2) + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+        generateStars();
+
+        // Lightbox functions
+        function openLightbox(src, caption) {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImage = document.getElementById('lightboxImage');
+            const lightboxCaption = document.getElementById('lightboxCaption');
+            
+            lightboxImage.src = src;
+            lightboxCaption.textContent = caption || '';
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            lightbox.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Close lightbox with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeLightbox();
+        });
+
+        // Close lightbox when clicking outside
+        document.getElementById('lightbox').addEventListener('click', (e) => {
+            if (e.target.id === 'lightbox') closeLightbox();
+        });
+
+        // Format date
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('tr-TR', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+        }
+
+        // Load content from API
+        async function loadContent() {
+            try {
+                const response = await fetch('/api/utaa/news?kulup_adi=Türk Tarih Topluluğu');
+                const data = await response.json();
+                
+                const featuredContainer = document.getElementById('featuredPost');
+                const archiveGrid = document.getElementById('archiveGrid');
+                
+                if (!data || data.length === 0) {
+                    featuredContainer.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">🏛️</div>
+                            <h3 class="empty-title">Henüz içerik yok</h3>
+                            <p class="empty-text">Türk Tarih Topluluğu yakında içeriklerini paylaşacak.</p>
+                        </div>
+                    `;
+                    archiveGrid.innerHTML = '';
+                    return;
+                }
+                
+                // Latest post (featured)
+                const latest = data[0];
+                const isImage = latest.dosya_tipi && latest.dosya_tipi.startsWith('image/');
+                
+                featuredContainer.innerHTML = `
+                    <article class="featured-card" ${isImage ? `data-src="/uploads/kulup/${latest.dosya_adi}" data-caption="${latest.aciklama || ''}" onclick="openLightbox(this.dataset.src, this.dataset.caption)"` : ''}>
+                        ${isImage ? `
+                            <div class="featured-image-container">
+                                <img src="/uploads/kulup/${latest.dosya_adi}" alt="${latest.aciklama || 'Türk Tarih Topluluğu'}" class="featured-image">
+                                <div class="featured-image-overlay"></div>
+                                <span class="featured-badge">✦ Yeni</span>
+                            </div>
+                        ` : ''}
+                        <div class="featured-content">
+                            <p class="featured-date">${formatDate(latest.yuklenme_tarihi)}</p>
+                            <h3 class="featured-title">${latest.aciklama || 'Türk Tarih Topluluğu Paylaşımı'}</h3>
+                            ${!isImage && latest.dosya_adi ? `
+                                <p class="featured-description">
+                                    <a href="/uploads/kulup/${latest.dosya_adi}" target="_blank" style="color: var(--accent);">
+                                        📄 Dosyayı Görüntüle
+                                    </a>
+                                </p>
+                            ` : ''}
+                        </div>
+                    </article>
+                `;
+                
+                // Archive posts (rest)
+                if (data.length > 1) {
+                    const archiveItems = data.slice(1);
+                    archiveGrid.innerHTML = archiveItems.map(item => {
+                        const itemIsImage = item.dosya_tipi && item.dosya_tipi.startsWith('image/');
+                        return `
+                            <article class="archive-card" ${itemIsImage ? `data-src="/uploads/kulup/${item.dosya_adi}" data-caption="${item.aciklama || ''}" onclick="openLightbox(this.dataset.src, this.dataset.caption)"` : ''}>
+                                ${itemIsImage ? `
+                                    <div class="archive-image-container">
+                                        <img src="/uploads/kulup/${item.dosya_adi}" alt="${item.aciklama || ''}" class="archive-image">
+                                        <div class="archive-image-overlay"></div>
+                                    </div>
+                                ` : `
+                                    <div class="archive-image-container" style="background: var(--background-deep); display: flex; align-items: center; justify-content: center;">
+                                        <span style="font-size: 3rem; opacity: 0.5;">📜</span>
+                                    </div>
+                                `}
+                                <div class="archive-content">
+                                    <p class="archive-date">${formatDate(item.yuklenme_tarihi)}</p>
+                                    <h4 class="archive-title">${item.aciklama || 'Paylaşım'}</h4>
+                                </div>
+                            </article>
+                        `;
+                    }).join('');
+                } else {
+                    archiveGrid.innerHTML = '';
+                }
+                
+            } catch (error) {
+                console.error('İçerik yüklenirken hata:', error);
+                document.getElementById('featuredPost').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">⚠️</div>
+                        <h3 class="empty-title">Bağlantı Hatası</h3>
+                        <p class="empty-text">İçerikler yüklenirken bir hata oluştu.</p>
+                    </div>
+                `;
+                document.getElementById('archiveGrid').innerHTML = '';
+            }
+        }
+
+        // Load content on page load
+        loadContent();
+    </script>
+</body>
+</html>

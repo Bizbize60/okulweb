@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THKÜ Bit Pazarı</title>
+    <style>
+        /* Önceki CSS stilinize uyumlu modern tasarım */
+        body { font-family: 'Inter', sans-serif; background: #f8f9fa; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        
+        .header { background: white; padding: 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        
+        .filters { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; }
+        .filter-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid #e2e8f0; background: white; cursor: pointer; transition: 0.2s; white-space: nowrap; }
+        .filter-btn.active { background: #805ad5; color: white; border-color: #805ad5; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+        
+        .card { background: white; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; transition: 0.2s; }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px rgba(0,0,0,0.1); }
+        
+        .card-img { width: 100%; height: 200px; object-fit: cover; background: #edf2f7; }
+        .card-body { padding: 16px; }
+        
+        .price { font-size: 1.25em; font-weight: 700; color: #2d3748; margin-bottom: 4px; }
+        .title { font-size: 1em; font-weight: 600; color: #4a5568; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .meta { display: flex; justify-content: space-between; font-size: 0.8em; color: #718096; margin-bottom: 12px; }
+        
+        .contact-btn { display: block; width: 100%; padding: 8px; background: #38a169; color: white; text-align: center; text-decoration: none; border-radius: 6px; font-weight: 500; }
+        .contact-btn:hover { background: #2f855a; }
+        
+        .btn-add { background: #805ad5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1 style="font-size: 1.5em; color: #1a202c;">🛍️ Kampüs Pazarı</h1>
+                <p style="color: #718096;">Öğrenciden öğrenciye güvenli alışveriş</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <a href="/" style="padding: 10px 20px; text-decoration: none; color: #4a5568;">Ana Sayfa</a>
+                <a href="/ilan-ekle" class="btn-add">+ İlan Ver</a>
+            </div>
+        </div>
+
+        <div class="filters">
+            <button class="filter-btn active" onclick="filterItems('Tümü')">Tümü</button>
+            <button class="filter-btn" onclick="filterItems('Havacılık Ekipmanları')">✈️ Havacılık</button>
+            <button class="filter-btn" onclick="filterItems('Ders Materyalleri')">📚 Kitap/Not</button>
+            <button class="filter-btn" onclick="filterItems('Yurt Eşyaları')">🛏️ Yurt</button>
+        </div>
+
+        <div id="pazarGrid" class="grid">
+            <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #718096;">Yükleniyor...</div>
+        </div>
+    </div>
+
+    <script>
+        let allItems = [];
+
+        async function loadItems() {
+            try {
+                const res = await fetch('/api/ilanlar');
+                allItems = await res.json();
+                renderItems(allItems);
+            } catch (err) {
+                console.error(err);
+                document.getElementById('pazarGrid').innerHTML = 'Yükleme hatası.';
+            }
+        }
+
+        function renderItems(items) {
+            const grid = document.getElementById('pazarGrid');
+            if (items.length === 0) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px;">Henüz ilan yok. İlk ilanı sen ekle!</div>';
+                return;
+            }
+
+            grid.innerHTML = items.map(item => `
+                <div class="card">
+                    <img src="${item.resim_url}" class="card-img" alt="${item.baslik}" onerror="this.src='https://via.placeholder.com/300?text=Resim+Yok'">
+                    <div class="card-body">
+                        <div class="price">${item.fiyat} ₺</div>
+                        <div class="title" title="${item.baslik}">${item.baslik}</div>
+                        <div class="meta">
+                            <span>${item.kategori}</span>
+                            <span>${item.tarih}</span>
+                        </div>
+                        <a href="https://wa.me/90${item.iletisim.replace(/\D/g,'').slice(-10)}" target="_blank" class="contact-btn">
+                            📞 Satıcıyla İletişime Geç
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterItems(category) {
+            // Buton aktifliğini değiştir
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.textContent.includes(category) || (category === 'Tümü' && btn.textContent === 'Tümü')) {
+                    btn.classList.add('active');
+                }
+            });
+
+            if (category === 'Tümü') {
+                renderItems(allItems);
+            } else {
+                const filtered = allItems.filter(item => item.kategori === category);
+                renderItems(filtered);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadItems);
+    </script>
+</body>
+</html>

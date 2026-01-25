@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Öğretmen Değerlendirme - THKÜ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            padding: 40px;
+            border: 1px solid #e0e0e0;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 26px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #666;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: #333;
+        }
+
+        .rating-group {
+            margin-bottom: 25px;
+        }
+
+        .stars {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .star {
+            font-size: 32px;
+            color: #e0e0e0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .star:hover,
+        .star.active {
+            color: #333;
+        }
+
+        .tags-group {
+            margin-bottom: 25px;
+        }
+
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .tag-checkbox {
+            display: none;
+        }
+
+        .tag-label {
+            padding: 10px 16px;
+            background: #f5f5f5;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            color: #666;
+        }
+
+        .tag-checkbox:checked + .tag-label {
+            background: #333;
+            color: white;
+            border-color: #333;
+        }
+
+        .grade-group {
+            margin-bottom: 30px;
+        }
+
+        .grade-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .grade-radio {
+            display: none;
+        }
+
+        .grade-label {
+            padding: 12px;
+            background: #f5f5f5;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            color: #666;
+            text-align: center;
+        }
+
+        .grade-radio:checked + .grade-label {
+            background: #333;
+            color: white;
+            border-color: #333;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .submit-btn:hover {
+            background: #000;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #666;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .back-link:hover {
+            color: #333;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background: #f0f9ff;
+            color: #0369a1;
+            border: 1px solid #bae6fd;
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/ogretmen-listesi" class="back-link">← Geri Dön</a>
+        
+        <h1>Öğretmen Değerlendirmesi</h1>
+        <p class="subtitle">Deneyimlerinizi paylaşarak diğer öğrencilere yardımcı olun</p>
+
+        <div id="alert-container"></div>
+
+        <form id="degerlendirme-form">
+            <div class="form-group">
+                <label for="ad">Öğretim Görevlisi Adı</label>
+                <input type="text" id="ad" name="ad" required>
+            </div>
+
+            <div class="form-group">
+                <label for="soyad">Soyadı</label>
+                <input type="text" id="soyad" name="soyad" required>
+            </div>
+
+            <div class="rating-group">
+                <label class="rating-label">Ders Anlatma Kalitesi</label>
+                <div class="stars" id="ders-stars">
+                    <span class="star" data-value="1">★</span>
+                    <span class="star" data-value="2">★</span>
+                    <span class="star" data-value="3">★</span>
+                    <span class="star" data-value="4">★</span>
+                    <span class="star" data-value="5">★</span>
+                </div>
+                <input type="hidden" id="ders_anlatma" name="ders_anlatma" required>
+            </div>
+
+            <div class="rating-group">
+                <label class="rating-label">Sınav Zorluğu</label>
+                <div class="stars" id="sinav-stars">
+                    <span class="star" data-value="1">★</span>
+                    <span class="star" data-value="2">★</span>
+                    <span class="star" data-value="3">★</span>
+                    <span class="star" data-value="4">★</span>
+                    <span class="star" data-value="5">★</span>
+                </div>
+                <input type="hidden" id="sinav_zorlugu" name="sinav_zorlugu" required>
+            </div>
+
+            <div class="tags-group">
+                <label>Öğretim Görevlisi Özellikleri (seçenekli)</label>
+                <div class="tags-container">
+                    <input type="checkbox" id="slayttan_isler" name="slayttan_isler" class="tag-checkbox">
+                    <label for="slayttan_isler" class="tag-label">📊 Slayttan İşler</label>
+
+                    <input type="checkbox" id="yoklama_alir" name="yoklama_alir" class="tag-checkbox">
+                    <label for="yoklama_alir" class="tag-label">✓ Yoklama Alır</label>
+
+                    <input type="checkbox" id="kitap_onemli" name="kitap_onemli" class="tag-checkbox">
+                    <label for="kitap_onemli" class="tag-label">📚 Kitap Önemli</label>
+
+                    <input type="checkbox" id="kanaat_notu" name="kanaat_notu" class="tag-checkbox">
+                    <label for="kanaat_notu" class="tag-label">💭 Kanaat Notu Kullanır</label>
+
+                    <input type="checkbox" id="projeye_onem" name="projeye_onem" class="tag-checkbox">
+                    <label for="projeye_onem" class="tag-label">🎯 Projeye Önem Verir</label>
+                </div>
+            </div>
+
+            <div class="grade-group">
+                <label>Aldığınız Harf Notu (seçenekli)</label>
+                <div class="grade-container">
+                    <input type="radio" id="grade_AA" name="alinan_harf_notu" value="AA" class="grade-radio">
+                    <label for="grade_AA" class="grade-label">AA</label>
+
+                    <input type="radio" id="grade_BA" name="alinan_harf_notu" value="BA" class="grade-radio">
+                    <label for="grade_BA" class="grade-label">BA</label>
+
+                    <input type="radio" id="grade_BB" name="alinan_harf_notu" value="BB" class="grade-radio">
+                    <label for="grade_BB" class="grade-label">BB</label>
+
+                    <input type="radio" id="grade_CB" name="alinan_harf_notu" value="CB" class="grade-radio">
+                    <label for="grade_CB" class="grade-label">CB</label>
+
+                    <input type="radio" id="grade_CC" name="alinan_harf_notu" value="CC" class="grade-radio">
+                    <label for="grade_CC" class="grade-label">CC</label>
+
+                    <input type="radio" id="grade_DC" name="alinan_harf_notu" value="DC" class="grade-radio">
+                    <label for="grade_DC" class="grade-label">DC</label>
+
+                    <input type="radio" id="grade_DD" name="alinan_harf_notu" value="DD" class="grade-radio">
+                    <label for="grade_DD" class="grade-label">DD</label>
+
+                    <input type="radio" id="grade_FD" name="alinan_harf_notu" value="FD" class="grade-radio">
+                    <label for="grade_FD" class="grade-label">FD</label>
+
+                    <input type="radio" id="grade_FF" name="alinan_harf_notu" value="FF" class="grade-radio">
+                    <label for="grade_FF" class="grade-label">FF</label>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">Değerlendirmeyi Gönder</button>
+        </form>
+    </div>
+
+    <script>
+        // Yıldız derecelendirme
+        function setupStars(containerId, inputId) {
+            const container = document.getElementById(containerId);
+            const stars = container.querySelectorAll('.star');
+            const input = document.getElementById(inputId);
+
+            stars.forEach((star, index) => {
+                star.addEventListener('click', () => {
+                    const value = star.getAttribute('data-value');
+                    input.value = value;
+
+                    stars.forEach((s, i) => {
+                        if (i < value) {
+                            s.classList.add('active');
+                        } else {
+                            s.classList.remove('active');
+                        }
+                    });
+                });
+            });
+        }
+
+        setupStars('ders-stars', 'ders_anlatma');
+        setupStars('sinav-stars', 'sinav_zorlugu');
+
+        // Form gönderimi
+        document.getElementById('degerlendirme-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(e.target);
+            const data = {};
+            
+            for (let [key, value] of formData.entries()) {
+                if (key.includes('_')) {
+                    data[key] = value;
+                }
+            }
+
+            // Checkboxları ekle
+            data.slayttan_isler = document.getElementById('slayttan_isler').checked;
+            data.yoklama_alir = document.getElementById('yoklama_alir').checked;
+            data.kitap_onemli = document.getElementById('kitap_onemli').checked;
+            data.kanaat_notu = document.getElementById('kanaat_notu').checked;
+            data.projeye_onem = document.getElementById('projeye_onem').checked;
+
+            // Text inputları ekle
+            data.ad = document.getElementById('ad').value;
+            data.soyad = document.getElementById('soyad').value;
+
+            try {
+                const response = await fetch('/api/degerlendirme-ekle', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showAlert('Değerlendirmeniz başarıyla gönderildi!', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/ogretmen-listesi';
+                    }, 1500);
+                } else {
+                    showAlert(result.message || 'Bir hata oluştu', 'error');
+                }
+            } catch (error) {
+                showAlert('Bir hata oluştu. Lütfen tekrar deneyin.', 'error');
+            }
+        });
+
+        function showAlert(message, type) {
+            const container = document.getElementById('alert-container');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            container.appendChild(alert);
+
+            setTimeout(() => {
+                alert.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kampüs Krokisi - THKÜ</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      background: #f8f9fa;
+      min-height: 100vh;
+      padding: 20px;
+      color: #2d3748;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: white;
+      border-radius: 12px;
+      padding: 20px 32px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    h1 {
+      color: #1a202c;
+      font-size: 1.5em;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .nav-menu {
+      display: flex;
+      gap: 8px;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .nav-link {
+      padding: 8px 16px;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 500;
+      font-size: 0.9em;
+      color: #4a5568;
+      transition: all 0.2s;
+      background: transparent;
+    }
+
+    .nav-link:hover {
+      background: #f7fafc;
+      color: #2d3748;
+    }
+
+    .nav-link.active {
+      background: #edf2f7;
+      color: #2d3748;
+    }
+
+    .btn-home {
+      padding: 10px 20px;
+      background: #3182ce;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.2s;
+      font-size: 0.9em;
+      flex-shrink: 0;
+    }
+
+    .btn-home:hover {
+      background: #2c5282;
+    }
+
+    .content-card {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e2e8f0;
+    }
+
+    h2 {
+      text-align: center;
+      color: #1a202c;
+      margin-bottom: 32px;
+      font-size: 1.5em;
+      font-weight: 600;
+    }
+
+    .kroki-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 24px;
+      margin-top: 24px;
+    }
+
+    .kroki-item {
+      background: #f7fafc;
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .kroki-item img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .kroki-item img:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .kroki-title {
+      text-align: center;
+      margin-top: 12px;
+      font-weight: 500;
+      color: #4a5568;
+      font-size: 0.95em;
+    }
+
+    /* Modal için */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      padding: 20px;
+    }
+
+    .modal-content {
+      margin: auto;
+      display: block;
+      max-width: 95%;
+      max-height: 95%;
+      object-fit: contain;
+    }
+
+    .close {
+      position: absolute;
+      top: 20px;
+      right: 35px;
+      color: #f1f1f1;
+      font-size: 40px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .close:hover {
+      color: #bbb;
+    }
+
+    @media (max-width: 768px) {
+      .kroki-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-menu {
+        order: 3;
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🗺️ Kampüs Krokisi</h1>
+      <nav class="nav-menu">
+        <a href="/" class="nav-link">Ana Sayfa</a>
+        <a href="/yemekhane" class="nav-link">🍽️ Yemek Menüsü</a>
+        <a href="/otobus-saatleri" class="nav-link">🚌 Otobüs Saatleri</a>
+        <a href="/kroki" class="nav-link active">🗺️ Kampüs Krokisi</a>
+      </nav>
+      <a href="/" class="btn-home">← Ana Sayfa</a>
+    </div>
+
+    <div class="content-card">
+      <h2>THKÜ Kampüs Haritası</h2>
+      <div class="kroki-grid">
+        <div class="kroki-item">
+          <img src="/static/kroki1.png" alt="Kampüs Krokisi 1" onclick="openModal(this.src)">
+          <div class="kroki-title">Fakülteler Binası İç Plan</div>
+        </div>
+        <div class="kroki-item">
+          <img src="/static/kroki2.png" alt="Kampüs Krokisi 2" onclick="openModal(this.src)">
+          <div class="kroki-title">Kampüs Genel Görünüm</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="imageModal" class="modal" onclick="closeModal()">
+    <span class="close">&times;</span>
+    <img class="modal-content" id="modalImage">
+  </div>
+
+  <script>
+    function openModal(imageSrc) {
+      const modal = document.getElementById('imageModal');
+      const modalImg = document.getElementById('modalImage');
+      modal.style.display = 'block';
+      modalImg.src = imageSrc;
+    }
+
+    function closeModal() {
+      document.getElementById('imageModal').style.display = 'none';
+    }
+
+    // ESC tuşu ile kapatma
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        closeModal();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Otobüs Saatleri - THKÜ</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      background: #f8f9fa;
+      min-height: 100vh;
+      padding: 20px;
+      color: #2d3748;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: #1a202c;
+      margin-bottom: 32px;
+      font-size: 2em;
+      font-weight: 600;
+    }
+
+    .header-buttons {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .btn-anasayfa {
+      padding: 10px 24px;
+      background: #3182ce;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.95em;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-anasayfa:hover {
+      background: #2c5282;
+    }
+
+    .btn-yenile {
+      padding: 10px 24px;
+      background: #38a169;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.95em;
+      margin-left: 12px;
+    }
+
+    .btn-yenile:hover {
+      background: #2f855a;
+    }
+
+    .durak-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 24px;
+      margin-top: 32px;
+    }
+
+    .durak-card {
+      background: white;
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e2e8f0;
+      transition: all 0.2s;
+    }
+
+    .durak-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .durak-baslik {
+      font-size: 1.4em;
+      font-weight: 600;
+      color: #1a202c;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .otobus-listesi {
+      list-style: none;
+    }
+
+    .otobus-item {
+      padding: 16px;
+      margin-bottom: 12px;
+      background: #f7fafc;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.2s;
+      border-left: 3px solid #3182ce;
+    }
+
+    .otobus-item:hover {
+      background: #edf2f7;
+    }
+
+    .hat-no {
+      font-size: 1.2em;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    .sure {
+      font-size: 1em;
+      font-weight: 500;
+      color: #38a169;
+      background: white;
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .bos-mesaj {
+      text-align: center;
+      padding: 30px;
+      color: #666;
+      font-style: italic;
+      font-size: 1.1em;
+    }
+
+    .yukleniyor {
+      text-align: center;
+      padding: 50px;
+      font-size: 1.3em;
+      color: #1e3c72;
+    }
+
+    .hata-mesaj {
+      background: rgba(220, 38, 38, 0.1);
+      border: 2px solid #dc2626;
+      color: #dc2626;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      font-weight: 600;
+      margin: 20px 0;
+    }
+
+    @media (max-width: 768px) {
+      .durak-container {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 1.8em;
+      }
+
+      .durak-card {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="background: white; border-radius: 12px; padding: 20px 32px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+      <h1 style="margin: 0; flex-shrink: 0; font-size: 1.5em;">🚌 Otobüs Saatleri</h1>
+      <nav style="display: flex; gap: 8px; flex: 1; justify-content: center; flex-wrap: wrap;">
+        <a href="/" style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568;">Ana Sayfa</a>
+        <a href="/yemekhane" style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568;">🍽️ Yemek Menüsü</a>
+        <a href="/otobus-saatleri" style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #2d3748; background: #edf2f7;">🚌 Otobüs Saatleri</a>
+        <a href="/kroki" style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568;">🗺️ Kampüs Krokisi</a>
+      </nav>
+      <div style="display: flex; gap: 12px; flex-shrink: 0;">
+        <button class="btn-yenile" onclick="otobusVerileriniGetir()">🔄 Yenile</button>
+        <a href="/" class="btn-anasayfa">← Ana Sayfa</a>
+      </div>
+    </div>
+    
+    <div id="duraklar-alani" class="durak-container">
+      <div class="yukleniyor">Otobüs bilgileri yükleniyor...</div>
+    </div>
+  </div>
+
+  <script>
+    const durakAdlari = {
+      "51325": "Durak 51325",
+      "51165": "Durak 51165",
+      "51164": "Durak 51164"
+    };
+
+    async function otobusVerileriniGetir() {
+      const durakAlani = document.getElementById('duraklar-alani');
+      durakAlani.innerHTML = '<div class="yukleniyor">Otobüs bilgileri yükleniyor...</div>';
+
+      try {
+        const response = await fetch('/api/otobus-saatleri');
+        
+        if (!response.ok) {
+          throw new Error('Veriler alınamadı');
+        }
+
+        const data = await response.json();
+        durakAlani.innerHTML = '';
+
+        // Her durak için kart oluştur
+        for (const [durakNo, otobusler] of Object.entries(data)) {
+          const durakCard = document.createElement('div');
+          durakCard.className = 'durak-card';
+
+          const durakBaslik = document.createElement('div');
+          durakBaslik.className = 'durak-baslik';
+          durakBaslik.textContent = durakAdlari[durakNo] || `Durak ${durakNo}`;
+          durakCard.appendChild(durakBaslik);
+
+          if (!otobusler || otobusler.length === 0) {
+            const bosMsg = document.createElement('div');
+            bosMsg.className = 'bos-mesaj';
+            bosMsg.textContent = 'Şu anda bu durakta otobüs bulunmuyor.';
+            durakCard.appendChild(bosMsg);
+          } else {
+            const liste = document.createElement('ul');
+            liste.className = 'otobus-listesi';
+
+            otobusler.forEach(otobus => {
+              const item = document.createElement('li');
+              item.className = 'otobus-item';
+
+              const hatNo = document.createElement('span');
+              hatNo.className = 'hat-no';
+              hatNo.textContent = `Hat ${otobus.hat}`;
+
+              const sure = document.createElement('span');
+              sure.className = 'sure';
+              sure.textContent = otobus.sure;
+
+              item.appendChild(hatNo);
+              item.appendChild(sure);
+              liste.appendChild(item);
+            });
+
+            durakCard.appendChild(liste);
+          }
+
+          durakAlani.appendChild(durakCard);
+        }
+
+      } catch (error) {
+        console.error('Hata:', error);
+        durakAlani.innerHTML = `
+          <div class="hata-mesaj">
+            ⚠️ Otobüs bilgileri yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.
+          </div>
+        `;
+      }
+    }
+
+    // Sayfa yüklendiğinde verileri getir
+    window.addEventListener('DOMContentLoaded', otobusVerileriniGetir);
+  </script>
+</body>
+</html>
