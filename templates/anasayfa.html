@@ -44,7 +44,7 @@
     }
 
     /* ═══════════════════════════════════════════════════════════
-       BACKGROUND SYSTEM
+       BACKGROUND SYSTEM - Layered Ambient Lighting
     ═══════════════════════════════════════════════════════════ */
     .background-system {
       position: fixed;
@@ -931,6 +931,7 @@
   </style>
 </head>
 <body>
+  <!-- Background System -->
   <div class="background-system">
     <div class="bg-gradient"></div>
     <div class="bg-noise"></div>
@@ -941,6 +942,7 @@
     <div class="blob blob-4"></div>
   </div>
 
+  <!-- Navigation -->
   <nav class="navbar">
     <div class="navbar-inner">
       <a href="/" class="logo">
@@ -948,15 +950,15 @@
         <div class="logo-text">THKÜ <span>Portal</span></div>
       </a>
 
+      <!-- Desktop Navigation -->
       <div class="nav-desktop" id="navDesktop">
         <a href="/" class="nav-link active">Ana Sayfa</a>
-        <a href="/KampusteHayat" class="nav-link">Kampüste Hayat</a>
-        <a href="/kayiplar" class="nav-link">Kayıp Eşya</a>
         <a href="/ofis-saatleri" class="nav-link">Ofis Saatleri</a>
         <a href="/yemekhane" class="nav-link">Yemekhane</a>
         <a href="/otobus-saatleri" class="nav-link">Otobüs</a>
         <a href="/bit-pazari" class="nav-link">Bit Pazarı</a>
         
+        <!-- Kulüpler Dropdown -->
         <div class="dropdown">
           <button class="dropdown-trigger">
             Kulüpler
@@ -989,11 +991,13 @@
         </div>
       </div>
 
+      <!-- Auth Buttons (Desktop) -->
       <div class="auth-buttons" id="authButtons">
         <a href="/login" class="btn btn-ghost">Giriş Yap</a>
         <a href="/signup" class="btn btn-primary">Kayıt Ol</a>
       </div>
 
+      <!-- Mobile Menu Button -->
       <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menüyü aç">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="menuIcon">
           <path d="M4 6h16M4 12h16M4 18h16"/>
@@ -1005,20 +1009,13 @@
     </div>
   </nav>
 
+  <!-- Mobile Menu -->
   <div class="mobile-menu" id="mobileMenu">
     <div class="mobile-nav-section">
       <div class="mobile-nav-title">Genel</div>
       <a href="/" class="mobile-nav-link">
         <span class="icon">🏠</span>
         Ana Sayfa
-      </a>
-      <a href="/KampusteHayat" class="mobile-nav-link">
-        <span class="icon">📸</span>
-        Kampüste Hayat
-      </a>
-      <a href="/kayiplar" class="mobile-nav-link">
-        <span class="icon">☂️</span>
-        Kayıp Eşya
       </a>
       <a href="/ofis-saatleri" class="mobile-nav-link">
         <span class="icon">📅</span>
@@ -1088,6 +1085,7 @@
     </div>
   </div>
 
+  <!-- Hero Section -->
   <section class="hero">
     <div class="hero-content">
       <div class="hero-badge">
@@ -1109,6 +1107,7 @@
     </div>
   </section>
 
+  <!-- Features Section -->
   <section class="features" id="features">
     <div class="features-header">
       <span class="section-tag">Özellikler</span>
@@ -1119,28 +1118,6 @@
     </div>
 
     <div class="bento-grid" id="bentoGrid">
-      
-      <a href="/KampusteHayat" class="bento-card">
-        <div class="bento-icon">📸</div>
-        <h3 class="bento-title">Kampüste Hayat</h3>
-        <p class="bento-description">Kampüsten enstantaneleri paylaşın, beğenin ve etkileşime geçin.</p>
-        <div class="bento-arrow">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M7 17L17 7M17 7H7M17 7v10"/>
-          </svg>
-        </div>
-      </a>
-
-      <a href="/kayiplar" class="bento-card">
-        <div class="bento-icon">☂️</div>
-        <h3 class="bento-title">Kayıp Eşya</h3>
-        <p class="bento-description">Kaybettiğiniz veya bulduğunuz eşyaları ilan verin.</p>
-        <div class="bento-arrow">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M7 17L17 7M17 7H7M17 7v10"/>
-          </svg>
-        </div>
-      </a>
       <a href="/ofis-saatleri" class="bento-card">
         <div class="bento-icon">📅</div>
         <h3 class="bento-title">Ofis Saatleri</h3>
@@ -1168,4 +1145,330 @@
         <h3 class="bento-title">Otobüs Saatleri</h3>
         <p class="bento-description">Kampüs servisi ve şehir otobüsü saatlerini öğrenin.</p>
         <div class="bento-arrow">
-          <svg viewBox="0 0 24 24" fill="none" stroke="
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M7 17L17 7M17 7H7M17 7v10"/>
+          </svg>
+        </div>
+      </a>
+
+      <a href="/ders-notlari" class="bento-card large" id="notesCard">
+        <div class="bento-icon">📚</div>
+        <h3 class="bento-title">Ders Notları</h3>
+        <p class="bento-description">Tüm derslerin notlarına erişin, kendi notlarınızı paylaşın ve arkadaşlarınızla çalışın.</p>
+        <div class="bento-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M7 17L17 7M17 7H7M17 7v10"/>
+          </svg>
+        </div>
+      </a>
+
+      <a href="/forum" class="bento-card" id="forumCard">
+        <div class="bento-icon">💬</div>
+        <h3 class="bento-title">Forum</h3>
+        <p class="bento-description">Öğrenci topluluğuyla sohbet edin, sorular sorun.</p>
+        <div class="bento-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M7 17L17 7M17 7H7M17 7v10"/>
+          </svg>
+        </div>
+      </a>
+
+      <a href="/bit-pazari" class="bento-card">
+        <div class="bento-icon">🛍️</div>
+        <h3 class="bento-title">Bit Pazarı</h3>
+        <p class="bento-description">İkinci el ürünler alın, satın veya takas edin.</p>
+        <div class="bento-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M7 17L17 7M17 7H7M17 7v10"/>
+          </svg>
+        </div>
+      </a>
+
+      <a href="/ogretmen-listesi" class="bento-card" id="teachersCard">
+        <div class="bento-icon">👨‍🏫</div>
+        <h3 class="bento-title">Öğretmen Değerlendirme</h3>
+        <p class="bento-description">Öğretmenleri değerlendirin ve yorumları okuyun.</p>
+        <div class="bento-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M7 17L17 7M17 7H7M17 7v10"/>
+          </svg>
+        </div>
+      </a>
+
+      <a href="/kroki" class="bento-card">
+        <div class="bento-icon">🗺️</div>
+        <h3 class="bento-title">Kampüs Krokisi</h3>
+        <p class="bento-description">Kampüs içinde yolunuzu bulun, binaları keşfedin.</p>
+        <div class="bento-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M7 17L17 7M17 7H7M17 7v10"/>
+          </svg>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- Clubs Section -->
+  <section class="clubs-section">
+    <div class="features-header">
+      <span class="section-tag">Öğrenci Kulüpleri</span>
+      <h2 class="section-title">Kulüpleri keşfet</h2>
+      <p class="section-subtitle">
+        THKÜ'nün aktif öğrenci kulüplerine göz atın ve etkinliklerden haberdar olun.
+      </p>
+    </div>
+
+    <div class="clubs-grid">
+      <a href="/kulupler/kanatlibulten" class="club-card">
+        <div class="club-avatar kanatli">📰</div>
+        <div class="club-info">
+          <div class="club-name">Kanatlı Bülten</div>
+          <div class="club-desc">Üniversite haber ve dergi kulübü</div>
+        </div>
+        <svg class="club-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 18l6-6-6-6"/>
+        </svg>
+      </a>
+
+      <a href="/kulupler/utaa-music-club" class="club-card">
+        <div class="club-avatar utaa">🎵</div>
+        <div class="club-info">
+          <div class="club-name">UTAA Music Club</div>
+          <div class="club-desc">Müzik ve performans kulübü</div>
+        </div>
+        <svg class="club-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 18l6-6-6-6"/>
+        </svg>
+      </a>
+
+      <a href="/kulupler/fsource" class="club-card">
+        <div class="club-avatar fsource">💻</div>
+        <div class="club-info">
+          <div class="club-name">FSource</div>
+          <div class="club-desc">Yazılım ve teknoloji kulübü</div>
+        </div>
+        <svg class="club-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 18l6-6-6-6"/>
+        </svg>
+      </a>
+
+      <a href="/kulupler/makine-muhendisligi" class="club-card">
+        <div class="club-avatar makine">⚙️</div>
+        <div class="club-info">
+          <div class="club-name">Makine Mühendisliği</div>
+          <div class="club-desc">Mühendislik ve inovasyon kulübü</div>
+        </div>
+        <svg class="club-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 18l6-6-6-6"/>
+        </svg>
+      </a>
+
+      <a href="/kulupler/turk-tarih-toplulugu" class="club-card">
+        <div class="club-avatar tarih">📜</div>
+        <div class="club-info">
+          <div class="club-name">Türk Tarih Topluluğu</div>
+          <div class="club-desc">Tarih ve kültür araştırma kulübü</div>
+        </div>
+        <svg class="club-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 18l6-6-6-6"/>
+        </svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <p class="footer-text">
+        THKÜ Öğrenci Portalı — Öğrenciler tarafından, öğrenciler için geliştirildi.
+      </p>
+      <div class="footer-links">
+        <a href="/kroki" class="footer-link">Kampüs Krokisi</a>
+        <a href="/ofis-saatleri" class="footer-link">Ofis Saatleri</a>
+        <a href="/yemekhane" class="footer-link">Yemekhane</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Mobile menu toggle
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuIcon = document.getElementById('menuIcon');
+    const closeIcon = document.getElementById('closeIcon');
+
+    mobileMenuBtn.addEventListener('click', () => {
+      const isOpen = mobileMenu.classList.toggle('active');
+      menuIcon.style.display = isOpen ? 'none' : 'block';
+      closeIcon.style.display = isOpen ? 'block' : 'none';
+      document.body.style.overflow = isOpen ? 'hidden' : '';
+    });
+
+    // Close mobile menu when clicking a link
+    mobileMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.remove('active');
+        menuIcon.style.display = 'block';
+        closeIcon.style.display = 'none';
+        document.body.style.overflow = '';
+      });
+    });
+
+    // Mouse tracking for bento cards
+    document.querySelectorAll('.bento-card').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        card.style.setProperty('--mouse-x', `${x}%`);
+        card.style.setProperty('--mouse-y', `${y}%`);
+      });
+    });
+
+    // Check login status and update UI
+    function checkLoginStatus() {
+      const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='));
+      const authButtons = document.getElementById('authButtons');
+      const mobileAuth = document.getElementById('mobileAuth');
+      const navDesktop = document.getElementById('navDesktop');
+      const mobileLoggedInLinks = document.getElementById('mobileLoggedInLinks');
+      const heroActions = document.getElementById('heroActions');
+      
+      if (token) {
+        // Update desktop auth buttons
+        authButtons.innerHTML = `
+          <form method="POST" action="/logout" style="margin:0;">
+            <button type="submit" class="btn btn-logout">Çıkış Yap</button>
+          </form>
+        `;
+        
+        // Update mobile auth buttons
+        mobileAuth.innerHTML = `
+          <form method="POST" action="/logout" style="margin:0;width:100%;">
+            <button type="submit" class="btn btn-logout" style="width:100%;">Çıkış Yap</button>
+          </form>
+        `;
+        
+        // Add logged-in links to desktop nav
+        const forumLink = document.createElement('a');
+        forumLink.href = '/forum';
+        forumLink.className = 'nav-link';
+        forumLink.textContent = 'Forum';
+        
+        const notesLink = document.createElement('a');
+        notesLink.href = '/ders-notlari';
+        notesLink.className = 'nav-link';
+        notesLink.textContent = 'Ders Notları';
+        
+        const teachersLink = document.createElement('a');
+        teachersLink.href = '/ogretmen-listesi';
+        teachersLink.className = 'nav-link';
+        teachersLink.textContent = 'Öğretmenler';
+        
+        // Insert before Kulüpler dropdown
+        const dropdown = navDesktop.querySelector('.dropdown');
+        navDesktop.insertBefore(forumLink, dropdown);
+        navDesktop.insertBefore(notesLink, dropdown);
+        navDesktop.insertBefore(teachersLink, dropdown);
+        
+        // Show mobile logged-in links
+        mobileLoggedInLinks.style.display = 'block';
+        
+        // Update hero actions
+        heroActions.innerHTML = `
+          <a href="/ders-notlari" class="btn btn-primary">Ders Notlarına Git →</a>
+          <a href="/forum" class="btn btn-secondary">Foruma Katıl</a>
+        `;
+      }
+    }
+
+    checkLoginStatus();
+    // En son haberi çek ve göster
+Promise.all([
+      fetch('/api/haberler').then(res => res.ok ? res.json() : { articles: [] }),
+      fetch('/api/duyurular').then(res => res.ok ? res.json() : { duyurular: [] })
+    ])
+    .then(([newsData, duyuruData]) => {
+      const news = newsData.articles && newsData.articles.length > 0 ? newsData.articles[0] : null;
+      const duyuru = duyuruData.duyurular && duyuruData.duyurular.length > 0 ? duyuruData.duyurular[0] : null;
+
+      if (!news && !duyuru) return;
+
+      const container = document.createElement('div');
+      container.style.cssText = `
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+        gap: 24px;
+        max-width: 1000px;
+        margin: -40px auto 60px;
+        padding: 0 24px;
+        position: relative;
+        z-index: 2;
+      `;
+
+      let htmlContent = '';
+
+      // 1. HABER KUTUSU (Görsel Sığdırma Düzenlendi)
+      if (news) {
+        let imgSrc = news.thumbnail || 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=800';
+        if (imgSrc && imgSrc.startsWith('/images/')) {
+           imgSrc = 'https://www.thk.edu.tr' + imgSrc;
+        }
+
+        htmlContent += `
+          <article style="background:var(--surface); border:1px solid var(--border-default); border-radius:20px; overflow:hidden; display:flex; flex-direction:column; transition:transform 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+            <a href="${news.link}" style="text-decoration:none; color:inherit; display:flex; flex-direction:column; height:100%;">
+              <div style="height:220px; overflow:hidden; background:#0a0a0c; display:flex; align-items:center; justify-content:center;">
+                <img src="${imgSrc}" alt="${news.title}" style="max-width:100%; max-height:100%; width:auto; height:auto; object-fit:contain;">
+              </div>
+              <div style="padding:24px; flex:1; display:flex; flex-direction:column;">
+                <div style="font-size:0.75rem; font-weight:600; color:var(--accent); text-transform:uppercase; margin-bottom:12px; display:flex; justify-content:space-between;">
+                  HABERLER <span>${news.source || ''}</span>
+                </div>
+                <h3 style="font-size:1.15rem; font-weight:600; margin-bottom:12px; line-height:1.4;">${news.title}</h3>
+                <div style="margin-top:auto; padding-top:16px; border-top:1px solid var(--border-default); display:flex; justify-content:space-between; align-items:center;">
+                  <span style="font-size:0.9rem; font-weight:500;">Devamını Oku →</span>
+                  <object><a href="/haberler" style="padding:6px 12px; background:rgba(255,255,255,0.05); border-radius:6px; color:var(--foreground-muted); text-decoration:none; font-size:0.85rem;">Tümü</a></object>
+                </div>
+              </div>
+            </a>
+          </article>
+        `;
+      }
+
+      // 2. DUYURU KUTUSU
+      if (duyuru) {
+        htmlContent += `
+          <article style="background:var(--surface); border:1px solid var(--border-default); border-radius:20px; overflow:hidden; display:flex; flex-direction:column; transition:transform 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+            <a href="${duyuru.link}" style="text-decoration:none; color:inherit; display:flex; flex-direction:column; height:100%;">
+              <div style="padding:24px; flex:1; display:flex; flex-direction:column; justify-content:center;">
+                <div style="font-size:0.75rem; font-weight:600; color:var(--accent); text-transform:uppercase; margin-bottom:12px; display:flex; justify-content:space-between;">
+                  DUYURULAR <span>${duyuru.date || ''}</span>
+                </div>
+                <div style="width:40px; height:40px; background:var(--accent-glow); border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:16px; color:var(--accent-bright);">
+                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                </div>
+                <h3 style="font-size:1.15rem; font-weight:600; margin-bottom:12px; line-height:1.4;">${duyuru.title}</h3>
+                <p style="font-size:0.9rem; color:var(--foreground-muted); line-height:1.5; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;">
+                  ${duyuru.description || 'Duyuru detaylarını görüntülemek için tıklayınız.'}
+                </p>
+                <div style="margin-top:auto; padding-top:16px; border-top:1px solid var(--border-default); display:flex; justify-content:space-between; align-items:center;">
+                  <span style="font-size:0.9rem; font-weight:500;">Detaylar →</span>
+                  <object><a href="/duyurular" style="padding:6px 12px; background:rgba(255,255,255,0.05); border-radius:6px; color:var(--foreground-muted); text-decoration:none; font-size:0.85rem;">Tümü</a></object>
+                </div>
+              </div>
+            </a>
+          </article>
+        `;
+      }
+
+      container.innerHTML = htmlContent;
+      const heroSection = document.querySelector('.hero');
+      if (heroSection) {
+        heroSection.after(container);
+      }
+    })
+    .catch(err => console.error('Veri çekme hatası:', err));
+  </script>
+</body>
+</html>
