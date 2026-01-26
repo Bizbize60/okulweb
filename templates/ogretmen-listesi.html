@@ -300,7 +300,9 @@
 
             items.forEach(item => {
                 // Öncelikle benzersiz anahtar: varsa id, yoksa ad|soyad
-                const key = item.id ?? (String(item.ad || '') + '|' + String(item.soyad || ''));
+                // normalize: trim fazla boşlukları kaldır ve küçük harfe çevir
+                const norm = s => String(s || '').trim().replace(/\s+/g, ' ').toLowerCase();
+                const key = item.id ?? (norm(item.ad) + '|' + norm(item.soyad));
                 const count = Number(item.degerlendirme_sayisi ?? 1);
 
                 if (!map.has(key)) {
