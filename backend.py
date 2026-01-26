@@ -484,27 +484,31 @@ def ogretmen_listesi_sayfa():
 @app.get('/api/ogretmen-degerlendirmeleri')
 def api_ogretmen_degerlendirmeleri():
     from sqlalchemy import func
-    
+
+    # Normalizasyon: isim/soyisimdeki fazlalık boşluk ve büyük/küçük harf farklılıklarını göz ardı etmek için
+    ad_norm = func.lower(func.trim(degerlendirme.OgretmenDegerlendirme.ogretmen_adi)).label('ad')
+    soyad_norm = func.lower(func.trim(degerlendirme.OgretmenDegerlendirme.ogretmen_soyadi)).label('soyad')
+
     results = db.session.query(
-        degerlendirme.OgretmenDegerlendirme.ogretmen_adi,
-        degerlendirme.OgretmenDegerlendirme.ogretmen_soyadi,
+        ad_norm,
+        soyad_norm,
         func.avg(degerlendirme.OgretmenDegerlendirme.ders_anlatma_notu).label('ders_anlatma_ort'),
         func.avg(degerlendirme.OgretmenDegerlendirme.sinav_zorlugu_notu).label('sinav_zorlugu_ort'),
         func.count(degerlendirme.OgretmenDegerlendirme.id).label('degerlendirme_sayisi')
     ).group_by(
-        degerlendirme.OgretmenDegerlendirme.ogretmen_adi,
-        degerlendirme.OgretmenDegerlendirme.ogretmen_soyadi
+        ad_norm,
+        soyad_norm
     ).all()
     
     ogretmenler = []
     for result in results:
         ders_ort = float(result.ders_anlatma_ort)
         sinav_ort = float(result.sinav_zorlugu_ort)
-        
-      
-        tum_degerlendirmeler = degerlendirme.OgretmenDegerlendirme.query.filter_by(
-            ogretmen_adi=result.ogretmen_adi,
-            ogretmen_soyadi=result.ogretmen_soyadi
+
+        # Aynı normalizasyon ile orijinal değerlendirmeleri al
+        tum_degerlendirmeler = degerlendirme.OgretmenDegerlendirme.query.filter(
+            func.lower(func.trim(degerlendirme.OgretmenDegerlendirme.ogretmen_adi)) == result.ad,
+            func.lower(func.trim(degerlendirme.OgretmenDegerlendirme.ogretmen_soyadi)) == result.soyad
         ).all()
         
        
@@ -530,9 +534,13 @@ def api_ogretmen_degerlendirmeleri():
             for harf, sayi in not_dagilimi.items():
                 not_dagilimi_yuzde[harf] = round(sayi / toplam_not * 100, 1)
         
+        # Görüntülenmek üzere ad/soyadı ilk bulunan kaydın biçimiyle kullan (büyük/küçük harf korunur)
+        display_ad = tum_degerlendirmeler[0].ogretmen_adi.strip() if tum_degerlendirmeler else result.ad
+        display_soyad = tum_degerlendirmeler[0].ogretmen_soyadi.strip() if tum_degerlendirmeler else result.soyad
+
         ogretmenler.append({
-            'ad': result.ogretmen_adi,
-            'soyad': result.ogretmen_soyadi,
+            'ad': display_ad,
+            'soyad': display_soyad,
             'ders_anlatma_ort': ders_ort,
             'sinav_zorlugu_ort': sinav_ort,
             'genel_ort': (ders_ort + sinav_ort) / 2,
