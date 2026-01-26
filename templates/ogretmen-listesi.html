@@ -275,18 +275,75 @@
 
                 document.getElementById('loading').style.display = 'none';
 
-                if (data.length === 0) {
+                if (!data || data.length === 0) {
                     document.getElementById('emptyState').style.display = 'block';
                     return;
                 }
 
-                displayTeachers(data);
+                // Eğer API bir öğretmeni birden fazla satır olarak döndürüyorsa
+                // burada gruplayıp ortalamaları hesaplıyoruz. Böylece aynı öğretmen
+                // için birden fazla kart oluşmaz.
+                const aggregated = aggregateTeachers(data);
+
+                displayTeachers(aggregated);
                 document.getElementById('teachersGrid').style.display = 'grid';
 
             } catch (error) {
                 console.error('Error:', error);
                 document.getElementById('loading').innerHTML = '<p style="color: red;">Veriler yüklenirken hata oluştu!</p>';
             }
+        }
+
+        // Öğretmenleri gruplayıp ortalamaları hesaplayan yardımcı fonksiyon
+        function aggregateTeachers(items) {
+            const map = new Map();
+
+            items.forEach(item => {
+                // Öncelikle benzersiz anahtar: varsa id, yoksa ad|soyad
+                const key = item.id ?? (String(item.ad || '') + '|' + String(item.soyad || ''));
+                const count = Number(item.degerlendirme_sayisi ?? 1);
+
+                if (!map.has(key)) {
+                    // Kopyasını alıp sayıyı normalize ediyoruz
+                    const copy = JSON.parse(JSON.stringify(item));
+                    copy.degerlendirme_sayisi = count;
+                    // numeric hale getir
+                    copy.ders_anlatma_ort = Number(copy.ders_anlatma_ort ?? copy.ders_anlatma ?? 0);
+                    copy.sinav_zorlugu_ort = Number(copy.sinav_zorlugu_ort ?? copy.sinav_zorlugu ?? 0);
+                    copy.genel_ort = Number(copy.genel_ort ?? 0);
+                    // etiketler objesini güvenle kopyala
+                    copy.etiketler = copy.etiketler ? Object.assign({}, copy.etiketler) : {};
+                    map.set(key, copy);
+                } else {
+                    const existing = map.get(key);
+                    const prevCount = Number(existing.degerlendirme_sayisi ?? 1);
+                    const newCount = prevCount + count;
+
+                    // Alanları ağırlıklı ortalama ile birleştir
+                    const fields = ['ders_anlatma_ort', 'sinav_zorlugu_ort', 'genel_ort'];
+                    fields.forEach(f => {
+                        const prevVal = Number(existing[f] ?? 0);
+                        // gelen item bazen _ort yerine ham puan alanına sahip olabilir
+                        const itemVal = Number(item[f] ?? item[f.replace('_ort', '')] ?? 0);
+                        const combined = (prevVal * prevCount + itemVal * count) / newCount;
+                        existing[f] = combined;
+                    });
+
+                    // etiketleri yüzde bazında birleştir (varsa)
+                    existing.etiketler = existing.etiketler || {};
+                    if (item.etiketler) {
+                        for (const [k, v] of Object.entries(item.etiketler)) {
+                            const prevTagVal = Number(existing.etiketler[k] ?? 0);
+                            const newTagVal = (prevTagVal * prevCount + Number(v) * count) / newCount;
+                            existing.etiketler[k] = newTagVal;
+                        }
+                    }
+
+                    existing.degerlendirme_sayisi = newCount;
+                }
+            });
+
+            return Array.from(map.values());
         }
 
         function displayTeachers(teachers) {
