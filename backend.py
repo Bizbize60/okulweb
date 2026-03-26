@@ -241,33 +241,34 @@ def enstantaneler_sayfa():
 # =============================================================================
 # Kimlik Doğrulama Route'ları
 # =============================================================================
-@app.route('/signup', methods=['GET', 'POST'])
-def register():
+
+ # @app.route('/signup', methods=['GET', 'POST'])
+ # def register():
     """Kullanıcı kayıt sayfası ve işlemi."""
-    if request.method == 'POST':
-        name = request.form['name']
-        email = request.form['email']
-        password = request.form['password']
+     # if request.method == 'POST':
+         # name = request.form['name']
+         # email = request.form['email']
+         # password = request.form['password']
 
-        existing_user = User.query.filter_by(email=email).first()
-        if existing_user:
-            return jsonify({'message': 'User already exists. Please login.'}), 400
+         # existing_user = User.query.filter_by(email=email).first()
+         # if existing_user:
+            #  return jsonify({'message': 'User already exists. Please login.'}), 400
 
 
-        hashed_password = generate_password_hash(password)
-        new_user = User(
-            public_id=str(uuid.uuid4()),
-            name=name,
-            email=email,
-            password=hashed_password
-        )
+         # hashed_password = generate_password_hash(password)
+         # new_user = User(
+             # public_id=str(uuid.uuid4()),
+             # name=name,
+             # email=email,
+            #  password=hashed_password
+         # )
 
-        db.session.add(new_user)
-        db.session.commit()
+         # db.session.add(new_user)
+      #    db.session.commit()
 
-        return redirect(url_for('login'))
+   #       return redirect(url_for('login'))
 
-    return render_template('register.html')
+ #   return render_template('register.html')
 
 
 # =============================================================================
