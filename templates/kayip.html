@@ -31,7 +31,8 @@
         .header-actions { display: flex; align-items: center; gap: 15px; }
         .btn-primary { background-color: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; transition: 0.2s; }
         .btn-primary:hover { opacity: 0.9; }
-        .icon-btn { background: var(--bg-input); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .icon-btn { background: var(--bg-input); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;}
+        .icon-btn:hover { background: var(--primary); }
         .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
 
         /* --- TABS --- */
@@ -101,7 +102,9 @@
         </div>
         <div class="header-actions">
             <button class="btn-primary" onclick="openModal()">+ İlan Ver</button>
-            <button class="icon-btn"><i class="fa-regular fa-bell"></i></button>
+            <button class="icon-btn" onclick="bildirimlereAboneOl()" title="Bildirimleri Aç">
+                <i class="fa-regular fa-bell"></i>
+            </button>
         </div>
     </header>
 
@@ -195,6 +198,7 @@
 
         // Sayfa Yüklendiğinde
         document.addEventListener('DOMContentLoaded', () => {
+	    setupServiceWorker();
             fetchStats();
             fetchItems();
         });
@@ -303,7 +307,6 @@
 
         // 6. Arama Fonksiyonu
         document.getElementById('searchInput').addEventListener('input', (e) => {
-            // Debounce yapılabilir ama basit tutuyoruz
             fetchItems();
         });
 
@@ -311,7 +314,6 @@
         function openModal() { document.getElementById('addModal').style.display = 'flex'; }
         function closeModal() { document.getElementById('addModal').style.display = 'none'; }
         
-        // Modal dışına tıklayınca kapatma
         window.onclick = function(event) {
             if (event.target == document.getElementById('addModal')) {
                 closeModal();
@@ -351,6 +353,79 @@
                 btn.disabled = false;
             }
         });
+
+	async function setupServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        try {
+            const reg = await navigator.serviceWorker.register('/sw.js');
+            console.log("Service Worker başarıyla kaydedildi, kapsam:", reg.scope);
+        } catch (err) {
+            console.error("Service Worker kaydı başarısız:", err);
+        }
+    }
+}
+
+        // --- BİLDİRİM (WEB PUSH) İŞLEMLERİ ---
+        const publicVapidKey = 'BOMX48RHHNdUMWnA54hy4bH6nxL9l-kPcF5QPIEIfLPtmnM_cPLEb1ikxXGSlZK-whuNOkE9gfnrtHK4jN89h4I';
+
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding)
+                .replace(/\-/g, '+')
+                .replace(/_/g, '/');
+
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+        }
+
+        async function bildirimlereAboneOl() {
+    if ('serviceWorker' in navigator && 'PushManager' in window) {
+        try {
+            // 1. Service worker kaydını başlat
+            await navigator.serviceWorker.register('/sw.js');
+            
+            // 2. Service Worker'ın tamamen KURULMASINI VE AKTİF OLMASINI BEKLE (İşte çözüm burası!)
+            const readyRegistration = await navigator.serviceWorker.ready;
+            
+            // 3. Tarayıcıdan abonelik al (Artık register yerine readyRegistration kullanıyoruz)
+            const subscription = await readyRegistration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+            });
+            
+            // 4. Aboneliği backend'e yolla
+            const res = await fetch('/api/abonelik-kaydet', {
+                method: 'POST',
+                body: JSON.stringify(subscription),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if(res.ok) {
+                alert('Bildirimler açıldı! Yeni ilan eklendiğinde haberiniz olacak.');
+            } else {
+                const data = await res.json();
+                if(data.message === 'Bu cihaz zaten bildirimlere abone.') {
+                    alert('Zaten bildirimlere abonesiniz!');
+                } else {
+                    alert('Abonelik kaydedilirken bir hata oluştu.');
+                }
+            }
+
+        } catch (error) {
+            console.error('Abonelik hatası:', error);
+            alert('Bildirim izni verilmedi veya desteklenmiyor.');
+        }
+    } else {
+        alert('Tarayıcınız bildirimleri desteklemiyor.');
+    }
+}
     </script>
 </body>
 </html>

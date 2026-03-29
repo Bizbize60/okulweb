@@ -12,6 +12,7 @@ from database.kulupler import Kulupler
 from database.kulupicerik import Kulupicerik
 from database.kayip_esya import KayipEsya
 from database.kampusten import Enstantane, EnstantaneLike
+from database.subscription import WebPushSubscription
 import sys
 sys.path.append('..')
 from backend import app

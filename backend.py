@@ -4,7 +4,7 @@ import uuid
 import datetime as dt
 from functools import wraps
 from datetime import datetime, timedelta, timezone
-
+from pywebpush import webpush, WebPushException
 from flask import (
     Flask, current_app, flash, make_response, redirect,
     render_template, jsonify, request, send_from_directory, url_for
@@ -13,13 +13,14 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 import openpyxl
 import jwt
+import json
 
 # Config
 from config import (
     DATABASE_URI, SECRET_KEY, JWT_EXPIRATION_HOURS,
     ALLOWED_EXTENSIONS, ALLOWED_IMAGES, MAX_CONTENT_LENGTH,
     NOTES_UPLOAD_FOLDER, PAZAR_UPLOAD_FOLDER, KULUP_UPLOAD_FOLDER,
-    DEBUG, HOST, PORT
+    DEBUG, HOST, PORT, VAPID_PRIVATE_KEY
 )
 
 # Database modelleri
@@ -31,6 +32,7 @@ from database.kulupyonetim import KulupYonetim
 from database.kulupicerik import Kulupicerik
 from database import saatler, dersnotu, degerlendirme, pazar
 from database.kampusten import Enstantane, EnstantaneLike
+from database.subscription import WebPushSubscription
 # Harici modüller
 from durak import durak_sorgula
 
@@ -79,6 +81,34 @@ def scrape_duyurular():
         print(f"[scrape_duyurular] HATA: {e}")
         return []
 
+def bildirim_gonder_herkese(baslik, mesaj, url='/'):
+    
+    abonelikler = WebPushSubscription.query.all()
+    
+    
+    payload = json.dumps({
+        "title": baslik,
+        "body": mesaj,
+        "url": url
+    })
+
+   
+    
+    for abonelik in abonelikler:
+        try:
+            webpush(
+                subscription_info=json.loads(abonelik.subscription_info),
+                data=payload,
+                vapid_private_key=VAPID_PRIVATE_KEY, 
+                vapid_claims={"sub": "mailto:600tuna@gmail.com"}
+            )
+            print(f"Bildirim gönderildi: {abonelik.id}")
+        except WebPushException as ex:
+            print(f"Gönderim hatası (ID: {abonelik.id}): {ex}")
+            # Eğer abonelik süresi dolmuşsa (410 Gone), silebilirsin:
+            # if ex.response and ex.response.status_code == 410:
+            #     db.session.delete(abonelik)
+            #     db.session.commit()
 
 
 def scrape_haberler():
@@ -238,6 +268,9 @@ def kroki_page():
 def enstantaneler_sayfa():
     return render_template('enstantaneler.html')
 
+@app.route('/sw.js')
+def sw():
+    return send_from_directory('static', 'sw.js', mimetype='application/javascript')
 # =============================================================================
 # Kimlik Doğrulama Route'ları
 # =============================================================================
@@ -1107,15 +1140,17 @@ def api_utaa_gallery():
 @token_required
 def api_kayip_ekle(current_user):
     try:
+        # 1. Form verilerini al
         baslik = request.form.get('baslik')
         aciklama = request.form.get('aciklama')
-        tip = request.form.get('tip') # 'kayip' veya 'bulunan'
+        tip = request.form.get('tip')
         kategori = request.form.get('kategori')
         konum = request.form.get('konum')
-        
+
         if not baslik or not tip:
             return jsonify({'message': 'Başlık ve Tip zorunludur.'}), 400
 
+        # 2. Fotoğraf işleme
         foto_path = None
         if 'file' in request.files:
             file = request.files['file']
@@ -1125,6 +1160,7 @@ def api_kayip_ekle(current_user):
                 file.save(save_path)
                 foto_path = f"/uploads/kayip/{filename}"
 
+        # 3. Veritabanına kaydet
         yeni_ilan = KayipEsya(
             user_id=current_user.id,
             baslik=baslik,
@@ -1134,14 +1170,67 @@ def api_kayip_ekle(current_user):
             konum=konum,
             foto=foto_path
         )
-        
+
         db.session.add(yeni_ilan)
         db.session.commit()
-        
+
+        # 4. Bildirim Gönderimi
+        try:
+            # Başlık ve mesajı ayarla
+            if tip == 'kayip':
+                bildirim_baslik = "Yeni Kayıp İlanı 📢"
+                bildirim_mesaj = f"Kayıp Aranıyor: {baslik}"
+            else:
+                bildirim_baslik = "Yeni Bulunan Eşya 🔍"
+                bildirim_mesaj = f"Bulundu: {baslik}"
+
+            # Payload (Detaylar)
+            bildirim_detaylari = {
+                "title": bildirim_baslik,
+                "body": bildirim_mesaj,
+                "url": f"/kayip-esya/{yeni_ilan.id}",
+                "icon": "/static/kedi.ico"  # Senin kedi ikonun
+            }
+
+            # İlanda fotoğraf varsa büyük resim olarak ekle
+            if yeni_ilan.foto:
+                bildirim_detaylari["image"] = f"https://thkuogrenci.com{yeni_ilan.foto}"
+
+            payload = json.dumps(bildirim_detaylari)
+
+            # Tüm aboneleri çek ve döngüyle gönder
+            abonelikler = WebPushSubscription.query.all()
+            print(f">>> BİLDİRİM DÖNGÜSÜ BAŞLADI. ABONE SAYISI: {len(abonelikler)}")
+
+            for abonelik in abonelikler:
+                try:
+                    webpush(
+                        subscription_info=json.loads(abonelik.subscription_info),
+                        data=payload,
+                        vapid_private_key=VAPID_PRIVATE_KEY,
+                        vapid_claims={"sub": "mailto:600tuna@gmail.com"}
+                    )
+                    print(f">>> {abonelik.id} ID'li cihaza gönderildi.")
+                except Exception as e:
+                    print(f">>> TEKİL GÖNDERİM HATASI (ID: {abonelik.id}): {str(e)}")
+
+        except Exception as push_err:
+            print(f">>> GENEL BİLDİRİM HATASI: {str(push_err)}")
+
+        # 5. Başarılı yanıt döndür
         return jsonify({'message': 'İlan başarıyla oluşturuldu!'}), 201
+
     except Exception as e:
-        print(f"Hata: {e}")
-        return jsonify({'message': 'Sunucu hatası oluştu.'}), 500
+        import traceback
+        traceback.print_exc()
+        return jsonify({'message': f'Sunucu hatası: {str(e)}'}), 500
+
+	
+
+        
+
+          
+    
 
 @app.route('/api/kayiplar', methods=['GET'])
 def api_kayiplar_listele():
@@ -1255,9 +1344,55 @@ def api_enstantane_begen(current_user, id):
     db.session.commit()
     return jsonify({'action': action, 'count': post.begeni_sayisi})
 
-# =============================================================================
-# Uygulama Başlatma
-# =============================================================================
+@app.post('/api/abonelik-kaydet')
+@token_required
+def api_abonelik_kaydet(current_user):
+    try:
+        subscription_data = request.get_json()
+
+        if not subscription_data:
+            return jsonify({'message': 'Abonelik verisi bulunamadı!'}), 400
+
+        endpoint = subscription_data.get('endpoint')
+        
+        # Mevcut abonelik kontrolü
+        mevcut_abonelik = WebPushSubscription.query.filter(
+            WebPushSubscription.subscription_info.like(f'%{endpoint}%')
+        ).first()
+
+        if mevcut_abonelik:
+            return jsonify({'message': 'Bu cihaz zaten bildirimlere abone.'}), 200
+
+        # Yeni abonelik kaydı
+        yeni_abonelik = WebPushSubscription(
+            subscription_info=json.dumps(subscription_data),
+            kullanici_ajani=request.headers.get('User-Agent'),
+            user_id=current_user.id
+        )
+
+        db.session.add(yeni_abonelik)
+        db.session.commit()
+
+        # Kayıt sonrası ilk test bildirimi
+        try:
+            bildirim_gonder_herkese(
+                baslik="Sisteme Kayıt Başarılı!",
+                mesaj="Artık bildirimleri alabileceksiniz.",
+                url="/kayiplar"
+            )
+        except Exception as push_err:
+            print(f"İlk bildirim gönderilirken hata oluştu: {push_err}")
+
+        return jsonify({'message': 'Abonelik başarıyla kaydedildi!'}), 201
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'message': f'Sunucu hatası: {str(e)}'}), 500
+        
+     
+
+# DİKKAT: Uygulama başlatma kısmı EN SOLDA (sıfır boşluk) olmalı!
 if __name__ == '__main__':
     app.run(host=HOST, port=PORT, debug=DEBUG)
 
