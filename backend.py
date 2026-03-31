@@ -415,11 +415,11 @@ def download(current_user, filename):
          return jsonify({'message': 'Dosya bulunamadı'}), 404
 
     try:
-        current_user.kredi -= 1
+        current_user.kredi -= 5
         db.session.commit()
         return send_from_directory(uploads, filename)
     except Exception as e:
-        current_user.kredi += 1
+        current_user.kredi += 5
         db.session.commit()
         return jsonify({'message': 'İndirme sırasında hata oluştu'}), 500
 
@@ -455,7 +455,7 @@ def api_not_ekle(current_user):
             yuklenme_tarihi=datetime.now(timezone.utc),
             user_id=current_user.id
         )
-        current_user.kredi += 5
+        current_user.kredi += 1
         db.session.add(yeni_not)
         db.session.commit()
         
