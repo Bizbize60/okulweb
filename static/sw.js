@@ -2,20 +2,25 @@
 self.addEventListener('push', function(event) {
     if (event.data) {
         try {
-            // Veriyi bir kez alıyoruz
             const rawData = event.data.text();
             console.log('Push sinyali geldi!', rawData);
-            
+
             const data = JSON.parse(rawData);
-            
+
             const title = data.title || "Kampüs Kayıp Eşya";
             const options = {
                 body: data.body || "Yeni bir ilan eklendi!",
-                icon: '/static/icon.png', // İkon dosyanın varlığından emin ol
-                badge: '/static/badge.png',
-                vibrate: [100, 50, 100],
+                icon: data.icon || '/static/kedi.ico', 
+                badge: data.badge || '/static/kedi.ico', // Android durum çubuğu ikonu
+                image: data.image || '', // Varsa ilan fotoğrafı
+                
+                // --- MOBİL ÖZEL AYARLAR ---
+                vibrate: [200, 100, 200], // Telefonun 'tit-dur-tit' yapmasını sağlar
+                tag: 'yeni-ilan', // Aynı kategorideki bildirimleri gruplar
+                renotify: true, // Tag aynı olsa bile telefonun tekrar titremesini sağlar
+                
                 data: {
-                    url: data.url || '/' 
+                    url: data.url || '/'
                 }
             };
 

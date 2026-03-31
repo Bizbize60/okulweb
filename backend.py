@@ -1189,7 +1189,7 @@ def api_kayip_ekle(current_user):
                 "title": bildirim_baslik,
                 "body": bildirim_mesaj,
                 "url": f"/kayip-esya/{yeni_ilan.id}",
-                "icon": "/static/kedi.ico"  # Senin kedi ikonun
+                "icon": "/static/kedi.ico"  
             }
 
             # İlanda fotoğraf varsa büyük resim olarak ekle
