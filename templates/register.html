@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kayıt Ol - THKÜ</title>
   <style>
-    * {
+   * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
@@ -164,6 +164,14 @@
     <h1>Kayıt Ol</h1>
     <p class="subtitle">THKÜ Öğrenci Ofis Sistemi</p>
 
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="error-message">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
     <form method="POST" action="/signup" id="registerForm">
       <div class="form-group">
         <label for="name">Ad Soyad</label>
@@ -173,10 +181,7 @@
       <div class="form-group">
         <label for="email">Öğrenci E-postası</label>
         <input 
-          type="email" 
-          id="email" 
-          name="email" 
-          required 
+          type="email" id="email" name="email" required 
           placeholder="sxxxxxx@stu.thk.edu.tr"
           pattern=".*@stu\.thk\.edu\.tr$"
           title="Lütfen geçerli bir THKÜ öğrenci e-postası girin (@stu.thk.edu.tr)"
@@ -186,18 +191,14 @@
 
       <div class="form-group">
         <label for="password">Şifre</label>
-        <input type="password" id="password" name="password" required placeholder="Güçlü bir şifre oluşturun (min. 6 karakter)" minlength="6">
+        <input type="password" id="password" name="password" required placeholder="Min. 6 karakter" minlength="6">
       </div>
 
-      <button type="submit" class="submit-btn">Kayıt Ol</button>
+      <button type="submit" class="submit-btn">Doğrulama Kodu Gönder</button>
     </form>
 
     <div class="login-link">
       Zaten hesabınız var mı? <a href="/login">Giriş Yap</a>
-    </div>
-
-    <div class="home-link">
-      <a href="/">← Anasayfaya Dön</a>
     </div>
   </div>
 
@@ -206,8 +207,7 @@
       const email = document.getElementById('email').value;
       if (!email.endsWith('@stu.thk.edu.tr')) {
         e.preventDefault();
-        alert('Lütfen geçerli bir THKÜ öğrenci e-postası kullanın (@stu.thk.edu.tr)');
-        return false;
+        alert('Lütfen @stu.thk.edu.tr uzantılı mail kullanın.');
       }
     });
   </script>
