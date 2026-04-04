@@ -1,4 +1,5 @@
 import requests
+import secrets
 from bs4 import BeautifulSoup
 import uuid
 import datetime as dt
@@ -7,14 +8,14 @@ from datetime import datetime, timedelta, timezone
 from pywebpush import webpush, WebPushException
 from flask import (
     Flask, current_app, flash, make_response, redirect,
-    render_template, jsonify, request, send_from_directory, url_for
+    render_template,session  ,jsonify, request, send_from_directory, url_for
 )
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 import openpyxl
 import jwt
 import json
-
+import random
 # Config
 from config import (
     DATABASE_URI, SECRET_KEY, JWT_EXPIRATION_HOURS,
@@ -167,7 +168,13 @@ app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH
 app.config['UPLOAD_FOLDER'] = NOTES_UPLOAD_FOLDER
 app.config['PAZAR_UPLOAD_FOLDER'] = PAZAR_UPLOAD_FOLDER
 app.config['KULUP_UPLOAD_FOLDER'] = KULUP_UPLOAD_FOLDER
-
+# Smtp
+app.config['MAIL_SERVER'] =  MAIL_SERVER
+app.config['MAIL_PORT'] = MAIL_PORT
+app.config['MAIL_USE_TLS'] = MAIL_USE_TLS
+app.config['MAIL_USERNAME'] = MAIL_USERNAME
+app.config['MAIL_PASSWORD'] =  MAIL_PASSWORD
+app.config['MAIL_DEFAULT_SENDER'] = MAIL_DEFAULT_SENDER
 # Upload klasörlerini oluştur
 os.makedirs(NOTES_UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(PAZAR_UPLOAD_FOLDER, exist_ok=True)
@@ -175,7 +182,7 @@ os.makedirs(KULUP_UPLOAD_FOLDER, exist_ok=True)
 
 # Veritabanını başlat
 db.init_app(app)
-
+mail = Mail(app)
 
 # =============================================================================
 # Yardımcı Fonksiyonlar
@@ -274,34 +281,66 @@ def sw():
 # =============================================================================
 # Kimlik Doğrulama Route'ları
 # =============================================================================
+@app.route('/verify', methods=['GET', 'POST'])
+def verify_email():
+    if 'temp_user' not in session:
+        return redirect(url_for('register'))
 
- # @app.route('/signup', methods=['GET', 'POST'])
- # def register():
-    """Kullanıcı kayıt sayfası ve işlemi."""
-     # if request.method == 'POST':
-         # name = request.form['name']
-         # email = request.form['email']
-         # password = request.form['password']
+    if request.method == 'POST':
+        user_code = request.form['code']
+        
+        if user_code == session.get('verification_code'):
+            # Kod doğru! Şimdi veritabanına kaydediyoruz
+            user_data = session['temp_user']
+            
+            new_user = User(
+                public_id=str(uuid.uuid4()),
+                name=user_data['name'],
+                email=user_data['email'],
+                password=user_data['password']
+            )
+            
+            db.session.add(new_user)
+            db.session.commit()
+            
+            # Geçici verileri temizle
+            session.pop('temp_user', None)
+            session.pop('verification_code', None)
+            
+            return redirect(url_for('login'))
+        else:
+            return "Kod yanlış!", 400
 
-         # existing_user = User.query.filter_by(email=email).first()
-         # if existing_user:
-            #  return jsonify({'message': 'User already exists. Please login.'}), 400
+    return render_template('verify.html',email=session['temp_user']['email'])
 
 
-         # hashed_password = generate_password_hash(password)
-         # new_user = User(
-             # public_id=str(uuid.uuid4()),
-             # name=name,
-             # email=email,
-            #  password=hashed_password
-         # )
 
-         # db.session.add(new_user)
-      #    db.session.commit()
+@app.route('/signup', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        email = request.form['email']
+        
+        # Önce bu email zaten var mı diye bak
+        if User.query.filter_by(email=email).first():
+            return "Bu email zaten kayıtlı!", 400
 
-   #       return redirect(url_for('login'))
+        # Kullanıcı bilgilerini session'a sözlük olarak kaydet
+        session['temp_user'] = {
+            'name': request.form['name'],
+            'email': email,
+            'password': generate_password_hash(request.form['password'])
+        }
 
- #   return render_template('register.html')
+        # Kodu üret ve session'a koy
+        v_code = secrets.token_hex(3).upper() # 6 haneli kod
+        session['verification_code'] = v_code
+
+        # Maili gönder
+        send_verification_email(email, v_code)
+
+        return redirect(url_for('verify_email'))
+
+    return render_template('register.html')
 
 
 # =============================================================================
