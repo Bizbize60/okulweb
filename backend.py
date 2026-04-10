@@ -445,7 +445,7 @@ def api_user_info(current_user):
 @app.route('/uploads/notes/<path:filename>', methods=['GET', 'POST'])
 @token_required
 def download(current_user, filename):
-    if current_user.kredi < 5:
+    if current_user.kredi < 1:
         return jsonify({'message': 'Yetersiz kredi! Dosya indirmek için dosya yüklemelisiniz.'}), 403
     uploads = os.path.join(current_app.root_path, app.config['UPLOAD_FOLDER'])
     
@@ -454,11 +454,11 @@ def download(current_user, filename):
          return jsonify({'message': 'Dosya bulunamadı'}), 404
 
     try:
-        current_user.kredi -= 5
+        current_user.kredi -= 1
         db.session.commit()
         return send_from_directory(uploads, filename)
     except Exception as e:
-        current_user.kredi += 5
+        current_user.kredi += 1
         db.session.commit()
         return jsonify({'message': 'İndirme sırasında hata oluştu'}), 500
 
