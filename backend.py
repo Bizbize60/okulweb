@@ -10,6 +10,7 @@ from flask import (
     Flask, current_app, flash, make_response, redirect,
     render_template,session  ,jsonify, request, send_from_directory, url_for
 )
+from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 import openpyxl
@@ -39,6 +40,24 @@ from database.subscription import WebPushSubscription
 from database.kayip_esya import KayipEsya
 from werkzeug.utils import secure_filename
 import os
+=======
+# =============================================================
+# =============================================================================
+# Haber Scraping ve API Endpoint (YENİDEN EKLENDİ)
+# =============================================================================
+def send_verification_email(user_email, code):
+    """Kullanıcıya doğrulama kodu gönderen yardımcı fonksiyon."""
+    msg = Message(
+        subject="THKÜ Ofis Sistemi - Doğrulama Kodu",
+        recipients=[user_email]
+    )
+    msg.body = f"Merhaba,\n\nKayıt işleminizi tamamlamak için doğrulama kodunuz: {code}\n\nİyi günler dileriz."
+    
+    # Mail nesnesi üzerinden gönderim yapıyoruz
+    mail.send(msg)
+
+
+
 
 # =============================================================================
 # Flask Uygulama Yapılandırması
