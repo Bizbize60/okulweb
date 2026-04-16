@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
   <meta charset="UTF-8">
   <title>THKÜ Yemekhane Menüsü</title>
@@ -57,7 +58,7 @@
       border: 1px solid #e2e8f0;
       border-radius: 12px;
       padding: 0;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
 
     .day-column h2 {
@@ -116,104 +117,117 @@
     }
   </style>
 </head>
+
 <body>
   <div style="max-width: 1400px; margin: 0 auto; padding: 20px;">
-    <div style="background: white; border-radius: 12px; padding: 20px 32px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+    <div
+      style="background: white; border-radius: 12px; padding: 20px 32px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
       <h1 style="margin: 0; flex-shrink: 0; font-size: 1.5em;">🍽️ Yemekhane Menüsü</h1>
       <nav style="display: flex; gap: 8px; flex: 1; justify-content: center; flex-wrap: wrap;">
-        <a href="/" style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568; transition: all 0.2s;">Ana Sayfa</a>
-        <a href="/yemekhane" style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #2d3748; background: #edf2f7;">🍽️ Yemek Menüsü</a>
-        <a href="/otobus-saatleri" style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568;">🚌 Otobüs Saatleri</a>
-        <a href="/kroki" style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568;">🗺️ Kampüs Krokisi</a>
+        <a href="/"
+          style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568; transition: all 0.2s;">Ana
+          Sayfa</a>
+        <a href="/yemekhane"
+          style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #2d3748; background: #edf2f7;">🍽️
+          Yemek Menüsü</a>
+        <a href="/otobus-saatleri"
+          style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568;">🚌
+          Otobüs Saatleri</a>
+        <a href="/kroki"
+          style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568;">🗺️
+          Kampüs Krokisi</a>
       </nav>
-      <a href="/" style="padding: 10px 20px; background: #3182ce; color: white; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 0.9em; flex-shrink: 0;">← Ana Sayfa</a>
+      <a href="/"
+        style="padding: 10px 20px; background: #3182ce; color: white; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 0.9em; flex-shrink: 0;">←
+        Ana Sayfa</a>
     </div>
 
-  <div id="menu-container" class="menu-container" style="max-width: 1400px; margin: 0 auto; padding: 0 20px;">
-    <div class="loading">Menü yükleniyor...</div>
-  </div>
+    <div id="menu-container" class="menu-container" style="max-width: 1400px; margin: 0 auto; padding: 0 20px;">
+      <div class="loading">Menü yükleniyor...</div>
+    </div>
 
-  <script>
-    function formatDate(dateStr) {
-      // 2026:01:05 formatını daha okunabilir hale getir
-      const parts = dateStr.split(':');
-      if (parts.length === 3) {
-        return `${parts[2]}.${parts[1]}.${parts[0]}`;
+    <script>
+      function formatDate(dateStr) {
+        // 2026:01:05 formatını daha okunabilir hale getir
+        const parts = dateStr.split(':');
+        if (parts.length === 3) {
+          return `${parts[2]}.${parts[1]}.${parts[0]}`;
+        }
+        return dateStr;
       }
-      return dateStr;
-    }
 
-    function renderMenu(data) {
-      const container = document.getElementById('menu-container');
-      container.innerHTML = '';
+      function renderMenu(data) {
+        const container = document.getElementById('menu-container');
+        container.innerHTML = '';
 
-      const gunler = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma'];
+        const gunler = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma'];
 
-      gunler.forEach(gun => {
-        if (!data[gun] || data[gun].length === 0) return;
+        gunler.forEach(gun => {
+          if (!data[gun] || data[gun].length === 0) return;
 
-        const column = document.createElement('div');
-        column.className = 'day-column';
+          const column = document.createElement('div');
+          column.className = 'day-column';
 
-        const header = document.createElement('h2');
-        header.textContent = gun;
-        column.appendChild(header);
+          const header = document.createElement('h2');
+          header.textContent = gun;
+          column.appendChild(header);
 
-        const items = data[gun];
-        let i = 0;
+          const items = data[gun];
+          let i = 0;
 
-        while (i < items.length) {
-          const item = items[i];
-          
-          // Tarih mi kontrol et (YYYY:MM:DD formatında)
-          if (item.match(/^\d{4}:\d{2}:\d{2}$/)) {
-            const mealGroup = document.createElement('div');
-            mealGroup.className = 'meal-group';
+          while (i < items.length) {
+            const item = items[i];
 
-            const dateDiv = document.createElement('div');
-            dateDiv.className = 'meal-date';
-            dateDiv.textContent = formatDate(item);
-            mealGroup.appendChild(dateDiv);
+            // Tarih mi kontrol et (YYYY:MM:DD formatında)
+            if (item.match(/^\d{4}:\d{2}:\d{2}$/)) {
+              const mealGroup = document.createElement('div');
+              mealGroup.className = 'meal-group';
 
-            // Tarihten sonraki yemekleri ekle (bir sonraki tarihe kadar)
-            i++;
-            while (i < items.length && !items[i].match(/^\d{4}:\d{2}:\d{2}$/)) {
-              const mealDiv = document.createElement('div');
-              mealDiv.className = 'meal-item';
-              mealDiv.textContent = items[i].trim();
-              mealGroup.appendChild(mealDiv);
+              const dateDiv = document.createElement('div');
+              dateDiv.className = 'meal-date';
+              dateDiv.textContent = formatDate(item);
+              mealGroup.appendChild(dateDiv);
+
+              // Tarihten sonraki yemekleri ekle (bir sonraki tarihe kadar)
+              i++;
+              while (i < items.length && !items[i].match(/^\d{4}:\d{2}:\d{2}$/)) {
+                const mealDiv = document.createElement('div');
+                mealDiv.className = 'meal-item';
+                mealDiv.textContent = items[i].trim();
+                mealGroup.appendChild(mealDiv);
+                i++;
+              }
+
+              column.appendChild(mealGroup);
+            } else {
               i++;
             }
-
-            column.appendChild(mealGroup);
-          } else {
-            i++;
           }
-        }
 
-        container.appendChild(column);
-      });
-
-      if (container.children.length === 0) {
-        container.innerHTML = '<div class="error">Menü bilgisi bulunamadı.</div>';
-      }
-    }
-
-    // Sayfa yüklendiğinde menüyü getir
-    window.addEventListener('DOMContentLoaded', () => {
-      fetch('/api/yemek-saatleri')
-        .then(res => {
-          if (!res.ok) throw new Error('Veri alınamadı');
-          return res.json();
-        })
-        .then(data => {
-          renderMenu(data);
-        })
-        .catch(err => {
-          const container = document.getElementById('menu-container');
-          container.innerHTML = `<div class="error">Hata: ${err.message}</div>`;
+          container.appendChild(column);
         });
-    });
-  </script>
+
+        if (container.children.length === 0) {
+          container.innerHTML = '<div class="error">Menü bilgisi bulunamadı.</div>';
+        }
+      }
+
+      // Sayfa yüklendiğinde menüyü getir
+      window.addEventListener('DOMContentLoaded', () => {
+        fetch('/api/yemek-saatleri')
+          .then(res => {
+            if (!res.ok) throw new Error('Veri alınamadı');
+            return res.json();
+          })
+          .then(data => {
+            renderMenu(data);
+          })
+          .catch(err => {
+            const container = document.getElementById('menu-container');
+            container.innerHTML = `<div class="error">Hata: ${err.message}</div>`;
+          });
+      });
+    </script>
 </body>
+
 </html>

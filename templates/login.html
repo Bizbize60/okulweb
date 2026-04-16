@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -156,21 +157,16 @@
     }
   </style>
 </head>
+
 <body>
   <div class="login-container">
     <h1>Giriş Yap</h1>
     <p class="subtitle">THKÜ Öğrenci Ofis Sistemi</p>
 
-    <form method="POST" action="/login" id="loginForm">
+    <form method="POST" action="{{ request.full_path }}" id="loginForm">
       <div class="form-group">
         <label for="email">Öğrenci E-postası</label>
-        <input 
-          type="email" 
-          id="email" 
-          name="email" 
-          required 
-          placeholder="ornek@stu.thk.edu.tr"
-        >
+        <input type="email" id="email" name="email" required placeholder="ornek@stu.thk.edu.tr">
         <span class="email-hint">* Sadece @stu.thk.edu.tr uzantılı e-postalar kabul edilir</span>
       </div>
 
@@ -192,7 +188,7 @@
   </div>
 
   <script>
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
       const email = document.getElementById('email').value;
       if (!email.endsWith('@stu.thk.edu.tr')) {
         e.preventDefault();
@@ -202,4 +198,5 @@
     });
   </script>
 </body>
+
 </html>

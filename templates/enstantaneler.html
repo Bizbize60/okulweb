@@ -1,28 +1,76 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kampüsten Fotoğraflar</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
-        :root { --bg: #121212; --card: #1e1e1e; --primary: #8b5cf6; --text: #fff; } /* Mor tema */
-        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding: 20px; }
+        :root {
+            --bg: #121212;
+            --card: #1e1e1e;
+            --primary: #8b5cf6;
+            --text: #fff;
+        }
+
+        /* Mor tema */
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
 
         /* Header */
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .title i { color: var(--primary); margin-right: 10px; }
-        .controls { display: flex; gap: 15px; }
-        
-        button { background: var(--card); border: 1px solid #333; color: #aaa; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.3s; }
-        button:hover, button.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .upload-btn { background: var(--primary); color: white; border: none; font-weight: 600; }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .title i {
+            color: var(--primary);
+            margin-right: 10px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            background: var(--card);
+            border: 1px solid #333;
+            color: #aaa;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover,
+        button.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .upload-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
 
         /* MASONRY (Pinterest) LAYOUT */
         .masonry-grid {
-            column-count: 4; /* Masaüstünde 4 sütun */
+            column-count: 4;
+            /* Masaüstünde 4 sütun */
             column-gap: 20px;
         }
 
@@ -31,24 +79,55 @@
             border-radius: 16px;
             overflow: hidden;
             margin-bottom: 20px;
-            break-inside: avoid; /* Kartın bölünmesini engeller */
+            break-inside: avoid;
+            /* Kartın bölünmesini engeller */
             transition: transform 0.2s;
             position: relative;
         }
 
-        .pin-card:hover { transform: translateY(-5px); }
-        
-        .pin-image { width: 100%; display: block; border-radius: 16px 16px 0 0; }
-        
-        .pin-content { padding: 15px; }
-        .pin-text { font-size: 0.9rem; margin-bottom: 10px; color: #ddd; }
-        
-        .pin-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
-        .user-info { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #aaa; }
-        .user-avatar { width: 24px; height: 24px; border-radius: 50%; }
+        .pin-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .pin-image {
+            width: 100%;
+            display: block;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .pin-content {
+            padding: 15px;
+        }
+
+        .pin-text {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            color: #ddd;
+        }
+
+        .pin-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+
+        .user-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+        }
 
         .like-btn {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             border: none;
             width: 35px;
             height: 35px;
@@ -60,41 +139,95 @@
             padding: 0;
             cursor: pointer;
         }
-        
-        .like-btn.liked { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
-        .like-count { font-size: 0.85rem; font-weight: 600; margin-left: 5px; }
+
+        .like-btn.liked {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .like-count {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 5px;
+        }
 
         /* Modal */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background: var(--card); padding: 30px; border-radius: 12px; width: 400px; text-align: center; }
-        .modal input, .modal textarea { width: 100%; padding: 10px; margin: 10px 0; background: #2c2c2c; border: none; color: white; border-radius: 8px; }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--card);
+            padding: 30px;
+            border-radius: 12px;
+            width: 400px;
+            text-align: center;
+        }
+
+        .modal input,
+        .modal textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background: #2c2c2c;
+            border: none;
+            color: white;
+            border-radius: 8px;
+        }
 
         /* Responsive */
-        @media (max-width: 1024px) { .masonry-grid { column-count: 3; } }
-        @media (max-width: 768px) { .masonry-grid { column-count: 2; } }
-        @media (max-width: 480px) { .masonry-grid { column-count: 1; } }
+        @media (max-width: 1024px) {
+            .masonry-grid {
+                column-count: 3;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .masonry-grid {
+                column-count: 2;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .masonry-grid {
+                column-count: 1;
+            }
+        }
     </style>
 </head>
+
 <body>
 
-<header>
+    <header>
         <div class="title">
             <h2><i class="fa-solid fa-camera-retro"></i> Kampüsten Fotoğraflar</h2>
             <h2>Admin Mal Olduğu için tabloları oluşturmayı unutmuş,CI/CD bilen birine ihtiyacım var</h2>
-            
-            <p style="color: #fbbf24; margin-top: 5px; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+
+            <p
+                style="color: #fbbf24; margin-top: 5px; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
                 <i class="fa-solid fa-trophy"></i> En çok beğenilen fotoğraf 1000 TL ödüle kavuşacak! Son Tarih 5 Şubat.
             </p>
-            </div>
+        </div>
         <div class="controls">
-            <button onclick="loadPosts('populer')" id="btn-populer"><i class="fa-solid fa-fire"></i> En Çok Beğenilen</button>
-            <button onclick="loadPosts('yeni')" id="btn-yeni" class="active"><i class="fa-solid fa-clock"></i> En Yeniler</button>
+            <button onclick="loadPosts('populer')" id="btn-populer"><i class="fa-solid fa-fire"></i> En Çok
+                Beğenilen</button>
+            <button onclick="loadPosts('yeni')" id="btn-yeni" class="active"><i class="fa-solid fa-clock"></i> En
+                Yeniler</button>
             <button class="upload-btn" onclick="openModal()">+ Paylaş</button>
         </div>
     </header>
 
     <div class="masonry-grid" id="feed">
-        </div>
+    </div>
 
     <div class="modal" id="uploadModal">
         <div class="modal-content">
@@ -120,8 +253,22 @@
 
             try {
                 const res = await fetch(`/api/enstantaneler?sirala=${sirala}`);
+
+                // Hata kontrolü
+                if (!res.ok) {
+
+                    // Eğer kullanıcı yetkisizse (401) giriş sayfasına yönlendir
+                    if (res.status === 401) {
+                        window.location.href = `/login?next=${encodeURIComponent(window.location.pathname)}`;
+                        return;
+                    } else {
+                        alert("Veriler yüklenirken bir hata oluştu.");
+                        return;
+                    }
+                }
+
                 const data = await res.json();
-                
+
                 grid.innerHTML = '';
                 data.forEach(post => {
                     const html = `
@@ -146,14 +293,14 @@
                     </div>`;
                     grid.innerHTML += html;
                 });
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error(e); grid.innerHTML = '<p style="color:#666">Veriler yüklenirken bir hata oluştu.</p>'; }
         }
 
         async function toggleLike(id, btn) {
             // Animasyon etkisi için anlık değişim (sunucuyu beklemeden)
             const countSpan = document.getElementById(`count-${id}`);
             let currentCount = parseInt(countSpan.innerText);
-            
+
             if (btn.classList.contains('liked')) {
                 btn.classList.remove('liked');
                 countSpan.innerText = currentCount - 1;
@@ -174,8 +321,8 @@
         async function uploadPost() {
             const file = document.getElementById('fileInput').files[0];
             const desc = document.getElementById('descInput').value;
-            
-            if(!file) return alert("Dosya seçmedin!");
+
+            if (!file) return alert("Dosya seçmedin!");
 
             const formData = new FormData();
             formData.append('file', file);
@@ -183,10 +330,10 @@
 
             const btn = document.querySelector('.modal .upload-btn');
             btn.innerText = "Yükleniyor...";
-            
+
             try {
                 const res = await fetch('/api/enstantane-yukle', { method: 'POST', body: formData });
-                if(res.ok) {
+                if (res.ok) {
                     closeModal();
                     loadPosts('yeni'); // Listeyi yenile
                     document.getElementById('fileInput').value = '';
@@ -194,7 +341,7 @@
                 } else {
                     alert("Yükleme başarısız");
                 }
-            } catch(e) { console.error(e); }
+            } catch (e) { console.error(e); }
             btn.innerText = "Paylaş";
         }
 
@@ -202,4 +349,5 @@
         function closeModal() { document.getElementById('uploadModal').style.display = 'none'; }
     </script>
 </body>
+
 </html>

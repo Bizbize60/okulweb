@@ -1,24 +1,75 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>İlan Ekle - THKÜ Bit Pazarı</title>
     <style>
-        body { font-family: 'Inter', sans-serif; background: #f8f9fa; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; color: #2d3748; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; }
-        .btn { width: 100%; padding: 12px; background: #805ad5; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
-        .btn:hover { background: #6b46c1; }
-        .file-upload { border: 2px dashed #cbd5e0; padding: 20px; text-align: center; border-radius: 8px; cursor: pointer; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8f9fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: #805ad5;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #6b46c1;
+        }
+
+        .file-upload {
+            border: 2px dashed #cbd5e0;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h2 style="margin-bottom: 20px; text-align: center;">📦 İlan Oluştur</h2>
-        
+
         <form id="ilanForm">
             <div class="form-group">
                 <label>Ürün Başlığı</label>
@@ -60,14 +111,15 @@
             </div>
 
             <button type="submit" class="btn">İlanı Yayınla</button>
-            <a href="/bit-pazari" style="display: block; text-align: center; margin-top: 15px; color: #718096; text-decoration: none;">İptal</a>
+            <a href="/bit-pazari"
+                style="display: block; text-align: center; margin-top: 15px; color: #718096; text-decoration: none;">İptal</a>
         </form>
     </div>
 
     <script>
         // Dosya adı gösterme
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            if(e.target.files[0]) {
+        document.getElementById('fileInput').addEventListener('change', function (e) {
+            if (e.target.files[0]) {
                 document.getElementById('fileName').innerText = "Seçilen: " + e.target.files[0].name;
             }
         });
@@ -85,7 +137,7 @@
                     method: 'POST',
                     body: formData
                 });
-                
+
                 if (res.ok) {
                     alert('İlan başarıyla eklendi!');
                     window.location.href = '/bit-pazari';
@@ -102,4 +154,5 @@
         });
     </script>
 </body>
+
 </html>

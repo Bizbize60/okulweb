@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -172,7 +173,7 @@
 
         .message-card:hover {
             border-color: #ccc;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         .message-header {
@@ -315,6 +316,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="sidebar">
         <h2>Kampüs</h2>
@@ -345,7 +347,8 @@
                 </div>
                 <div class="form-group">
                     <label for="mesaj_icerigi">Mesaj İçeriği</label>
-                    <textarea id="mesaj_icerigi" name="mesaj_icerigi" placeholder="Mesajınızı buraya yazın..." required></textarea>
+                    <textarea id="mesaj_icerigi" name="mesaj_icerigi" placeholder="Mesajınızı buraya yazın..."
+                        required></textarea>
                 </div>
                 <button type="submit" class="submit-btn">Gönder</button>
             </form>
@@ -371,12 +374,12 @@
                     }
                     throw new Error('Mesajlar yüklenemedi');
                 }
-                
+
                 const messages = await response.json();
                 displayMessages(messages);
             } catch (error) {
                 console.error('Hata:', error);
-                document.getElementById('messagesContainer').innerHTML = 
+                document.getElementById('messagesContainer').innerHTML =
                     '<div class="empty-state">Mesajlar yüklenirken bir hata oluştu.</div>';
             }
         }
@@ -384,7 +387,7 @@
         // Mesajları görüntüle
         function displayMessages(messages) {
             const container = document.getElementById('messagesContainer');
-            
+
             if (messages.length === 0) {
                 container.innerHTML = '<div class="empty-state">Henüz hiç mesaj yok. İlk mesajı siz gönderin!</div>';
                 return;
@@ -415,7 +418,7 @@
         // Yeni mesaj gönder
         document.getElementById('newMessageForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const konu = document.getElementById('konu').value;
             const mesaj_icerigi = document.getElementById('mesaj_icerigi').value;
 
@@ -468,18 +471,18 @@
 
                 if (response.ok) {
                     // Beğeni sayısını güncelle
-                    document.getElementById(`like-count-${messageId}`).innerHTML = 
+                    document.getElementById(`like-count-${messageId}`).innerHTML =
                         `${data.begeni_sayisi}`;
-                    
+
                     // Buton durumlarını güncelle
                     const messageCard = document.querySelector(`#like-count-${messageId}`).closest('.message-card');
                     const likeBtn = messageCard.querySelector('.like-btn');
                     const dislikeBtn = messageCard.querySelector('.dislike-btn');
-                    
+
                     // Tüm active sınıflarını kaldır
                     likeBtn.classList.remove('active');
                     dislikeBtn.classList.remove('active');
-                    
+
                     // Yeni duruma göre active sınıfını ekle
                     if (data.user_action === 'like') {
                         likeBtn.classList.add('active');
@@ -535,4 +538,5 @@
         loadMessages();
     </script>
 </body>
+
 </html>

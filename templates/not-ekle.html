@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -165,6 +166,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <div class="header">
@@ -176,24 +178,12 @@
       <form id="uploadForm" enctype="multipart/form-data">
         <div class="form-group">
           <label for="ders_adi">Ders Adı *</label>
-          <input 
-            type="text" 
-            id="ders_adi" 
-            name="ders_adi" 
-            required 
-            placeholder="Örn: Veri Yapıları ve Algoritmalar"
-          >
+          <input type="text" id="ders_adi" name="ders_adi" required placeholder="Örn: Veri Yapıları ve Algoritmalar">
         </div>
 
         <div class="form-group">
           <label for="dosya">Dosya Seç (PDF veya Word) *</label>
-          <input 
-            type="file" 
-            id="dosya" 
-            name="dosya" 
-            required 
-            accept=".pdf,.doc,.docx"
-          >
+          <input type="file" id="dosya" name="dosya" required accept=".pdf,.doc,.docx">
           <span class="file-hint">* Sadece PDF veya Word (.doc, .docx) dosyaları kabul edilir</span>
           <div id="filePreview" class="file-preview"></div>
         </div>
@@ -215,7 +205,7 @@
     const message = document.getElementById('message');
 
     // File preview
-    fileInput.addEventListener('change', function(e) {
+    fileInput.addEventListener('change', function (e) {
       const file = e.target.files[0];
       if (file) {
         const fileSize = (file.size / 1024 / 1024).toFixed(2);
@@ -227,7 +217,7 @@
     });
 
     // Form submit
-    form.addEventListener('submit', async function(e) {
+    form.addEventListener('submit', async function (e) {
       e.preventDefault();
 
       const dersAdi = document.getElementById('ders_adi').value;
@@ -266,7 +256,7 @@
 
         const result = await response.json();
         showMessage('Not başarıyla eklendi! 🎉', 'success');
-        
+
         // Reset form after 2 seconds
         setTimeout(() => {
           form.reset();
@@ -289,4 +279,5 @@
     }
   </script>
 </body>
+
 </html>

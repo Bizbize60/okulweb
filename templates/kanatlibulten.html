@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kanatlı Bülten - THK Üniversitesi Havacılık Kulübü</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=Cinzel:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -25,17 +28,17 @@
             --accent: #C9A962;
             --accent-secondary: #8B2635;
             --accent-foreground: #1C1714;
-            
+
             /* Typography */
             --font-heading: 'Cormorant Garamond', serif;
             --font-body: 'Crimson Pro', serif;
             --font-display: 'Cinzel', serif;
-            
+
             /* Effects */
             --brass-gradient: linear-gradient(180deg, #D4B872 0%, #C9A962 50%, #B8953F 100%);
             --sepia-filter: sepia(0.6) contrast(0.95) brightness(0.9);
-            --engraved-text: 1px 1px 1px rgba(0,0,0,0.4), -1px -1px 1px rgba(255,255,255,0.1);
-            
+            --engraved-text: 1px 1px 1px rgba(0, 0, 0, 0.4), -1px -1px 1px rgba(255, 255, 255, 0.1);
+
             /* Spacing */
             --radius: 4px;
         }
@@ -54,7 +57,7 @@
             flex-direction: column;
             position: relative;
         }
-        
+
         /* Atmospheric Overlays */
         body::before {
             content: "";
@@ -63,11 +66,11 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(ellipse at center, transparent 0%, transparent 50%, rgba(28,23,20,0.4) 100%);
+            background: radial-gradient(ellipse at center, transparent 0%, transparent 50%, rgba(28, 23, 20, 0.4) 100%);
             pointer-events: none;
             z-index: 1;
         }
-        
+
         body::after {
             content: "";
             position: fixed;
@@ -79,9 +82,11 @@
             pointer-events: none;
             z-index: 1;
         }
-        
+
         /* All content above overlays */
-        header, .main-wrapper, footer {
+        header,
+        .main-wrapper,
+        footer {
             position: relative;
             z-index: 2;
         }
@@ -93,7 +98,7 @@
             padding: 2rem 1.5rem;
             position: relative;
         }
-        
+
         header::before,
         header::after {
             content: "";
@@ -102,14 +107,14 @@
             height: 40px;
             border: 2px solid var(--accent);
         }
-        
+
         header::before {
             top: 0;
             left: 0;
             border-right: none;
             border-bottom: none;
         }
-        
+
         header::after {
             bottom: 0;
             right: 0;
@@ -144,7 +149,7 @@
             flex-shrink: 0;
             transition: transform 300ms ease-out;
         }
-        
+
         .header-logo:hover {
             transform: scale(1.05);
         }
@@ -156,7 +161,7 @@
             filter: var(--sepia-filter);
             transition: filter 700ms ease-out;
         }
-        
+
         .header-logo:hover img {
             filter: none;
         }
@@ -164,7 +169,7 @@
         .header-content {
             flex: 1;
         }
-        
+
         .header-volume {
             font-family: var(--font-display);
             font-size: 0.625rem;
@@ -206,13 +211,13 @@
             font-weight: 500;
             transition: all 300ms ease-out;
             border: none;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.3);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.3);
             text-shadow: var(--engraved-text);
         }
 
         .nav-back:hover {
             filter: brightness(1.1);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.3), 0 4px 12px rgba(201,169,98,0.3);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(201, 169, 98, 0.3);
         }
 
         /* Main Container */
@@ -226,20 +231,20 @@
             margin: 0 auto;
             padding: 4rem 1.5rem;
         }
-        
+
         /* Intro Section with Drop Cap */
         .intro-section {
             max-width: 896px;
             margin: 0 auto 4rem;
             text-align: center;
         }
-        
+
         .intro-section p {
             font-size: 1.125rem;
             line-height: 1.75;
             color: var(--muted-foreground);
         }
-        
+
         .intro-section p::first-letter {
             font-family: var(--font-display);
             font-size: 4.5rem;
@@ -247,7 +252,7 @@
             line-height: 0.8;
             margin-right: 0.75rem;
             color: var(--accent);
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         /* Ornate Divider */
@@ -257,7 +262,7 @@
             background: linear-gradient(90deg, transparent 0%, var(--border) 20%, var(--accent) 50%, var(--border) 80%, transparent 100%);
             margin: 3rem 0;
         }
-        
+
         .ornate-divider::before {
             content: "✶";
             position: absolute;
@@ -275,7 +280,7 @@
             text-align: center;
             margin-bottom: 3rem;
         }
-        
+
         .section-volume {
             font-family: var(--font-display);
             font-size: 0.625rem;
@@ -284,7 +289,7 @@
             color: var(--accent);
             margin-bottom: 1rem;
         }
-        
+
         .section-title {
             font-family: var(--font-heading);
             font-size: 3rem;
@@ -323,7 +328,7 @@
             background: var(--background);
             color: var(--foreground);
         }
-        
+
         .search-box input::placeholder {
             color: var(--muted-foreground);
             font-style: italic;
@@ -332,7 +337,7 @@
         .search-box input:focus {
             outline: none;
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(201,169,98,0.3);
+            box-shadow: 0 0 0 3px rgba(201, 169, 98, 0.3);
         }
 
         .search-icon {
@@ -343,12 +348,12 @@
             color: var(--accent);
             font-size: 1.25rem;
         }
-        
+
         .filter-buttons {
             display: flex;
             gap: 0.75rem;
         }
-        
+
         .filter-btn {
             padding: 0.75rem 1.5rem;
             background: transparent;
@@ -363,7 +368,7 @@
             transition: all 300ms ease-out;
             white-space: nowrap;
         }
-        
+
         .filter-btn:hover,
         .filter-btn.active {
             background: var(--accent-secondary);
@@ -375,7 +380,7 @@
         .posts-timeline {
             position: relative;
         }
-        
+
         /* Timeline vertical line */
         .posts-timeline::before {
             content: "";
@@ -408,7 +413,7 @@
             position: relative;
             cursor: pointer;
         }
-        
+
         /* Corner Flourishes for Cards */
         .post-card::before,
         .post-card::after {
@@ -420,14 +425,14 @@
             opacity: 0.6;
             transition: opacity 300ms ease-out;
         }
-        
+
         .post-card::before {
             top: -1px;
             left: -1px;
             border-right: none;
             border-bottom: none;
         }
-        
+
         .post-card::after {
             bottom: -1px;
             right: -1px;
@@ -436,10 +441,10 @@
         }
 
         .post-card:hover {
-            border-color: rgba(201,169,98,0.5);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            border-color: rgba(201, 169, 98, 0.5);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
         }
-        
+
         .post-card:hover::before,
         .post-card:hover::after {
             opacity: 1;
@@ -451,7 +456,7 @@
             width: 100%;
             overflow: hidden;
         }
-        
+
         .post-image {
             width: 100%;
             aspect-ratio: 4 / 3;
@@ -483,6 +488,7 @@
             max-width: 1280px;
             padding: 0 1.5rem;
         }
+
         .hero-card {
             position: relative;
             background: var(--background-alt);
@@ -492,12 +498,14 @@
             display: grid;
             grid-template-columns: 1fr;
         }
+
         .hero-image {
             width: 100%;
             height: 60vh;
             min-height: 420px;
             background: var(--muted);
         }
+
         .hero-image img {
             width: 100%;
             height: 100%;
@@ -505,12 +513,14 @@
             filter: var(--sepia-filter);
             transition: all 700ms ease-out;
         }
+
         .hero-content {
             padding: 1.5rem;
             display: flex;
             flex-direction: column;
             gap: 0.75rem;
         }
+
         .hero-title {
             font-family: var(--font-heading);
             font-size: 2rem;
@@ -518,6 +528,7 @@
             color: var(--foreground);
             line-height: 1.3;
         }
+
         .hero-meta {
             display: flex;
             gap: 1.5rem;
@@ -532,18 +543,21 @@
             position: relative;
             overflow: hidden;
         }
+
         .carousel-track {
             display: flex;
             gap: 2rem;
             transition: transform 300ms ease-out;
             will-change: transform;
         }
+
         .carousel-nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-top: 1rem;
         }
+
         .carousel-btn {
             padding: 0.5rem 1rem;
             background: var(--brass-gradient);
@@ -555,7 +569,7 @@
             text-transform: uppercase;
             letter-spacing: 0.15em;
             cursor: pointer;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.3);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         .post-content {
@@ -564,7 +578,7 @@
             display: flex;
             flex-direction: column;
         }
-        
+
         .post-number {
             font-family: var(--font-display);
             font-size: 0.625rem;
@@ -604,7 +618,7 @@
             text-align: center;
             padding: 6rem 2rem;
         }
-        
+
         .empty-state-icon {
             font-size: 5rem;
             opacity: 0.3;
@@ -657,7 +671,7 @@
             text-align: center;
             margin-top: auto;
         }
-        
+
         footer p {
             font-family: var(--font-display);
             font-size: 0.75rem;
@@ -672,14 +686,15 @@
                 display: none;
             }
         }
-        
+
         @media (max-width: 768px) {
+
             header::before,
             header::after {
                 width: 24px;
                 height: 24px;
             }
-            
+
             .header-container {
                 flex-direction: column;
                 text-align: center;
@@ -690,7 +705,7 @@
                 text-align: center;
                 width: 100%;
             }
-            
+
             .header-logo {
                 width: 70px;
                 height: 70px;
@@ -699,7 +714,7 @@
             .header-content h1 {
                 font-size: 2rem;
             }
-            
+
             .section-title {
                 font-size: 2.25rem;
             }
@@ -712,12 +727,12 @@
                 grid-template-columns: 1fr;
                 gap: 2.5rem;
             }
-            
+
             .filter-section {
                 flex-direction: column;
                 align-items: stretch;
             }
-            
+
             .filter-buttons {
                 justify-content: center;
                 flex-wrap: wrap;
@@ -728,7 +743,7 @@
             header {
                 padding: 1.5rem 1rem;
             }
-            
+
             .header-logo {
                 width: 60px;
                 height: 60px;
@@ -741,21 +756,21 @@
             .header-content p {
                 font-size: 0.875rem;
             }
-            
+
             .section-title {
                 font-size: 1.875rem;
             }
-            
+
             .intro-section p::first-letter {
                 font-size: 3.5rem;
             }
-            
+
             .post-card::before,
             .post-card::after {
                 display: none;
             }
         }
-        
+
         /* Accessibility: Reduced Motion */
         @media (prefers-reduced-motion: reduce) {
             * {
@@ -776,9 +791,11 @@
             justify-content: center;
             cursor: zoom-out;
         }
+
         .lightbox.show {
             display: flex;
         }
+
         .lightbox img {
             max-width: 90vw;
             max-height: 90vh;
@@ -786,6 +803,7 @@
             border: 3px solid var(--accent);
             box-shadow: 0 0 40px rgba(201, 169, 98, 0.3);
         }
+
         .lightbox-close {
             position: absolute;
             top: 20px;
@@ -796,9 +814,11 @@
             font-family: var(--font-display);
             transition: transform 200ms;
         }
+
         .lightbox-close:hover {
             transform: scale(1.2);
         }
+
         .lightbox-caption {
             position: absolute;
             bottom: 20px;
@@ -812,6 +832,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Lightbox Modal -->
     <div class="lightbox" id="lightbox" onclick="closeLightbox()">
@@ -839,23 +860,19 @@
     <div class="main-wrapper">
         <main class="container">
             <section class="intro-section">
-                <p>Havacılık tutkusuyla yanan gençlerin buluşma noktası, Kanatlı Bülten arşivimize hoş geldiniz. Bu kutsal sayfalarda, kulübümüzün tarihi kayıtlarını ve yeni duyurularını bulacaksınız.</p>
+                <p>Havacılık tutkusuyla yanan gençlerin buluşma noktası, Kanatlı Bülten arşivimize hoş geldiniz. Bu
+                    kutsal sayfalarda, kulübümüzün tarihi kayıtlarını ve yeni duyurularını bulacaksınız.</p>
             </section>
 
             <!-- Hero Latest Post -->
             <section id="heroSection" class="hero-section" style="display: none;"></section>
-            
+
             <div class="ornate-divider"></div>
 
             <div class="filter-section">
                 <div class="search-box">
                     <span class="search-icon">🔍</span>
-                    <input 
-                        type="text" 
-                        id="searchInput" 
-                        placeholder="Bülten arşivinde ara..."
-                        aria-label="Bülten ara"
-                    >
+                    <input type="text" id="searchInput" placeholder="Bülten arşivinde ara..." aria-label="Bülten ara">
                 </div>
                 <div class="filter-buttons">
                     <button class="filter-btn active" data-filter="all">Tümü</button>
@@ -914,21 +931,21 @@
         let allPosts = [];
         let currentFilter = 'all';
         const ONE_MONTH_MS = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
-        
+
         // DOM elements
         const loadingDiv = document.getElementById('loading');
-            const emptyState = document.getElementById('emptyState');
+        const emptyState = document.getElementById('emptyState');
         const searchInput = document.getElementById('searchInput');
         const newPostsSection = document.getElementById('newPostsSection');
         const archivePostsSection = document.getElementById('archivePostsSection');
         const newPostsGrid = document.getElementById('newPostsGrid');
-            const archiveCarouselTrack = document.getElementById('archiveCarouselTrack');
-            const archivePrevBtn = document.getElementById('archivePrevBtn');
-            const archiveNextBtn = document.getElementById('archiveNextBtn');
-            const archiveCarouselNav = document.getElementById('archiveCarouselNav');
+        const archiveCarouselTrack = document.getElementById('archiveCarouselTrack');
+        const archivePrevBtn = document.getElementById('archivePrevBtn');
+        const archiveNextBtn = document.getElementById('archiveNextBtn');
+        const archiveCarouselNav = document.getElementById('archiveCarouselNav');
         const archiveDivider = document.getElementById('archiveDivider');
         const filterButtons = document.querySelectorAll('.filter-btn');
-            const heroSection = document.getElementById('heroSection');
+        const heroSection = document.getElementById('heroSection');
 
         // Roman numerals for post numbering
         function toRoman(num) {
@@ -965,7 +982,7 @@
             try {
                 const response = await fetch('/api/kanatlibulten?kulup_adi=' + encodeURIComponent('Kanatlı Bülten'));
                 if (!response.ok) throw new Error('Veriler yüklenemedi');
-                
+
                 allPosts = await response.json();
                 renderPosts();
             } catch (error) {
@@ -979,15 +996,15 @@
         // Create post card HTML
         function createPostCard(post, index, isNew) {
             const postDate = new Date(post.yuklenme_tarihi);
-            const formattedDate = postDate.toLocaleDateString('tr-TR', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
+            const formattedDate = postDate.toLocaleDateString('tr-TR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
             });
-            
+
             const romanNumeral = toRoman(index + 1);
             const waxSeal = '';
-            
+
             return `
                 <article class="post-card" data-post-id="${post.id}" role="button" tabindex="0" aria-label="Gönderiyi öne çıkar">
                     <div class="post-image-container">
@@ -1015,8 +1032,8 @@
         // Create hero card for the latest post
         function createHeroCard(post) {
             const postDate = new Date(post.yuklenme_tarihi);
-            const formattedDate = postDate.toLocaleDateString('tr-TR', { 
-                year: 'numeric', month: 'long', day: 'numeric' 
+            const formattedDate = postDate.toLocaleDateString('tr-TR', {
+                year: 'numeric', month: 'long', day: 'numeric'
             });
             return `
                 <div class="hero-card">
@@ -1037,10 +1054,10 @@
         // Render posts based on filter
         function renderPosts() {
             const searchTerm = searchInput.value.toLowerCase();
-            
+
             // Filter posts
             let filteredPosts = allPosts.filter(post => {
-                const matchesSearch = !searchTerm || 
+                const matchesSearch = !searchTerm ||
                     (post.aciklama || '').toLowerCase().includes(searchTerm);
                 return matchesSearch;
             });
@@ -1061,11 +1078,11 @@
             // Separate into new and archive
             const newPosts = restPosts.filter(post => isNewPost(post.yuklenme_tarihi));
             const archivePosts = restPosts.filter(post => !isNewPost(post.yuklenme_tarihi));
-            
+
             // Apply filter
             let displayNewPosts = [];
             let displayArchivePosts = [];
-            
+
             if (currentFilter === 'all') {
                 displayNewPosts = newPosts;
                 displayArchivePosts = archivePosts;
@@ -1077,7 +1094,7 @@
 
             // Check if we have any posts to display
             const hasAnyPosts = !!heroPost || displayNewPosts.length > 0 || displayArchivePosts.length > 0;
-            
+
             if (!hasAnyPosts) {
                 emptyState.style.display = 'block';
                 newPostsSection.style.display = 'none';
@@ -1122,7 +1139,7 @@
                 archivePostsSection.style.display = 'none';
                 archiveCarouselNav.style.display = 'none';
             }
-            
+
             // Show divider if both sections are visible
             if (displayNewPosts.length > 0 && displayArchivePosts.length > 0) {
                 archiveDivider.style.display = 'block';
@@ -1157,7 +1174,7 @@
             document.getElementById('lightbox').classList.remove('show');
             document.body.style.overflow = '';
         }
-        document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeLightbox(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
 
         // Simple carousel logic for archive posts
         let currentArchiveIndex = 0;
@@ -1199,4 +1216,5 @@
         document.addEventListener('DOMContentLoaded', loadPosts);
     </script>
 </body>
+
 </html>
