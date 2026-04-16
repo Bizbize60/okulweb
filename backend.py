@@ -15,7 +15,6 @@ from werkzeug.utils import secure_filename
 import openpyxl
 import jwt
 import json
-import random
 
 # Config
 from config import (
@@ -35,11 +34,44 @@ from database.kulupicerik import Kulupicerik
 from database import saatler, dersnotu, degerlendirme, pazar
 from database.kampusten import Enstantane, EnstantaneLike
 from database.subscription import WebPushSubscription
-from durak import durak_sorgula
+# from durak import durak_sorgula
 
 from database.kayip_esya import KayipEsya
 from werkzeug.utils import secure_filename
 import os
+
+# =============================================================================
+# Flask Uygulama Yapılandırması
+# =============================================================================
+app = Flask(__name__)
+
+# Veritabanı ayarları
+app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SECRET_KEY"] = SECRET_KEY
+app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH
+
+# Upload klasörleri
+app.config['UPLOAD_FOLDER'] = NOTES_UPLOAD_FOLDER
+app.config['PAZAR_UPLOAD_FOLDER'] = PAZAR_UPLOAD_FOLDER
+app.config['KULUP_UPLOAD_FOLDER'] = KULUP_UPLOAD_FOLDER
+
+# Smtp
+app.config['MAIL_SERVER'] =  MAIL_SERVER
+app.config['MAIL_PORT'] = MAIL_PORT
+app.config['MAIL_USE_TLS'] = MAIL_USE_TLS
+app.config['MAIL_USERNAME'] = MAIL_USERNAME
+app.config['MAIL_PASSWORD'] =  MAIL_PASSWORD
+app.config['MAIL_DEFAULT_SENDER'] = MAIL_DEFAULT_SENDER
+
+# Upload klasörlerini oluştur
+os.makedirs(NOTES_UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(PAZAR_UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(KULUP_UPLOAD_FOLDER, exist_ok=True)
+
+# Veritabanını başlat
+db.init_app(app)
+# mail = Mail(app)
 
 # =============================================================================
 # Scraping Fonksiyonları
@@ -144,41 +176,6 @@ def scrape_haberler():
         print(f"[scrape_haberler] HATA: {e}")
         return []
 
-
-
-# =============================================================================
-# Flask Uygulama Yapılandırması
-# =============================================================================
-app = Flask(__name__)
-
-# Veritabanı ayarları
-app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SECRET_KEY"] = SECRET_KEY
-app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH
-
-# Upload klasörleri
-app.config['UPLOAD_FOLDER'] = NOTES_UPLOAD_FOLDER
-app.config['PAZAR_UPLOAD_FOLDER'] = PAZAR_UPLOAD_FOLDER
-app.config['KULUP_UPLOAD_FOLDER'] = KULUP_UPLOAD_FOLDER
-
-# Smtp
-app.config['MAIL_SERVER'] =  MAIL_SERVER
-app.config['MAIL_PORT'] = MAIL_PORT
-app.config['MAIL_USE_TLS'] = MAIL_USE_TLS
-app.config['MAIL_USERNAME'] = MAIL_USERNAME
-app.config['MAIL_PASSWORD'] =  MAIL_PASSWORD
-app.config['MAIL_DEFAULT_SENDER'] = MAIL_DEFAULT_SENDER
-
-# Upload klasörlerini oluştur
-os.makedirs(NOTES_UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(PAZAR_UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(KULUP_UPLOAD_FOLDER, exist_ok=True)
-
-# Veritabanını başlat
-db.init_app(app)
-mail = Mail(app)
-
 # =============================================================================
 # Yardımcı Fonksiyonlar
 # =============================================================================
@@ -212,36 +209,44 @@ def is_admin(f):
         return f(current_user, *args, **kwargs)
     return wrapper
 
-def token_required(f, next_location="/"):
+def token_required(next_location="/"):
     """JWT token doğrulaması yapan decorator."""
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        token = request.cookies.get('jwt_token')
+    
+    def decorator(f):
+        
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            token = request.cookies.get('jwt_token')
 
-        if not token:
-            
-            # Eğer istek API endpoint'ine yapılmışsa, JSON formatında yetkisiz mesajı döndürelim
-            if request.path.startswith('/api/'):
-                return jsonify({'message': 'Unauthorized'}), 401
-            
-            # Kullanıcıya bir hata mesajı göstermektense token yoksa direkt giriş sayfasına yönlendirelim
-            # Ve ayrıca geldiği sayfaya geri dönebilmesi için next parametresi ekleyelim
-            return redirect(url_for('login', next=next_location))
+            if not token:
 
-        try:
-            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
-            current_user = User.query.filter_by(public_id=data['public_id']).first()
-        except Exception:
-            
-            # Eğer istek API endpoint'ine yapılmışsa, JSON formatında yetkisiz mesajı döndürelim
-            if request.path.startswith('/api/'):
-                return jsonify({'message': 'Unauthorized'}), 401
-            
-            return redirect(url_for('login', next=next_location)) # Token geçersizse de giriş sayfasına yönlendirelim böylece kullanıcı tekrar giriş yaparak yeni bir token alabilir
+                # Eğer istek API endpoint'ine yapılmışsa, JSON formatında yetkisiz mesajı döndürelim
+                if request.path.startswith('/api/'):
+                    return jsonify({'message': 'Unauthorized'}), 401
 
-        return f(current_user, *args, **kwargs)
+                # Kullanıcıya bir hata mesajı göstermektense token yoksa direkt giriş sayfasına yönlendirelim
+                # Ve ayrıca geldiği sayfaya geri dönebilmesi için next parametresi ekleyelim
+                return redirect(url_for('login', next=next_location))
 
-    return decorated
+            try:
+                data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+                current_user = User.query.filter_by(public_id=data['public_id']).first()
+                
+                if not current_user:
+                    raise Exception("Kullanıcı bulunamadı!")
+            except Exception:
+
+                # Eğer istek API endpoint'ine yapılmışsa, JSON formatında yetkisiz mesajı döndürelim
+                if request.path.startswith('/api/'):
+                    return jsonify({'message': 'Unauthorized'}), 401
+
+                return redirect(url_for('login', next=next_location)) # Token geçersizse de giriş sayfasına yönlendirelim böylece kullanıcı tekrar giriş yaparak yeni bir token alabilir
+
+            return f(current_user, *args, **kwargs)
+        
+        return decorated
+
+    return decorator
 
 # =============================================================================
 # Ana Sayfa Route'u
@@ -388,7 +393,7 @@ def login():
         email = request.form['email']
         password = request.form['password']
         user = User.query.filter_by(email=email).first()
-
+        
         if not user or not check_password_hash(user.password, password):
             return jsonify({'message': 'Invalid email or password'}), 401
 
@@ -401,7 +406,9 @@ def login():
             algorithm="HS256"
         )
 
+        print(request.args, request.mimetype_params)
         next_page = request.args.get('next', url_for('main_page'))
+        print(f"Giriş başarılı. Yönlendirilecek sayfa: {next_page}")
         response = make_response(redirect(next_page))
         response.set_cookie('jwt_token', token)
 
@@ -1396,6 +1403,8 @@ def yemekhane_sayfa():
     return render_template('yemekhane.html')
 
 @app.post('/verify-all')
+@token_required(next_location='/')
+@is_admin
 def verify_all():
     pending_instructors = saatler.SaatlerPending.query.all()
     for pending in pending_instructors:

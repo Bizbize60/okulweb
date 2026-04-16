@@ -161,7 +161,7 @@
     <h1>Giriş Yap</h1>
     <p class="subtitle">THKÜ Öğrenci Ofis Sistemi</p>
 
-    <form method="POST" action="/login" id="loginForm">
+    <form method="POST" action="{{ request.full_path }}" id="loginForm">
       <div class="form-group">
         <label for="email">Öğrenci E-postası</label>
         <input 
