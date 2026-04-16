@@ -688,7 +688,7 @@ def api_kayiplar_listele():
         
     if q:
         search = f"%{q}%"
-        query = query.filter(or_(KayipEsya.baslik.ilike(search), KayipEsya.aciklama.ilike(search)))
+        query = query.filter(KayipEsya.baslik.ilike(search) | KayipEsya.aciklama.ilike(search))
 
     # En yeni ilan en üstte
     kayiplar = query.order_by(KayipEsya.tarih.desc()).all()

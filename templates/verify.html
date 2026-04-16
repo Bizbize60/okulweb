@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>E-posta Doğrulama - THKÜ</title>
   <style>
-     * {
+    * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
@@ -157,39 +158,52 @@
       margin-bottom: 20px;
       font-size: 0.875em;
     }
-    .info-text { text-align: center; color: #4a5568; margin-bottom: 20px; font-size: 0.9em; }
-    .email-display { font-weight: bold; color: #805ad5; }
+
+    .info-text {
+      text-align: center;
+      color: #4a5568;
+      margin-bottom: 20px;
+      font-size: 0.9em;
+    }
+
+    .email-display {
+      font-weight: bold;
+      color: #805ad5;
+    }
   </style>
 </head>
+
 <body>
   <div class="register-container">
     <h1>Doğrulama</h1>
     <p class="subtitle">Lütfen e-posta adresinizi kontrol edin</p>
 
     <p class="info-text">
-        <span class="email-display">{{ email }}</span> adresine 6 haneli bir kod gönderdik.
+      <span class="email-display">{{ email }}</span> adresine 6 haneli bir kod gönderdik.
     </p>
 
     {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        {% for message in messages %}
-          <div class="error-message">{{ message }}</div>
-        {% endfor %}
-      {% endif %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="error-message">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
     {% endwith %}
 
     <form method="POST" action="/verify">
       <div class="form-group">
         <label for="code">Doğrulama Kodu</label>
-        <input type="text" id="code" name="code" required placeholder="Örn: 4A2B1C" maxlength="6" style="text-align: center; letter-spacing: 5px; font-weight: bold; font-size: 1.2em;">
+        <input type="text" id="code" name="code" required placeholder="Örn: 4A2B1C" maxlength="6"
+          style="text-align: center; letter-spacing: 5px; font-weight: bold; font-size: 1.2em;">
       </div>
 
       <button type="submit" class="submit-btn">Hesabı Onayla</button>
     </form>
 
     <div class="login-link">
-        Kodu almadınız mı? <a href="/signup">Tekrar Gönder</a>
+      Kodu almadınız mı? <a href="/signup">Tekrar Gönder</a>
     </div>
   </div>
 </body>
+
 </html>

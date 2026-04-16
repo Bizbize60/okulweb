@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,6 +15,7 @@
             margin: 0;
             padding: 0;
         }
+
         .glass-container {
             max-width: 1100px;
             margin: 0 auto;
@@ -23,18 +25,21 @@
             padding: 48px 32px 32px 32px;
             margin-top: 60px;
             margin-bottom: 60px;
-            border: 1.5px solid rgba(255,255,255,0.08);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
             position: relative;
             backdrop-filter: blur(18px) saturate(1.2);
             -webkit-backdrop-filter: blur(18px) saturate(1.2);
         }
+
         .glass-tabs {
             position: absolute;
-            right: 0; top: 0;
+            right: 0;
+            top: 0;
             display: flex;
             flex-direction: column;
             z-index: 2;
         }
+
         .glass-tab {
             background: rgba(40, 50, 80, 0.7);
             color: #b6c8e6;
@@ -44,16 +49,19 @@
             border-radius: 0 0 18px 18px;
             margin-bottom: 8px;
             box-shadow: 0 2px 8px #0a0a1a44;
-            border: 1.5px solid rgba(255,255,255,0.08);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
             cursor: pointer;
             user-select: none;
             transition: background .2s, color .2s;
             text-shadow: 0 2px 8px #232a3a99;
         }
-        .glass-tab.active, .glass-tab:hover {
+
+        .glass-tab.active,
+        .glass-tab:hover {
             background: rgba(60, 80, 120, 0.9);
             color: #fff;
         }
+
         .section-title {
             font-size: 2.7rem;
             font-family: 'Montserrat', Arial, sans-serif;
@@ -66,6 +74,7 @@
             text-shadow: 0 2px 24px #0a0a1a99, 0 1px 0 #fff1;
             padding-left: 48px;
         }
+
         .section-desc {
             color: #b6c8e6;
             font-size: 1.25rem;
@@ -74,6 +83,7 @@
             margin-left: 48px;
             font-family: 'Montserrat', Arial, sans-serif;
         }
+
         .news-grid {
             display: flex;
             flex-wrap: wrap;
@@ -82,6 +92,7 @@
             margin: 0 auto;
             max-width: 900px;
         }
+
         .news-card {
             background: rgba(36, 44, 66, 0.55);
             border-radius: 22px;
@@ -94,22 +105,32 @@
             position: relative;
             display: flex;
             flex-direction: column;
-            border: 1.5px solid rgba(255,255,255,0.10);
+            border: 1.5px solid rgba(255, 255, 255, 0.10);
             transition: box-shadow .3s, transform .3s, border .3s;
             opacity: 0;
-            animation: fadeInCard .9s cubic-bezier(.4,1.4,.6,1) forwards;
+            animation: fadeInCard .9s cubic-bezier(.4, 1.4, .6, 1) forwards;
             backdrop-filter: blur(12px) saturate(1.2);
             -webkit-backdrop-filter: blur(12px) saturate(1.2);
         }
+
         .news-card:hover {
             box-shadow: 0 8px 48px #3a7bd5cc, 0 0 80px #232a3a99;
             border: 1.5px solid #3a7bd5;
             transform: translateY(-7px) scale(1.025) rotateZ(-0.5deg);
         }
+
         @keyframes fadeInCard {
-            from { opacity: 0; transform: translateY(30px) scale(0.98); }
-            to { opacity: 1; transform: none; }
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
         }
+
         .news-img {
             width: 100%;
             aspect-ratio: 16/10;
@@ -123,12 +144,14 @@
             border-radius: 18px 18px 0 0;
             box-shadow: 0 2px 16px #0a0a1a22;
         }
+
         .news-content {
             flex: 1;
             display: flex;
             flex-direction: column;
             padding: 28px 28px 20px 28px;
         }
+
         .news-title {
             font-size: 1.32rem;
             font-family: 'Montserrat', Arial, sans-serif;
@@ -138,6 +161,7 @@
             text-shadow: 0 2px 12px #3a7bd5cc, 0 1px 0 #fff1;
             letter-spacing: -0.01em;
         }
+
         .news-desc {
             font-size: 1.09rem;
             color: #b6c8e6;
@@ -145,13 +169,18 @@
             font-family: 'Montserrat', Arial, sans-serif;
             font-weight: 500;
         }
+
         .news-date {
             font-size: 1.05rem;
             color: #7ea1d6;
             margin-bottom: 12px;
             font-family: 'Montserrat', Arial, sans-serif;
         }
-        .news-actions { margin-top: auto; }
+
+        .news-actions {
+            margin-top: auto;
+        }
+
         .news-btn {
             display: inline-block;
             background: linear-gradient(90deg, #3a7bd5 0%, #232a3a 100%);
@@ -166,12 +195,14 @@
             transition: background .2s, box-shadow .2s, transform .2s, filter .2s;
             filter: drop-shadow(0 2px 8px #3a7bd5aa);
         }
+
         .news-btn:hover {
             background: linear-gradient(90deg, #232a3a 0%, #3a7bd5 100%);
             box-shadow: 0 0 0 2px #3a7bd5, 0 8px 24px #232a3a99;
             transform: scale(1.06) translateY(-2px);
             filter: brightness(1.08);
         }
+
         .sketch-loading {
             width: 100%;
             text-align: center;
@@ -181,10 +212,19 @@
             padding: 48px 0;
             animation: glassGlow 1.2s infinite alternate;
         }
+
         @keyframes glassGlow {
-            from { opacity: 0.5; text-shadow: 0 0 8px #3a7bd5cc; }
-            to { opacity: 1; text-shadow: 0 0 24px #3a7bd5cc; }
+            from {
+                opacity: 0.5;
+                text-shadow: 0 0 8px #3a7bd5cc;
+            }
+
+            to {
+                opacity: 1;
+                text-shadow: 0 0 24px #3a7bd5cc;
+            }
         }
+
         .loader-circle {
             width: 38px;
             height: 38px;
@@ -194,20 +234,40 @@
             margin: 0 auto 12px auto;
             animation: spin 1s linear infinite;
         }
+
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
+
         @media (max-width: 900px) {
-            .news-grid { flex-direction: column; gap: 24px 0; }
-            .glass-container { padding: 24px 6px 18px 6px; }
-            .section-title, .section-desc { padding-left: 18px; margin-left: 0; }
+            .news-grid {
+                flex-direction: column;
+                gap: 24px 0;
+            }
+
+            .glass-container {
+                padding: 24px 6px 18px 6px;
+            }
+
+            .section-title,
+            .section-desc {
+                padding-left: 18px;
+                margin-left: 0;
+            }
         }
+
         @media (max-width: 1100px) {
             .news-grid {
                 max-width: 98vw;
                 gap: 32px 12px;
             }
+
             .news-card {
                 min-width: 320px;
                 max-width: 98vw;
@@ -215,12 +275,14 @@
         }
     </style>
 </head>
+
 <body class="bg-layered grid-overlay text-[#EDEDEF] min-h-screen font-sans antialiased overflow-x-hidden">
     <main style="margin-top:60px;">
         <div class="glass-container">
             <!-- Tabs removed as requested -->
             <div class="section-title">Tüm Haberler</div>
-            <div class="section-desc">Üniversitemizden en güncel haberler, etkinlikler ve duyurular burada. Her gelişmeden anında haberdar olun!</div>
+            <div class="section-desc">Üniversitemizden en güncel haberler, etkinlikler ve duyurular burada. Her
+                gelişmeden anında haberdar olun!</div>
             <div class="news-grid" id="newsGrid" style="display:none;"></div>
             <div id="newsLoading" class="sketch-loading">
                 <div class="loader-circle"></div>
@@ -284,4 +346,5 @@
             .catch(() => { hideLoading(); });
     </script>
 </body>
+
 </html>

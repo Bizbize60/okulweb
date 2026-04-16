@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -175,7 +176,7 @@
             align-items: center;
             gap: 4px;
         }
-        
+
         .tag-high-rate {
             background: #e9d8fd;
             color: #553c9a;
@@ -186,7 +187,8 @@
             justify-content: space-between;
             padding-top: 16px;
             border-top: 1px solid #e2e8f0;
-            margin-top: auto; /* Kartın en altına itmek için */
+            margin-top: auto;
+            /* Kartın en altına itmek için */
         }
 
         .stat-item {
@@ -227,17 +229,30 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
             <h1>👨‍🏫 Öğretmen Değerlendirmeleri</h1>
             <nav style="display: flex; gap: 8px; flex: 1; justify-content: center; flex-wrap: wrap;">
-                <a href="/" style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568;">Ana Sayfa</a>
-                <a href="/ders-notlari" style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568;">📚 Ders Notları</a>
-                <a href="/ogretmen-listesi" style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #2d3748; background: #edf2f7;">👨‍🏫 Öğretmenler</a>
-                <a href="/yemekhane" style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568;">🍽️ Yemek Menüsü</a>
-                <a href="/otobus-saatleri" style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568;">🚌 Otobüs Saatleri</a>
-                <a href="/kroki" style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568;">🗺️ Kampüs Krokisi</a>
+                <a href="/"
+                    style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568;">Ana
+                    Sayfa</a>
+                <a href="/ders-notlari"
+                    style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568;">📚
+                    Ders Notları</a>
+                <a href="/ogretmen-listesi"
+                    style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #2d3748; background: #edf2f7;">👨‍🏫
+                    Öğretmenler</a>
+                <a href="/yemekhane"
+                    style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568;">🍽️
+                    Yemek Menüsü</a>
+                <a href="/otobus-saatleri"
+                    style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568;">🚌
+                    Otobüs Saatleri</a>
+                <a href="/kroki"
+                    style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568;">🗺️
+                    Kampüs Krokisi</a>
             </nav>
             <div class="nav-buttons">
                 <a href="/ogretmen-degerlendirme" class="btn btn-add">+ Değerlendirme Yap</a>
@@ -443,4 +458,5 @@
         document.addEventListener('DOMContentLoaded', loadTeachers);
     </script>
 </body>
+
 </html>

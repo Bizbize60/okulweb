@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
   <meta charset="UTF-8">
   <title>Ofis Saatleri - THKÜ</title>
@@ -126,7 +127,8 @@
       margin-top: 20px;
     }
 
-    th, td {
+    th,
+    td {
       padding: 14px 16px;
       border-bottom: 1px solid #e2e8f0;
       text-align: left;
@@ -224,6 +226,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="sidebar">
     <h2>Kampüs</h2>
@@ -245,7 +248,8 @@
 
     <div class="warning-card">
       <p><strong>⚠️ Önemli Not:</strong> Bu sayfa tamamen öğrenci katkılarıyla beslenmektedir!</p>
-      <p>Eğer öğrenciler kendi bildikleri öğretim görevlilerinin ofis saatlerini girmezlerse, bu liste kendi kendine dolmayacaktır.</p>
+      <p>Eğer öğrenciler kendi bildikleri öğretim görevlilerinin ofis saatlerini girmezlerse, bu liste kendi kendine
+        dolmayacaktır.</p>
       <p class="joke">Yani öğretim görevlileri kendileri buraya giremez, siz gireceksiniz.</p>
     </div>
 
@@ -260,7 +264,9 @@
           </tr>
         </thead>
         <tbody>
-          <tr><td colspan="3" style="text-align:center;">Yükleniyor...</td></tr>
+          <tr>
+            <td colspan="3" style="text-align:center;">Yükleniyor...</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -326,8 +332,7 @@
             satir.innerHTML = `
               <td>${ogretmen.ad}</td>
               <td>${ogretmen.soyad}</td>
-              <td>${
-                ogretmen.gun?.map(g => `${g.gun}: ${g.saatler.join(', ')}`).join('<br>') || '-'
+              <td>${ogretmen.gun?.map(g => `${g.gun}: ${g.saatler.join(', ')}`).join('<br>') || '-'
               }</td>
             `;
             tbody.appendChild(satir);
@@ -412,4 +417,5 @@
     window.addEventListener("DOMContentLoaded", guncelleOgretmenTablosu);
   </script>
 </body>
+
 </html>

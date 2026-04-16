@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Türk Tarih Topluluğu - THK Üniversitesi</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Noto+Serif:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Noto+Serif:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -30,16 +33,16 @@
             --accent-glow: rgba(193, 167, 100, 0.25);
             --wolf-blue: #3d6a99;
             --wolf-blue-dark: #1e4976;
-            
+
             /* Typography */
             --font-heading: 'Cinzel', serif;
             --font-body: 'Spectral', serif;
             --font-accent: 'Noto Serif', serif;
-            
+
             /* Effects */
             --gold-gradient: linear-gradient(180deg, #d4bc7a 0%, #c1a764 50%, #a08a4a 100%);
             --gold-text-gradient: linear-gradient(135deg, #d4bc7a, #c1a764, #f0e6c0, #c1a764);
-            
+
             /* Spacing */
             --radius: 8px;
             --radius-lg: 16px;
@@ -79,13 +82,12 @@
         .bg-gradient-overlay {
             position: absolute;
             inset: 0;
-            background: 
-                linear-gradient(180deg, 
-                    rgba(10, 22, 40, 0.7) 0%, 
+            background:
+                linear-gradient(180deg,
+                    rgba(10, 22, 40, 0.7) 0%,
                     rgba(13, 31, 60, 0.5) 30%,
                     rgba(13, 31, 60, 0.6) 70%,
-                    rgba(10, 22, 40, 0.95) 100%
-                );
+                    rgba(10, 22, 40, 0.95) 100%);
         }
 
         .bg-radial {
@@ -118,8 +120,17 @@
         }
 
         @keyframes twinkle {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.2); }
+
+            0%,
+            100% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
         }
 
         /* ═══════════════════════════════════════════════════════════
@@ -192,8 +203,15 @@
         }
 
         @keyframes goldShimmer {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
         }
 
         .header-title span {
@@ -277,15 +295,22 @@
             border: 3px solid var(--accent);
             padding: 8px;
             background: var(--background-deep);
-            box-shadow: 
+            box-shadow:
                 0 0 40px var(--accent-glow),
                 inset 0 0 20px rgba(193, 167, 100, 0.1);
             animation: emblemGlow 3s ease-in-out infinite;
         }
 
         @keyframes emblemGlow {
-            0%, 100% { box-shadow: 0 0 40px var(--accent-glow), inset 0 0 20px rgba(193, 167, 100, 0.1); }
-            50% { box-shadow: 0 0 60px var(--accent-glow), inset 0 0 30px rgba(193, 167, 100, 0.15); }
+
+            0%,
+            100% {
+                box-shadow: 0 0 40px var(--accent-glow), inset 0 0 20px rgba(193, 167, 100, 0.1);
+            }
+
+            50% {
+                box-shadow: 0 0 60px var(--accent-glow), inset 0 0 30px rgba(193, 167, 100, 0.15);
+            }
         }
 
         .hero-emblem img {
@@ -971,10 +996,13 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
+
 <body>
     <!-- Background System -->
     <div class="background-system">
@@ -1020,7 +1048,7 @@
                 Tarihimizi öğrenmek, araştırmak ve gelecek nesillere aktarmak için bir araya geliyoruz.
             </p>
             <blockquote class="hero-quote">
-                "Tarih yazmak, tarih yapmak kadar mühimdir. Yazan, yapana sadık kalmazsa, 
+                "Tarih yazmak, tarih yapmak kadar mühimdir. Yazan, yapana sadık kalmazsa,
                 değişmeyen hakikat, insanlığı şaşırtacak bir mahiyet alır."
                 <br><small>— Mustafa Kemal Atatürk</small>
             </blockquote>
@@ -1035,7 +1063,7 @@
                 <span class="section-tag">✦ Son Paylaşım ✦</span>
                 <h2 class="section-title">Öne Çıkan İçerik</h2>
             </div>
-            
+
             <div id="featuredPost">
                 <div class="loading">
                     <div class="loading-spinner"></div>
@@ -1056,7 +1084,7 @@
                 <h2 class="section-title">Geçmiş Paylaşımlar</h2>
                 <p class="section-subtitle">Topluluk faaliyetlerimizden kareler</p>
             </div>
-            
+
             <div id="archiveGrid" class="archive-grid">
                 <div class="loading">
                     <div class="loading-spinner"></div>
@@ -1081,11 +1109,11 @@
                 <div class="about-text">
                     <h3>Misyonumuz</h3>
                     <p>
-                        Türk Tarih Topluluğu olarak, binlerce yıllık Türk tarihini ve kültürünü 
+                        Türk Tarih Topluluğu olarak, binlerce yıllık Türk tarihini ve kültürünü
                         araştırmak, korumak ve yaygınlaştırmak amacıyla kurulduk.
                     </p>
                     <p>
-                        Ergenekon'dan Anadolu'ya, Orta Asya'dan dünya tarihine uzanan bu büyük 
+                        Ergenekon'dan Anadolu'ya, Orta Asya'dan dünya tarihine uzanan bu büyük
                         medeniyetin izlerini takip ederek, geçmişimizi anlıyor, geleceğimizi aydınlatıyoruz.
                     </p>
                 </div>
@@ -1172,7 +1200,7 @@
         function generateStars() {
             const starsContainer = document.getElementById('stars');
             const starCount = 50;
-            
+
             for (let i = 0; i < starCount; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
@@ -1190,7 +1218,7 @@
             const lightbox = document.getElementById('lightbox');
             const lightboxImage = document.getElementById('lightboxImage');
             const lightboxCaption = document.getElementById('lightboxCaption');
-            
+
             lightboxImage.src = src;
             lightboxCaption.textContent = caption || '';
             lightbox.classList.add('active');
@@ -1228,10 +1256,10 @@
             try {
                 const response = await fetch('/api/utaa/news?kulup_adi=Türk Tarih Topluluğu');
                 const data = await response.json();
-                
+
                 const featuredContainer = document.getElementById('featuredPost');
                 const archiveGrid = document.getElementById('archiveGrid');
-                
+
                 if (!data || data.length === 0) {
                     featuredContainer.innerHTML = `
                         <div class="empty-state">
@@ -1243,11 +1271,11 @@
                     archiveGrid.innerHTML = '';
                     return;
                 }
-                
+
                 // Latest post (featured)
                 const latest = data[0];
                 const isImage = latest.dosya_tipi && latest.dosya_tipi.startsWith('image/');
-                
+
                 featuredContainer.innerHTML = `
                     <article class="featured-card" ${isImage ? `data-src="/uploads/kulup/${latest.dosya_adi}" data-caption="${latest.aciklama || ''}" onclick="openLightbox(this.dataset.src, this.dataset.caption)"` : ''}>
                         ${isImage ? `
@@ -1270,7 +1298,7 @@
                         </div>
                     </article>
                 `;
-                
+
                 // Archive posts (rest)
                 if (data.length > 1) {
                     const archiveItems = data.slice(1);
@@ -1298,7 +1326,7 @@
                 } else {
                     archiveGrid.innerHTML = '';
                 }
-                
+
             } catch (error) {
                 console.error('İçerik yüklenirken hata:', error);
                 document.getElementById('featuredPost').innerHTML = `
@@ -1316,4 +1344,5 @@
         loadContent();
     </script>
 </body>
+
 </html>

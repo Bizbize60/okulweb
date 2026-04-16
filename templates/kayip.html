@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kampüs Kayıp Eşya</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
         :root {
             --bg-body: #121212;
@@ -20,76 +21,386 @@
             --border-radius: 12px;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: var(--bg-body); color: var(--text-main); padding: 20px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            padding: 20px;
+        }
 
         /* --- HEADER --- */
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding: 10px 0; }
-        .logo { display: flex; align-items: center; font-size: 1.2rem; font-weight: 700; gap: 10px; }
-        .search-bar { background-color: var(--bg-input); padding: 10px 20px; border-radius: 30px; display: flex; align-items: center; width: 400px; }
-        .search-bar input { background: transparent; border: none; color: white; width: 100%; outline: none; margin-left: 10px; }
-        .header-actions { display: flex; align-items: center; gap: 15px; }
-        .btn-primary { background-color: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; transition: 0.2s; }
-        .btn-primary:hover { opacity: 0.9; }
-        .icon-btn { background: var(--bg-input); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;}
-        .icon-btn:hover { background: var(--primary); }
-        .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 10px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            gap: 10px;
+        }
+
+        .search-bar {
+            background-color: var(--bg-input);
+            padding: 10px 20px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            width: 400px;
+        }
+
+        .search-bar input {
+            background: transparent;
+            border: none;
+            color: white;
+            width: 100%;
+            outline: none;
+            margin-left: 10px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .icon-btn {
+            background: var(--bg-input);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: var(--primary);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
 
         /* --- TABS --- */
-        .main-container { max-width: 1200px; margin: 0 auto; }
-        .tabs { margin-bottom: 20px; border-bottom: 1px solid #333; }
-        .tab-btn { background: transparent; border: none; color: var(--text-muted); padding: 10px 20px; font-size: 1rem; cursor: pointer; border-bottom: 2px solid transparent; }
-        .tab-btn.active { color: var(--primary); border-bottom: 2px solid var(--primary); font-weight: 600; }
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .tabs {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #333;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+            font-weight: 600;
+        }
 
         /* --- STATS --- */
-        .stats-row { display: flex; gap: 20px; margin-bottom: 30px; }
-        .stat-card { background-color: var(--bg-card); padding: 20px; border-radius: var(--border-radius); flex: 1; display: flex; align-items: center; justify-content: space-between; }
-        .stat-info h3 { font-size: 0.9rem; color: var(--text-muted); font-weight: 400; }
-        .stat-info span { font-size: 2rem; font-weight: 700; }
-        .stat-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
-        .bg-red-soft { background-color: rgba(239, 68, 68, 0.2); color: var(--danger); }
-        .bg-green-soft { background-color: rgba(16, 185, 129, 0.2); color: var(--success); }
+        .stats-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background-color: var(--bg-card);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stat-info h3 {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .stat-info span {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .bg-red-soft {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .bg-green-soft {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
 
         /* --- FILTERS --- */
-        .filter-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .categories { display: flex; gap: 10px; flex-wrap: wrap; }
-        .category-chip { background-color: transparent; border: 1px solid #333; color: var(--text-muted); padding: 6px 16px; border-radius: 20px; cursor: pointer; transition: 0.2s; }
-        .category-chip.active, .category-chip:hover { background-color: var(--primary); border-color: var(--primary); color: white; }
+        .filter-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .categories {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .category-chip {
+            background-color: transparent;
+            border: 1px solid #333;
+            color: var(--text-muted);
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .category-chip.active,
+        .category-chip:hover {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
 
         /* --- GRID --- */
-        .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .item-card { background-color: var(--bg-card); border-radius: var(--border-radius); overflow: hidden; transition: transform 0.2s; }
-        .item-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
-        .card-image { width: 100%; height: 180px; object-fit: cover; }
-        .card-content { padding: 15px; }
-        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-        .card-title { font-size: 1.1rem; font-weight: 600; color: #fff; }
-        .status-badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; font-weight: 700; }
-        .status-kayip { background-color: rgba(239, 68, 68, 0.15); color: var(--danger); }
-        .status-bulunan { background-color: rgba(16, 185, 129, 0.15); color: var(--success); }
-        .meta-info { font-size: 0.85rem; color: var(--text-muted); margin-top: 10px; }
-        .meta-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
-        .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #333; padding-top: 15px; margin-top: 10px; }
-        .card-user { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
-        .details-link { color: var(--primary); text-decoration: none; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; cursor: pointer;}
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .item-card {
+            background-color: var(--bg-card);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .item-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .card-content {
+            padding: 15px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .status-badge {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .status-kayip {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+        }
+
+        .status-bulunan {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+        }
+
+        .meta-info {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 10px;
+        }
+
+        .meta-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #333;
+            padding-top: 15px;
+            margin-top: 10px;
+        }
+
+        .card-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .details-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
 
         /* --- MODAL --- */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 1000; }
-        .modal { background: var(--bg-card); padding: 30px; border-radius: 12px; width: 500px; max-width: 90%; position: relative; }
-        .modal h2 { margin-bottom: 20px; }
-        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; color: var(--text-muted); font-size: 0.9rem; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; background: var(--bg-input); border: 1px solid #333; border-radius: 8px; color: white; outline: none; }
-        .form-group input[type="file"] { padding: 5px; }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: 12px;
+            width: 500px;
+            max-width: 90%;
+            position: relative;
+        }
+
+        .modal h2 {
+            margin-bottom: 20px;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            background: var(--bg-input);
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: white;
+            outline: none;
+        }
+
+        .form-group input[type="file"] {
+            padding: 5px;
+        }
 
         @media (max-width: 768px) {
-            header { flex-direction: column; gap: 15px; }
-            .search-bar { width: 100%; }
-            .header-actions { width: 100%; justify-content: space-between; }
+            header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .search-bar {
+                width: 100%;
+            }
+
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
         }
     </style>
 </head>
+
 <body>
 
     <header>
@@ -109,10 +420,12 @@
     </header>
 
     <div class="main-container">
-        
+
         <nav class="tabs">
-            <button class="tab-btn active" onclick="switchTab('kayip')"><i class="fa-solid fa-magnifying-glass"></i> Kayıp Eşyalar</button>
-            <button class="tab-btn" onclick="switchTab('bulunan')"><i class="fa-solid fa-box-open"></i> Bulunan Eşyalar</button>
+            <button class="tab-btn active" onclick="switchTab('kayip')"><i class="fa-solid fa-magnifying-glass"></i>
+                Kayıp Eşyalar</button>
+            <button class="tab-btn" onclick="switchTab('bulunan')"><i class="fa-solid fa-box-open"></i> Bulunan
+                Eşyalar</button>
         </nav>
 
         <section class="stats-row">
@@ -143,7 +456,7 @@
         </section>
 
         <h2 class="section-title" id="listTitle"><i class="fa-solid fa-circle-exclamation"></i> Kayıp Eşyalar</h2>
-        
+
         <div class="items-grid" id="itemsGrid">
             <p style="color: #666;">Yükleniyor...</p>
         </div>
@@ -198,7 +511,7 @@
 
         // Sayfa Yüklendiğinde
         document.addEventListener('DOMContentLoaded', () => {
-	    setupServiceWorker();
+            setupServiceWorker();
             fetchStats();
             fetchItems();
         });
@@ -237,7 +550,7 @@
             items.forEach(item => {
                 const badgeClass = item.tip === 'kayip' ? 'status-kayip' : 'status-bulunan';
                 const badgeText = item.tip === 'kayip' ? 'Kayıp' : 'Bulunan';
-                
+
                 const cardHTML = `
                 <article class="item-card">
                     <img src="${item.foto}" alt="${item.baslik}" class="card-image">
@@ -278,14 +591,14 @@
         // 4. Tab Değiştirme (Kayıp / Bulunan)
         function switchTab(tab) {
             currentTab = tab;
-            
+
             // Tab butonlarını güncelle
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             event.currentTarget.classList.add('active');
 
             // Başlığı güncelle
             const titleEl = document.getElementById('listTitle');
-            if(tab === 'kayip') {
+            if (tab === 'kayip') {
                 titleEl.innerHTML = '<i class="fa-solid fa-circle-exclamation" style="color:var(--danger)"></i> Kayıp Eşyalar';
             } else {
                 titleEl.innerHTML = '<i class="fa-solid fa-check-circle" style="color:var(--success)"></i> Bulunan Eşyalar';
@@ -297,7 +610,7 @@
         // 5. Kategori Filtreleme
         function filterCategory(category) {
             currentCategory = category;
-            
+
             // Chip stillerini güncelle
             document.querySelectorAll('.category-chip').forEach(chip => chip.classList.remove('active'));
             event.currentTarget.classList.add('active');
@@ -313,17 +626,17 @@
         // --- MODAL İŞLEMLERİ ---
         function openModal() { document.getElementById('addModal').style.display = 'flex'; }
         function closeModal() { document.getElementById('addModal').style.display = 'none'; }
-        
-        window.onclick = function(event) {
+
+        window.onclick = function (event) {
             if (event.target == document.getElementById('addModal')) {
                 closeModal();
             }
         }
 
         // İlan Gönderme (Form Submit)
-        document.getElementById('addForm').addEventListener('submit', async function(e) {
+        document.getElementById('addForm').addEventListener('submit', async function (e) {
             e.preventDefault();
-            
+
             const formData = new FormData(this);
             const btn = this.querySelector('button[type="submit"]');
             const originalText = btn.innerText;
@@ -335,7 +648,7 @@
                     method: 'POST',
                     body: formData
                 });
-                
+
                 if (res.ok) {
                     alert('İlan başarıyla eklendi!');
                     closeModal();
@@ -354,16 +667,16 @@
             }
         });
 
-	async function setupServiceWorker() {
-    if ('serviceWorker' in navigator) {
-        try {
-            const reg = await navigator.serviceWorker.register('/sw.js');
-            console.log("Service Worker başarıyla kaydedildi, kapsam:", reg.scope);
-        } catch (err) {
-            console.error("Service Worker kaydı başarısız:", err);
+        async function setupServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                try {
+                    const reg = await navigator.serviceWorker.register('/sw.js');
+                    console.log("Service Worker başarıyla kaydedildi, kapsam:", reg.scope);
+                } catch (err) {
+                    console.error("Service Worker kaydı başarısız:", err);
+                }
+            }
         }
-    }
-}
 
         // --- BİLDİRİM (WEB PUSH) İŞLEMLERİ ---
         const publicVapidKey = 'BOMX48RHHNdUMWnA54hy4bH6nxL9l-kPcF5QPIEIfLPtmnM_cPLEb1ikxXGSlZK-whuNOkE9gfnrtHK4jN89h4I';
@@ -384,48 +697,49 @@
         }
 
         async function bildirimlereAboneOl() {
-    if ('serviceWorker' in navigator && 'PushManager' in window) {
-        try {
-            // 1. Service worker kaydını başlat
-            await navigator.serviceWorker.register('/sw.js');
-            
-            // 2. Service Worker'ın tamamen KURULMASINI VE AKTİF OLMASINI BEKLE (İşte çözüm burası!)
-            const readyRegistration = await navigator.serviceWorker.ready;
-            
-            // 3. Tarayıcıdan abonelik al (Artık register yerine readyRegistration kullanıyoruz)
-            const subscription = await readyRegistration.pushManager.subscribe({
-                userVisibleOnly: true,
-                applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
-            });
-            
-            // 4. Aboneliği backend'e yolla
-            const res = await fetch('/api/abonelik-kaydet', {
-                method: 'POST',
-                body: JSON.stringify(subscription),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
+            if ('serviceWorker' in navigator && 'PushManager' in window) {
+                try {
+                    // 1. Service worker kaydını başlat
+                    await navigator.serviceWorker.register('/sw.js');
 
-            if(res.ok) {
-                alert('Bildirimler açıldı! Yeni ilan eklendiğinde haberiniz olacak.');
+                    // 2. Service Worker'ın tamamen KURULMASINI VE AKTİF OLMASINI BEKLE (İşte çözüm burası!)
+                    const readyRegistration = await navigator.serviceWorker.ready;
+
+                    // 3. Tarayıcıdan abonelik al (Artık register yerine readyRegistration kullanıyoruz)
+                    const subscription = await readyRegistration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+                    });
+
+                    // 4. Aboneliği backend'e yolla
+                    const res = await fetch('/api/abonelik-kaydet', {
+                        method: 'POST',
+                        body: JSON.stringify(subscription),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (res.ok) {
+                        alert('Bildirimler açıldı! Yeni ilan eklendiğinde haberiniz olacak.');
+                    } else {
+                        const data = await res.json();
+                        if (data.message === 'Bu cihaz zaten bildirimlere abone.') {
+                            alert('Zaten bildirimlere abonesiniz!');
+                        } else {
+                            alert('Abonelik kaydedilirken bir hata oluştu.');
+                        }
+                    }
+
+                } catch (error) {
+                    console.error('Abonelik hatası:', error);
+                    alert('Bildirim izni verilmedi veya desteklenmiyor.');
+                }
             } else {
-                const data = await res.json();
-                if(data.message === 'Bu cihaz zaten bildirimlere abone.') {
-                    alert('Zaten bildirimlere abonesiniz!');
-                } else {
-                    alert('Abonelik kaydedilirken bir hata oluştu.');
-                }
+                alert('Tarayıcınız bildirimleri desteklemiyor.');
             }
-
-        } catch (error) {
-            console.error('Abonelik hatası:', error);
-            alert('Bildirim izni verilmedi veya desteklenmiyor.');
         }
-    } else {
-        alert('Tarayıcınız bildirimleri desteklemiyor.');
-    }
-}
     </script>
 </body>
+
 </html>

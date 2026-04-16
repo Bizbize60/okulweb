@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,17 +20,17 @@
       --background-deep: #020203;
       --background-base: #050506;
       --background-elevated: #0a0a0c;
-      --surface: rgba(255,255,255,0.05);
-      --surface-hover: rgba(255,255,255,0.08);
+      --surface: rgba(255, 255, 255, 0.05);
+      --surface-hover: rgba(255, 255, 255, 0.08);
       --foreground: #EDEDEF;
       --foreground-muted: #8A8F98;
-      --foreground-subtle: rgba(255,255,255,0.60);
+      --foreground-subtle: rgba(255, 255, 255, 0.60);
       --accent: #5E6AD2;
       --accent-bright: #6872D9;
-      --accent-glow: rgba(94,106,210,0.3);
-      --border-default: rgba(255,255,255,0.06);
-      --border-hover: rgba(255,255,255,0.10);
-      --border-accent: rgba(94,106,210,0.30);
+      --accent-glow: rgba(94, 106, 210, 0.3);
+      --border-default: rgba(255, 255, 255, 0.06);
+      --border-hover: rgba(255, 255, 255, 0.10);
+      --border-accent: rgba(94, 106, 210, 0.30);
     }
 
     html {
@@ -71,9 +72,9 @@
       position: absolute;
       inset: 0;
       opacity: 0.02;
-      background-image: 
-        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
       background-size: 64px 64px;
     }
 
@@ -124,13 +125,29 @@
     }
 
     @keyframes float {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      50% { transform: translateY(-30px) rotate(2deg); }
+
+      0%,
+      100% {
+        transform: translateY(0) rotate(0deg);
+      }
+
+      50% {
+        transform: translateY(-30px) rotate(2deg);
+      }
     }
 
     @keyframes pulse {
-      0%, 100% { opacity: 0.08; transform: scale(1); }
-      50% { opacity: 0.12; transform: scale(1.05); }
+
+      0%,
+      100% {
+        opacity: 0.08;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.12;
+        transform: scale(1.05);
+      }
     }
 
     /* ═══════════════════════════════════════════════════════════
@@ -266,7 +283,7 @@
       background: var(--background-elevated);
       border: 1px solid var(--border-default);
       border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px var(--border-default);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-default);
       opacity: 0;
       visibility: hidden;
       transform: translateY(8px);
@@ -352,18 +369,18 @@
     .btn-primary {
       color: white;
       background: var(--accent);
-      box-shadow: 
-        0 0 0 1px rgba(94,106,210,0.5),
-        0 4px 12px rgba(94,106,210,0.3),
-        inset 0 1px 0 0 rgba(255,255,255,0.1);
+      box-shadow:
+        0 0 0 1px rgba(94, 106, 210, 0.5),
+        0 4px 12px rgba(94, 106, 210, 0.3),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
     }
 
     .btn-primary:hover {
       background: var(--accent-bright);
-      box-shadow: 
-        0 0 0 1px rgba(94,106,210,0.6),
-        0 8px 24px rgba(94,106,210,0.4),
-        inset 0 1px 0 0 rgba(255,255,255,0.15);
+      box-shadow:
+        0 0 0 1px rgba(94, 106, 210, 0.6),
+        0 8px 24px rgba(94, 106, 210, 0.4),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
       transform: translateY(-1px);
     }
 
@@ -438,6 +455,7 @@
         opacity: 0;
         transform: translateY(-10px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
@@ -476,7 +494,8 @@
       background: var(--surface-hover);
     }
 
-    .mobile-nav-link svg, .mobile-nav-link span.icon {
+    .mobile-nav-link svg,
+    .mobile-nav-link span.icon {
       width: 20px;
       text-align: center;
       font-size: 1.1rem;
@@ -539,8 +558,17 @@
     }
 
     @keyframes pulse-dot {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.6; transform: scale(0.8); }
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.6;
+        transform: scale(0.8);
+      }
     }
 
     .hero-title {
@@ -549,7 +577,7 @@
       line-height: 1.1;
       letter-spacing: -0.03em;
       margin-bottom: 24px;
-      background: linear-gradient(to bottom, #fff, rgba(255,255,255,0.7));
+      background: linear-gradient(to bottom, #fff, rgba(255, 255, 255, 0.7));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -566,8 +594,15 @@
     }
 
     @keyframes gradient-shift {
-      0%, 100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
+
+      0%,
+      100% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
     }
 
     .hero-subtitle {
@@ -609,6 +644,7 @@
         opacity: 0;
         transform: translateY(24px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
@@ -644,7 +680,7 @@
       font-weight: 600;
       letter-spacing: -0.02em;
       margin-bottom: 16px;
-      background: linear-gradient(to bottom, #fff, rgba(255,255,255,0.8));
+      background: linear-gradient(to bottom, #fff, rgba(255, 255, 255, 0.8));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -677,7 +713,7 @@
     }
 
     .bento-card {
-      background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
       border: 1px solid var(--border-default);
       border-radius: 20px;
       padding: 28px;
@@ -705,10 +741,10 @@
     .bento-card:hover {
       border-color: var(--border-hover);
       transform: translateY(-4px);
-      box-shadow: 
+      box-shadow:
         0 0 0 1px var(--border-hover),
-        0 20px 40px rgba(0,0,0,0.3),
-        0 0 60px rgba(94,106,210,0.08);
+        0 20px 40px rgba(0, 0, 0, 0.3),
+        0 0 60px rgba(94, 106, 210, 0.08);
     }
 
     .bento-card.large {
@@ -831,7 +867,7 @@
       background: var(--surface-hover);
       border-color: var(--border-hover);
       transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
     }
 
     .club-avatar {
@@ -845,11 +881,25 @@
       flex-shrink: 0;
     }
 
-    .club-avatar.kanatli { background: linear-gradient(135deg, #8b5cf6, #a855f7); }
-    .club-avatar.utaa { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
-    .club-avatar.fsource { background: linear-gradient(135deg, #10b981, #34d399); }
-    .club-avatar.makine { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
-    .club-avatar.tarih { background: linear-gradient(135deg, #0d1f3c, #c1a764); }
+    .club-avatar.kanatli {
+      background: linear-gradient(135deg, #8b5cf6, #a855f7);
+    }
+
+    .club-avatar.utaa {
+      background: linear-gradient(135deg, #3b82f6, #60a5fa);
+    }
+
+    .club-avatar.fsource {
+      background: linear-gradient(135deg, #10b981, #34d399);
+    }
+
+    .club-avatar.makine {
+      background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    }
+
+    .club-avatar.tarih {
+      background: linear-gradient(135deg, #0d1f3c, #c1a764);
+    }
 
     .club-info {
       flex: 1;
@@ -923,7 +973,10 @@
        UTILITIES
     ═══════════════════════════════════════════════════════════ */
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
+
+      *,
+      *::before,
+      *::after {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
@@ -931,6 +984,7 @@
     }
   </style>
 </head>
+
 <body>
   <!-- Background System -->
   <div class="background-system">
@@ -954,17 +1008,18 @@
       <!-- Desktop Navigation -->
       <div class="nav-desktop" id="navDesktop">
         <a href="/" class="nav-link active">Ana Sayfa</a>
-        <a href="/KampusteHayat" class="nav-link">Kampüste Hayat</a> <a href="/kayiplar" class="nav-link">Kayıp Eşya</a> <a href="/ofis-saatleri" class="nav-link">Ofis Saatleri</a>
+        <a href="/KampusteHayat" class="nav-link">Kampüste Hayat</a> <a href="/kayiplar" class="nav-link">Kayıp Eşya</a>
+        <a href="/ofis-saatleri" class="nav-link">Ofis Saatleri</a>
         <a href="/yemekhane" class="nav-link">Yemekhane</a>
         <a href="/otobus-saatleri" class="nav-link">Otobüs</a>
         <a href="/bit-pazari" class="nav-link">Bit Pazarı</a>
-        
+
         <!-- Kulüpler Dropdown -->
         <div class="dropdown">
           <button class="dropdown-trigger">
             Kulüpler
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M6 9l6 6 6-6"/>
+              <path d="M6 9l6 6 6-6" />
             </svg>
           </button>
           <div class="dropdown-menu">
@@ -1001,10 +1056,11 @@
       <!-- Mobile Menu Button -->
       <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menüyü aç">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="menuIcon">
-          <path d="M4 6h16M4 12h16M4 18h16"/>
+          <path d="M4 6h16M4 12h16M4 18h16" />
         </svg>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="closeIcon" style="display:none;">
-          <path d="M18 6L6 18M6 6l12 12"/>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="closeIcon"
+          style="display:none;">
+          <path d="M18 6L6 18M6 6l12 12" />
         </svg>
       </button>
     </div>
@@ -1099,10 +1155,10 @@
         THK Üniversitesi Öğrenci Portalı
       </div>
       <h1 class="hero-title">
-       <p>Otomatik Kayıt Sistemi Kaldırılmıştır, Kayıt İçin Sayfa Sahibine Ulaşın</p>
+        <p>Otomatik Kayıt Sistemi Kaldırılmıştır, Kayıt İçin Sayfa Sahibine Ulaşın</p>
       </h1>
       <p class="hero-subtitle">
-        Ders notları, ofis saatleri, yemekhane menüsü, forum ve daha fazlası — 
+        Ders notları, ofis saatleri, yemekhane menüsü, forum ve daha fazlası —
         THKÜ öğrencileri için tasarlanmış dijital kampüs deneyimi.
       </p>
       <div class="hero-actions" id="heroActions">
@@ -1130,7 +1186,7 @@
         <p class="bento-description">Öğretim görevlilerinin günlük ofis saatlerini görüntüleyin.</p>
         <div class="bento-arrow">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M7 17L17 7M17 7H7M17 7v10"/>
+            <path d="M7 17L17 7M17 7H7M17 7v10" />
           </svg>
         </div>
       </a>
@@ -1141,7 +1197,7 @@
         <p class="bento-description">Günlük ve haftalık yemek menüsünü kontrol edin.</p>
         <div class="bento-arrow">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M7 17L17 7M17 7H7M17 7v10"/>
+            <path d="M7 17L17 7M17 7H7M17 7v10" />
           </svg>
         </div>
       </a>
@@ -1152,7 +1208,7 @@
         <p class="bento-description">Kampüs servisi ve şehir otobüsü saatlerini öğrenin.</p>
         <div class="bento-arrow">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M7 17L17 7M17 7H7M17 7v10"/>
+            <path d="M7 17L17 7M17 7H7M17 7v10" />
           </svg>
         </div>
       </a>
@@ -1160,10 +1216,11 @@
       <a href="/ders-notlari" class="bento-card large" id="notesCard">
         <div class="bento-icon">📚</div>
         <h3 class="bento-title">Ders Notları</h3>
-        <p class="bento-description">Tüm derslerin notlarına erişin, kendi notlarınızı paylaşın ve arkadaşlarınızla çalışın.</p>
+        <p class="bento-description">Tüm derslerin notlarına erişin, kendi notlarınızı paylaşın ve arkadaşlarınızla
+          çalışın.</p>
         <div class="bento-arrow">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M7 17L17 7M17 7H7M17 7v10"/>
+            <path d="M7 17L17 7M17 7H7M17 7v10" />
           </svg>
         </div>
       </a>
@@ -1174,7 +1231,7 @@
         <p class="bento-description">Öğrenci topluluğuyla sohbet edin, sorular sorun.</p>
         <div class="bento-arrow">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M7 17L17 7M17 7H7M17 7v10"/>
+            <path d="M7 17L17 7M17 7H7M17 7v10" />
           </svg>
         </div>
       </a>
@@ -1185,7 +1242,7 @@
         <p class="bento-description">İkinci el ürünler alın, satın veya takas edin.</p>
         <div class="bento-arrow">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M7 17L17 7M17 7H7M17 7v10"/>
+            <path d="M7 17L17 7M17 7H7M17 7v10" />
           </svg>
         </div>
       </a>
@@ -1196,7 +1253,7 @@
         <p class="bento-description">Öğretmenleri değerlendirin ve yorumları okuyun.</p>
         <div class="bento-arrow">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M7 17L17 7M17 7H7M17 7v10"/>
+            <path d="M7 17L17 7M17 7H7M17 7v10" />
           </svg>
         </div>
       </a>
@@ -1207,7 +1264,7 @@
         <p class="bento-description">Kampüs içinde yolunuzu bulun, binaları keşfedin.</p>
         <div class="bento-arrow">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M7 17L17 7M17 7H7M17 7v10"/>
+            <path d="M7 17L17 7M17 7H7M17 7v10" />
           </svg>
         </div>
       </a>
@@ -1231,8 +1288,9 @@
           <div class="club-name">Kanatlı Bülten</div>
           <div class="club-desc">Üniversite haber ve dergi kulübü</div>
         </div>
-        <svg class="club-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M9 18l6-6-6-6"/>
+        <svg class="club-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2">
+          <path d="M9 18l6-6-6-6" />
         </svg>
       </a>
 
@@ -1242,8 +1300,9 @@
           <div class="club-name">UTAA Music Club</div>
           <div class="club-desc">Müzik ve performans kulübü</div>
         </div>
-        <svg class="club-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M9 18l6-6-6-6"/>
+        <svg class="club-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2">
+          <path d="M9 18l6-6-6-6" />
         </svg>
       </a>
 
@@ -1253,8 +1312,9 @@
           <div class="club-name">FSource</div>
           <div class="club-desc">Yazılım ve teknoloji kulübü</div>
         </div>
-        <svg class="club-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M9 18l6-6-6-6"/>
+        <svg class="club-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2">
+          <path d="M9 18l6-6-6-6" />
         </svg>
       </a>
 
@@ -1264,8 +1324,9 @@
           <div class="club-name">Makine Mühendisliği</div>
           <div class="club-desc">Mühendislik ve inovasyon kulübü</div>
         </div>
-        <svg class="club-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M9 18l6-6-6-6"/>
+        <svg class="club-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2">
+          <path d="M9 18l6-6-6-6" />
         </svg>
       </a>
 
@@ -1275,8 +1336,9 @@
           <div class="club-name">Türk Tarih Topluluğu</div>
           <div class="club-desc">Tarih ve kültür araştırma kulübü</div>
         </div>
-        <svg class="club-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M9 18l6-6-6-6"/>
+        <svg class="club-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2">
+          <path d="M9 18l6-6-6-6" />
         </svg>
       </a>
     </div>
@@ -1339,7 +1401,7 @@
       const navDesktop = document.getElementById('navDesktop');
       const mobileLoggedInLinks = document.getElementById('mobileLoggedInLinks');
       const heroActions = document.getElementById('heroActions');
-      
+
       if (token) {
         // Update desktop auth buttons
         authButtons.innerHTML = `
@@ -1347,39 +1409,39 @@
             <button type="submit" class="btn btn-logout">Çıkış Yap</button>
           </form>
         `;
-        
+
         // Update mobile auth buttons
         mobileAuth.innerHTML = `
           <form method="POST" action="/logout" style="margin:0;width:100%;">
             <button type="submit" class="btn btn-logout" style="width:100%;">Çıkış Yap</button>
           </form>
         `;
-        
+
         // Add logged-in links to desktop nav
         const forumLink = document.createElement('a');
         forumLink.href = '/forum';
         forumLink.className = 'nav-link';
         forumLink.textContent = 'Forum';
-        
+
         const notesLink = document.createElement('a');
         notesLink.href = '/ders-notlari';
         notesLink.className = 'nav-link';
         notesLink.textContent = 'Ders Notları';
-        
+
         const teachersLink = document.createElement('a');
         teachersLink.href = '/ogretmen-listesi';
         teachersLink.className = 'nav-link';
         teachersLink.textContent = 'Öğretmenler';
-        
+
         // Insert before Kulüpler dropdown
         const dropdown = navDesktop.querySelector('.dropdown');
         navDesktop.insertBefore(forumLink, dropdown);
         navDesktop.insertBefore(notesLink, dropdown);
         navDesktop.insertBefore(teachersLink, dropdown);
-        
+
         // Show mobile logged-in links
         mobileLoggedInLinks.style.display = 'block';
-        
+
         // Update hero actions
         heroActions.innerHTML = `
           <a href="/ders-notlari" class="btn btn-primary">Ders Notlarına Git →</a>
@@ -1394,14 +1456,14 @@
       fetch('/api/haberler').then(res => res.ok ? res.json() : { articles: [] }),
       fetch('/api/duyurular').then(res => res.ok ? res.json() : { duyurular: [] })
     ])
-    .then(([newsData, duyuruData]) => {
-      const news = newsData.articles && newsData.articles.length > 0 ? newsData.articles[0] : null;
-      const duyuru = duyuruData.duyurular && duyuruData.duyurular.length > 0 ? duyuruData.duyurular[0] : null;
+      .then(([newsData, duyuruData]) => {
+        const news = newsData.articles && newsData.articles.length > 0 ? newsData.articles[0] : null;
+        const duyuru = duyuruData.duyurular && duyuruData.duyurular.length > 0 ? duyuruData.duyurular[0] : null;
 
-      if (!news && !duyuru) return;
+        if (!news && !duyuru) return;
 
-      const container = document.createElement('div');
-      container.style.cssText = `
+        const container = document.createElement('div');
+        container.style.cssText = `
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
         gap: 24px;
@@ -1412,16 +1474,16 @@
         z-index: 2;
       `;
 
-      let htmlContent = '';
+        let htmlContent = '';
 
-      // 1. HABER KUTUSU (Görsel Sığdırma Düzenlendi)
-      if (news) {
-        let imgSrc = news.thumbnail || 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=800';
-        if (imgSrc && imgSrc.startsWith('/images/')) {
-           imgSrc = 'https://www.thk.edu.tr' + imgSrc;
-        }
+        // 1. HABER KUTUSU (Görsel Sığdırma Düzenlendi)
+        if (news) {
+          let imgSrc = news.thumbnail || 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=800';
+          if (imgSrc && imgSrc.startsWith('/images/')) {
+            imgSrc = 'https://www.thk.edu.tr' + imgSrc;
+          }
 
-        htmlContent += `
+          htmlContent += `
           <article style="background:var(--surface); border:1px solid var(--border-default); border-radius:20px; overflow:hidden; display:flex; flex-direction:column; transition:transform 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
             <a href="${news.link}" style="text-decoration:none; color:inherit; display:flex; flex-direction:column; height:100%;">
               <div style="height:220px; overflow:hidden; background:#0a0a0c; display:flex; align-items:center; justify-content:center;">
@@ -1440,11 +1502,11 @@
             </a>
           </article>
         `;
-      }
+        }
 
-      // 2. DUYURU KUTUSU
-      if (duyuru) {
-        htmlContent += `
+        // 2. DUYURU KUTUSU
+        if (duyuru) {
+          htmlContent += `
           <article style="background:var(--surface); border:1px solid var(--border-default); border-radius:20px; overflow:hidden; display:flex; flex-direction:column; transition:transform 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
             <a href="${duyuru.link}" style="text-decoration:none; color:inherit; display:flex; flex-direction:column; height:100%;">
               <div style="padding:24px; flex:1; display:flex; flex-direction:column; justify-content:center;">
@@ -1466,16 +1528,17 @@
             </a>
           </article>
         `;
-      }
+        }
 
-      container.innerHTML = htmlContent;
-      const heroSection = document.querySelector('.hero');
-      if (heroSection) {
-        heroSection.after(container);
-      }
-    })
-    .catch(err => console.error('Veri çekme hatası:', err));
+        container.innerHTML = htmlContent;
+        const heroSection = document.querySelector('.hero');
+        if (heroSection) {
+          heroSection.after(container);
+        }
+      })
+      .catch(err => console.error('Veri çekme hatası:', err));
 
   </script>
 </body>
+
 </html>

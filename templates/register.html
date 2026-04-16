@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kayıt Ol - THKÜ</title>
   <style>
-   * {
+    * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
@@ -159,17 +160,18 @@
     }
   </style>
 </head>
+
 <body>
   <div class="register-container">
     <h1>Kayıt Ol</h1>
     <p class="subtitle">THKÜ Öğrenci Ofis Sistemi</p>
 
     {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        {% for message in messages %}
-          <div class="error-message">{{ message }}</div>
-        {% endfor %}
-      {% endif %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="error-message">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
     {% endwith %}
 
     <form method="POST" action="/signup" id="registerForm">
@@ -180,12 +182,8 @@
 
       <div class="form-group">
         <label for="email">Öğrenci E-postası</label>
-        <input 
-          type="email" id="email" name="email" required 
-          placeholder="sxxxxxx@stu.thk.edu.tr"
-          pattern=".*@stu\.thk\.edu\.tr$"
-          title="Lütfen geçerli bir THKÜ öğrenci e-postası girin (@stu.thk.edu.tr)"
-        >
+        <input type="email" id="email" name="email" required placeholder="sxxxxxx@stu.thk.edu.tr"
+          pattern=".*@stu\.thk\.edu\.tr$" title="Lütfen geçerli bir THKÜ öğrenci e-postası girin (@stu.thk.edu.tr)">
         <span class="email-hint">* Sadece @stu.thk.edu.tr uzantılı e-postalar kabul edilir</span>
       </div>
 
@@ -203,7 +201,7 @@
   </div>
 
   <script>
-    document.getElementById('registerForm').addEventListener('submit', function(e) {
+    document.getElementById('registerForm').addEventListener('submit', function (e) {
       const email = document.getElementById('email').value;
       if (!email.endsWith('@stu.thk.edu.tr')) {
         e.preventDefault();
@@ -212,4 +210,5 @@
     });
   </script>
 </body>
+
 </html>

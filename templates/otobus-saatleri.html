@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -178,22 +179,32 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
-    <div style="background: white; border-radius: 12px; padding: 20px 32px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+    <div
+      style="background: white; border-radius: 12px; padding: 20px 32px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
       <h1 style="margin: 0; flex-shrink: 0; font-size: 1.5em;">🚌 Otobüs Saatleri</h1>
       <nav style="display: flex; gap: 8px; flex: 1; justify-content: center; flex-wrap: wrap;">
-        <a href="/" style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568;">Ana Sayfa</a>
-        <a href="/yemekhane" style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568;">🍽️ Yemek Menüsü</a>
-        <a href="/otobus-saatleri" style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #2d3748; background: #edf2f7;">🚌 Otobüs Saatleri</a>
-        <a href="/kroki" style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568;">🗺️ Kampüs Krokisi</a>
+        <a href="/"
+          style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568;">Ana
+          Sayfa</a>
+        <a href="/yemekhane"
+          style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568;">🍽️
+          Yemek Menüsü</a>
+        <a href="/otobus-saatleri"
+          style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #2d3748; background: #edf2f7;">🚌
+          Otobüs Saatleri</a>
+        <a href="/kroki"
+          style="padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 0.9em; color: #4a5568;">🗺️
+          Kampüs Krokisi</a>
       </nav>
       <div style="display: flex; gap: 12px; flex-shrink: 0;">
         <button class="btn-yenile" onclick="otobusVerileriniGetir()">🔄 Yenile</button>
         <a href="/" class="btn-anasayfa">← Ana Sayfa</a>
       </div>
     </div>
-    
+
     <div id="duraklar-alani" class="durak-container">
       <div class="yukleniyor">Otobüs bilgileri yükleniyor...</div>
     </div>
@@ -212,7 +223,7 @@
 
       try {
         const response = await fetch('/api/otobus-saatleri');
-        
+
         if (!response.ok) {
           throw new Error('Veriler alınamadı');
         }
@@ -276,4 +287,5 @@
     window.addEventListener('DOMContentLoaded', otobusVerileriniGetir);
   </script>
 </body>
+
 </html>

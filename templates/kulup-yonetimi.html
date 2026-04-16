@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -229,6 +230,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -247,18 +249,15 @@
             <form id="kulupForm" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="aciklama">İçerik Açıklaması</label>
-                    <textarea 
-                        id="aciklama" 
-                        name="aciklama" 
-                        placeholder="İçerik hakkında kısa bir açıklama yazın..." 
-                        required
-                    ></textarea>
+                    <textarea id="aciklama" name="aciklama" placeholder="İçerik hakkında kısa bir açıklama yazın..."
+                        required></textarea>
                     <span class="file-hint">İçeriğin ne hakkında olduğunu belirtin</span>
                 </div>
 
                 <div class="form-group">
                     <label>Fotoğraf Yükle</label>
-                    <div class="file-upload-area" id="fileUploadArea" onclick="document.getElementById('fileInput').click()">
+                    <div class="file-upload-area" id="fileUploadArea"
+                        onclick="document.getElementById('fileInput').click()">
                         <div class="upload-icon">📸</div>
                         <div style="font-weight: 500; color: #2d3748; margin-bottom: 8px;">
                             Fotoğraf seçmek için tıklayın veya sürükleyin
@@ -267,13 +266,7 @@
                             Desteklenen formatlar: PNG, JPG, JPEG, GIF
                         </span>
                     </div>
-                    <input 
-                        type="file" 
-                        id="fileInput" 
-                        name="file" 
-                        accept=".png,.jpg,.jpeg,.gif"
-                        required
-                    >
+                    <input type="file" id="fileInput" name="file" accept=".png,.jpg,.jpeg,.gif" required>
                     <div class="selected-file" id="selectedFile">
                         <span>📸</span>
                         <span id="fileName"></span>
@@ -288,7 +281,7 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const form = document.getElementById('kulupForm');
             const fileInput = document.getElementById('fileInput');
             const fileUploadArea = document.getElementById('fileUploadArea');
@@ -299,7 +292,7 @@
             const submitBtn = document.getElementById('submitBtn');
 
             // Dosya seçildiğinde
-            fileInput.addEventListener('change', function() {
+            fileInput.addEventListener('change', function () {
                 if (this.files.length > 0) {
                     fileName.textContent = this.files[0].name;
                     selectedFile.classList.add('show');
@@ -307,16 +300,16 @@
             });
 
             // Drag & drop
-            fileUploadArea.addEventListener('dragover', function(e) {
+            fileUploadArea.addEventListener('dragover', function (e) {
                 e.preventDefault();
                 this.classList.add('dragover');
             });
 
-            fileUploadArea.addEventListener('dragleave', function() {
+            fileUploadArea.addEventListener('dragleave', function () {
                 this.classList.remove('dragover');
             });
 
-            fileUploadArea.addEventListener('drop', function(e) {
+            fileUploadArea.addEventListener('drop', function (e) {
                 e.preventDefault();
                 this.classList.remove('dragover');
                 if (e.dataTransfer.files.length > 0) {
@@ -327,7 +320,7 @@
             });
 
             // Form gönderimi
-            form.addEventListener('submit', function(e) {
+            form.addEventListener('submit', function (e) {
                 e.preventDefault();
 
                 // Mesajları temizle
@@ -344,31 +337,32 @@
                     method: 'POST',
                     body: formData
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.message && data.message.includes('başarıyla')) {
-                        successMessage.textContent = '✓ ' + data.message;
-                        successMessage.classList.add('show');
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message && data.message.includes('başarıyla')) {
+                            successMessage.textContent = '✓ ' + data.message;
+                            successMessage.classList.add('show');
 
-                        // Formu temizle
-                        form.reset();
-                        selectedFile.classList.remove('show');
-                    } else {
-                        errorMessage.textContent = '✗ ' + (data.message || 'Bir hata oluştu');
+                            // Formu temizle
+                            form.reset();
+                            selectedFile.classList.remove('show');
+                        } else {
+                            errorMessage.textContent = '✗ ' + (data.message || 'Bir hata oluştu');
+                            errorMessage.classList.add('show');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Hata:', error);
+                        errorMessage.textContent = '✗ Bir hata oluştu. Lütfen tekrar deneyin.';
                         errorMessage.classList.add('show');
-                    }
-                })
-                .catch(error => {
-                    console.error('Hata:', error);
-                    errorMessage.textContent = '✗ Bir hata oluştu. Lütfen tekrar deneyin.';
-                    errorMessage.classList.add('show');
-                })
-                .finally(() => {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Fotoğrafı Yükle';
-                });
+                    })
+                    .finally(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Fotoğrafı Yükle';
+                    });
             });
         });
     </script>
 </body>
+
 </html>
