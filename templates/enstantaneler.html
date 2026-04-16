@@ -120,6 +120,19 @@
 
             try {
                 const res = await fetch(`/api/enstantaneler?sirala=${sirala}`);
+
+                // Hata kontrolü
+                if (!res.ok) {
+
+                    // Eğer kullanıcı yetkisizse (401) giriş sayfasına yönlendir
+                    if (res.status === 401) {
+                        window.location.href = '/login';
+                    } else {
+                        alert("Veriler yüklenirken bir hata oluştu.");
+                        return;
+                    }
+                }
+
                 const data = await res.json();
                 
                 grid.innerHTML = '';
@@ -146,7 +159,7 @@
                     </div>`;
                     grid.innerHTML += html;
                 });
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error(e); grid.innerHTML = '<p style="color:#666">Veriler yüklenirken bir hata oluştu.</p>'; }
         }
 
         async function toggleLike(id, btn) {
