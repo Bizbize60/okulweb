@@ -40,7 +40,6 @@ from database.subscription import WebPushSubscription
 from database.kayip_esya import KayipEsya
 from werkzeug.utils import secure_filename
 import os
-=======
 # =============================================================
 # =============================================================================
 # Haber Scraping ve API Endpoint (YENİDEN EKLENDİ)
