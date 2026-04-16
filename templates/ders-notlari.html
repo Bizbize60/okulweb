@@ -267,13 +267,14 @@
     async function loadNotes() {
       try {
         const res = await fetch('/api/ders-notlari');
-        
+
         // Hata kontrolü
         if (!res.ok) {
 
           // Eğer kullanıcı yetkisizse (401) giriş sayfasına yönlendir
           if (res.status === 401) {
-            window.location.href = '/login';
+            window.location.href = `/login?next=${encodeURIComponent(window.location.pathname)}`;
+            return;
           } else {
             alert("Veriler yüklenirken bir hata oluştu.");
             return;
