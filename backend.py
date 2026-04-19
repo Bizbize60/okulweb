@@ -286,6 +286,12 @@ def ders_notlari_sayfa(current_user):
 @app.route('/uploads/notes/<path:filename>', methods=['GET', 'POST'])
 @token_required(next_location='/ders-notlari')
 def download(current_user, filename):
+    abonelik = WebPushSubscription.query.filter_by(user_id=current_user.id).first()
+    if not abonelik:
+        return jsonify({
+            'message': 'Dosya indirmek için önce kayıp ilanı bildirimlerine abone olmalısınız!'
+        }), 403
+
     if current_user.kredi < 1:
         return jsonify({'message': 'Yetersiz kredi! Dosya indirmek için dosya yüklemelisiniz.'}), 403
     uploads = os.path.join(current_app.root_path, app.config['UPLOAD_FOLDER'])
