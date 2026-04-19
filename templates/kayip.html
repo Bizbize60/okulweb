@@ -34,7 +34,6 @@
             padding: 20px;
         }
 
-        /* --- HEADER --- */
         header {
             display: flex;
             justify-content: space-between;
@@ -86,9 +85,7 @@
             transition: 0.2s;
         }
 
-        .btn-primary:hover {
-            opacity: 0.9;
-        }
+        .btn-primary:hover { opacity: 0.9; }
 
         .icon-btn {
             background: var(--bg-input);
@@ -102,20 +99,19 @@
             align-items: center;
             justify-content: center;
             transition: 0.2s;
+            position: relative;
         }
 
-        .icon-btn:hover {
-            background: var(--primary);
+        .icon-btn:hover { background: #333; }
+
+        /* Abone olunca mavi */
+        .icon-btn.subscribed {
+            color: var(--primary);
+        }
+        .icon-btn.subscribed i {
+            color: var(--primary);
         }
 
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        /* --- TABS --- */
         .main-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -142,7 +138,6 @@
             font-weight: 600;
         }
 
-        /* --- STATS --- */
         .stats-row {
             display: flex;
             gap: 20px;
@@ -180,17 +175,9 @@
             font-size: 1.2rem;
         }
 
-        .bg-red-soft {
-            background-color: rgba(239, 68, 68, 0.2);
-            color: var(--danger);
-        }
+        .bg-red-soft { background-color: rgba(239,68,68,0.2); color: var(--danger); }
+        .bg-green-soft { background-color: rgba(16,185,129,0.2); color: var(--success); }
 
-        .bg-green-soft {
-            background-color: rgba(16, 185, 129, 0.2);
-            color: var(--success);
-        }
-
-        /* --- FILTERS --- */
         .filter-section {
             display: flex;
             justify-content: space-between;
@@ -198,11 +185,7 @@
             margin-bottom: 20px;
         }
 
-        .categories {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+        .categories { display: flex; gap: 10px; flex-wrap: wrap; }
 
         .category-chip {
             background-color: transparent;
@@ -214,14 +197,12 @@
             transition: 0.2s;
         }
 
-        .category-chip.active,
-        .category-chip:hover {
+        .category-chip.active, .category-chip:hover {
             background-color: var(--primary);
             border-color: var(--primary);
             color: white;
         }
 
-        /* --- GRID --- */
         .items-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -237,18 +218,12 @@
 
         .item-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
 
-        .card-image {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-        }
+        .card-image { width: 100%; height: 180px; object-fit: cover; }
 
-        .card-content {
-            padding: 15px;
-        }
+        .card-content { padding: 15px; }
 
         .card-header {
             display: flex;
@@ -257,11 +232,7 @@
             margin-bottom: 10px;
         }
 
-        .card-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #fff;
-        }
+        .card-title { font-size: 1.1rem; font-weight: 600; color: #fff; }
 
         .status-badge {
             font-size: 0.7rem;
@@ -271,21 +242,10 @@
             font-weight: 700;
         }
 
-        .status-kayip {
-            background-color: rgba(239, 68, 68, 0.15);
-            color: var(--danger);
-        }
+        .status-kayip { background-color: rgba(239,68,68,0.15); color: var(--danger); }
+        .status-bulunan { background-color: rgba(16,185,129,0.15); color: var(--success); }
 
-        .status-bulunan {
-            background-color: rgba(16, 185, 129, 0.15);
-            color: var(--success);
-        }
-
-        .meta-info {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-top: 10px;
-        }
+        .meta-info { font-size: 0.85rem; color: var(--text-muted); margin-top: 10px; }
 
         .meta-row {
             display: flex;
@@ -303,12 +263,7 @@
             margin-top: 10px;
         }
 
-        .card-user {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
-        }
+        .card-user { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
 
         .details-link {
             color: var(--primary);
@@ -323,11 +278,9 @@
         /* --- MODAL --- */
         .modal-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
             display: none;
             align-items: center;
             justify-content: center;
@@ -343,22 +296,17 @@
             position: relative;
         }
 
-        .modal h2 {
-            margin-bottom: 20px;
-        }
+        .modal h2 { margin-bottom: 20px; }
 
         .close-modal {
             position: absolute;
-            top: 15px;
-            right: 20px;
+            top: 15px; right: 20px;
             font-size: 1.5rem;
             cursor: pointer;
             color: var(--text-muted);
         }
 
-        .form-group {
-            margin-bottom: 15px;
-        }
+        .form-group { margin-bottom: 15px; }
 
         .form-group label {
             display: block;
@@ -379,24 +327,71 @@
             outline: none;
         }
 
-        .form-group input[type="file"] {
-            padding: 5px;
+        .form-group input[type="file"] { padding: 5px; }
+
+        /* --- iOS MODAL --- */
+        .ios-modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.65);
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .ios-modal {
+            background: #1e1e1e;
+            border-radius: 20px 20px 0 0;
+            padding: 28px 24px 36px;
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .ios-modal h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .ios-modal p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 16px; }
+
+        .ios-modal ol {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            padding-left: 20px;
+            line-height: 2.2;
+            margin-bottom: 20px;
+        }
+
+        .ios-modal ol strong { color: #fff; }
+
+        .ios-modal .share-icon {
+            display: inline-block;
+            background: var(--primary);
+            color: #fff;
+            border-radius: 6px;
+            padding: 1px 5px;
+            font-size: 0.8rem;
+        }
+
+        .ios-confirm-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
         }
 
         @media (max-width: 768px) {
-            header {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .search-bar {
-                width: 100%;
-            }
-
-            .header-actions {
-                width: 100%;
-                justify-content: space-between;
-            }
+            header { flex-direction: column; gap: 15px; }
+            .search-bar { width: 100%; }
+            .header-actions { width: 100%; justify-content: space-between; }
         }
     </style>
 </head>
@@ -413,8 +408,8 @@
         </div>
         <div class="header-actions">
             <button class="btn-primary" onclick="openModal()">+ İlan Ver</button>
-            <button class="icon-btn" onclick="bildirimlereAboneOl()" title="Bildirimleri Aç">
-                <i class="fa-regular fa-bell"></i>
+            <button class="icon-btn" id="bellBtn" onclick="bildirimlereAboneOl()" title="Bildirimleri Aç">
+                <i class="fa-regular fa-bell" id="bellIcon"></i>
             </button>
         </div>
     </header>
@@ -422,10 +417,12 @@
     <div class="main-container">
 
         <nav class="tabs">
-            <button class="tab-btn active" onclick="switchTab('kayip')"><i class="fa-solid fa-magnifying-glass"></i>
-                Kayıp Eşyalar</button>
-            <button class="tab-btn" onclick="switchTab('bulunan')"><i class="fa-solid fa-box-open"></i> Bulunan
-                Eşyalar</button>
+            <button class="tab-btn active" onclick="switchTab('kayip', event)">
+                <i class="fa-solid fa-magnifying-glass"></i> Kayıp Eşyalar
+            </button>
+            <button class="tab-btn" onclick="switchTab('bulunan', event)">
+                <i class="fa-solid fa-box-open"></i> Bulunan Eşyalar
+            </button>
         </nav>
 
         <section class="stats-row">
@@ -447,21 +444,24 @@
 
         <section class="filter-section">
             <div class="categories" id="categories">
-                <span class="category-chip active" onclick="filterCategory('Tümü')">Tümü</span>
-                <span class="category-chip" onclick="filterCategory('Elektronik')">Elektronik</span>
-                <span class="category-chip" onclick="filterCategory('Kıyafet')">Kıyafet</span>
-                <span class="category-chip" onclick="filterCategory('Çanta')">Çanta</span>
-                <span class="category-chip" onclick="filterCategory('Diğer')">Diğer</span>
+                <span class="category-chip active" onclick="filterCategory('Tümü', event)">Tümü</span>
+                <span class="category-chip" onclick="filterCategory('Elektronik', event)">Elektronik</span>
+                <span class="category-chip" onclick="filterCategory('Kıyafet', event)">Kıyafet</span>
+                <span class="category-chip" onclick="filterCategory('Çanta', event)">Çanta</span>
+                <span class="category-chip" onclick="filterCategory('Diğer', event)">Diğer</span>
             </div>
         </section>
 
-        <h2 class="section-title" id="listTitle"><i class="fa-solid fa-circle-exclamation"></i> Kayıp Eşyalar</h2>
+        <h2 class="section-title" id="listTitle">
+            <i class="fa-solid fa-circle-exclamation"></i> Kayıp Eşyalar
+        </h2>
 
         <div class="items-grid" id="itemsGrid">
             <p style="color: #666;">Yükleniyor...</p>
         </div>
     </div>
 
+    <!-- İlan Ekleme Modalı -->
     <div class="modal-overlay" id="addModal">
         <div class="modal">
             <span class="close-modal" onclick="closeModal()">&times;</span>
@@ -504,19 +504,70 @@
         </div>
     </div>
 
+    <!-- iOS Yönlendirme Modalı -->
+    <div class="ios-modal-overlay" id="iosModal">
+        <div class="ios-modal">
+            <h3>📱 iPhone'da Bildirim Almak İçin</h3>
+            <p>Safari tarayıcısı bildirim göndermeyi doğrudan desteklemiyor. Bildirimleri alabilmek için siteyi ana ekranına eklemelisin:</p>
+            <ol>
+                <li>Alttaki <strong>Paylaş</strong> <span class="share-icon">⬆</span> butonuna bas</li>
+                <li><strong>"Ana Ekrana Ekle"</strong> seçeneğini seç</li>
+                <li>Ana ekrandan uygulamayı aç</li>
+                <li>Tekrar <strong>zil ikonuna</strong> bas</li>
+            </ol>
+            <button class="ios-confirm-btn" onclick="closeIosModal()">Anladım</button>
+        </div>
+    </div>
+
     <script>
-        // Global Değişkenler
         let currentTab = 'kayip';
         let currentCategory = 'Tümü';
 
-        // Sayfa Yüklendiğinde
+        const publicVapidKey = 'BOMX48RHHNdUMWnA54hy4bH6nxL9l-kPcF5QPIEIfLPtmnM_cPLEb1ikxXGSlZK-whuNOkE9gfnrtHK4jN89h4I';
+
         document.addEventListener('DOMContentLoaded', () => {
             setupServiceWorker();
             fetchStats();
             fetchItems();
+            checkAbonelikDurumu(); // Zil ikonunu duruma göre güncelle
         });
 
-        // 1. İlanları Getir
+        // --- ZİL İKONU DURUM KONTROLÜ ---
+        async function checkAbonelikDurumu() {
+            // Tarayıcı push desteklemiyor mu? ikonu pasif bırak
+            if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+
+            try {
+                const reg = await navigator.serviceWorker.ready;
+                const sub = await reg.pushManager.getSubscription();
+                if (sub) {
+                    setZilMavi();
+                }
+            } catch (e) {
+                console.error('Abonelik kontrol hatası:', e);
+            }
+        }
+
+        function setZilMavi() {
+            const btn = document.getElementById('bellBtn');
+            const icon = document.getElementById('bellIcon');
+            btn.classList.add('subscribed');
+            // Dolu zil ikonu
+            icon.classList.remove('fa-regular');
+            icon.classList.add('fa-solid');
+            btn.title = 'Bildirimlere Abonesiniz';
+        }
+
+        function setZilNormal() {
+            const btn = document.getElementById('bellBtn');
+            const icon = document.getElementById('bellIcon');
+            btn.classList.remove('subscribed');
+            icon.classList.remove('fa-solid');
+            icon.classList.add('fa-regular');
+            btn.title = 'Bildirimleri Aç';
+        }
+
+        // --- İLANLARI GETİR ---
         async function fetchItems() {
             const grid = document.getElementById('itemsGrid');
             const searchVal = document.getElementById('searchInput').value;
@@ -525,11 +576,10 @@
             try {
                 let url = `/api/kayiplar?tip=${currentTab}`;
                 if (currentCategory !== 'Tümü') url += `&kategori=${currentCategory}`;
-                if (searchVal) url += `&q=${searchVal}`;
+                if (searchVal) url += `&q=${encodeURIComponent(searchVal)}`;
 
                 const res = await fetch(url);
                 const data = await res.json();
-
                 renderItems(data);
             } catch (error) {
                 console.error(error);
@@ -537,7 +587,6 @@
             }
         }
 
-        // 2. İlanları Ekrana Bas
         function renderItems(items) {
             const grid = document.getElementById('itemsGrid');
             grid.innerHTML = '';
@@ -550,10 +599,11 @@
             items.forEach(item => {
                 const badgeClass = item.tip === 'kayip' ? 'status-kayip' : 'status-bulunan';
                 const badgeText = item.tip === 'kayip' ? 'Kayıp' : 'Bulunan';
+                const imgSrc = item.foto || '/static/placeholder.png';
 
-                const cardHTML = `
+                grid.innerHTML += `
                 <article class="item-card">
-                    <img src="${item.foto}" alt="${item.baslik}" class="card-image">
+                    <img src="${imgSrc}" alt="${item.baslik}" class="card-image">
                     <div class="card-content">
                         <div class="card-header">
                             <h3 class="card-title">${item.baslik}</h3>
@@ -566,19 +616,16 @@
                         </div>
                         <div class="card-footer">
                             <div class="card-user">
-                                <i class="fa-regular fa-user-circle" style="font-size: 1.2rem;"></i>
+                                <i class="fa-regular fa-user-circle" style="font-size:1.2rem;"></i>
                                 <span>${item.user_name}</span>
                             </div>
                             <span class="details-link">Detaylar <i class="fa-solid fa-arrow-right"></i></span>
                         </div>
                     </div>
-                </article>
-                `;
-                grid.innerHTML += cardHTML;
+                </article>`;
             });
         }
 
-        // 3. İstatistikleri Getir
         async function fetchStats() {
             try {
                 const res = await fetch('/api/kayiplar/stats');
@@ -588,55 +635,40 @@
             } catch (err) { console.error(err); }
         }
 
-        // 4. Tab Değiştirme (Kayıp / Bulunan)
-        function switchTab(tab) {
+        function switchTab(tab, event) {
             currentTab = tab;
-
-            // Tab butonlarını güncelle
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            event.currentTarget.classList.add('active');
+            if (event) event.currentTarget.classList.add('active');
 
-            // Başlığı güncelle
             const titleEl = document.getElementById('listTitle');
             if (tab === 'kayip') {
                 titleEl.innerHTML = '<i class="fa-solid fa-circle-exclamation" style="color:var(--danger)"></i> Kayıp Eşyalar';
             } else {
                 titleEl.innerHTML = '<i class="fa-solid fa-check-circle" style="color:var(--success)"></i> Bulunan Eşyalar';
             }
-
             fetchItems();
         }
 
-        // 5. Kategori Filtreleme
-        function filterCategory(category) {
+        function filterCategory(category, event) {
             currentCategory = category;
-
-            // Chip stillerini güncelle
             document.querySelectorAll('.category-chip').forEach(chip => chip.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-
+            if (event) event.currentTarget.classList.add('active');
             fetchItems();
         }
 
-        // 6. Arama Fonksiyonu
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            fetchItems();
-        });
+        document.getElementById('searchInput').addEventListener('input', () => fetchItems());
 
-        // --- MODAL İŞLEMLERİ ---
         function openModal() { document.getElementById('addModal').style.display = 'flex'; }
         function closeModal() { document.getElementById('addModal').style.display = 'none'; }
+        function closeIosModal() { document.getElementById('iosModal').style.display = 'none'; }
 
-        window.onclick = function (event) {
-            if (event.target == document.getElementById('addModal')) {
-                closeModal();
-            }
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('addModal')) closeModal();
+            if (event.target == document.getElementById('iosModal')) closeIosModal();
         }
 
-        // İlan Gönderme (Form Submit)
-        document.getElementById('addForm').addEventListener('submit', async function (e) {
+        document.getElementById('addForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-
             const formData = new FormData(this);
             const btn = this.querySelector('button[type="submit"]');
             const originalText = btn.innerText;
@@ -644,17 +676,13 @@
             btn.disabled = true;
 
             try {
-                const res = await fetch('/api/kayip-ekle', {
-                    method: 'POST',
-                    body: formData
-                });
-
+                const res = await fetch('/api/kayip-ekle', { method: 'POST', body: formData });
                 if (res.ok) {
                     alert('İlan başarıyla eklendi!');
                     closeModal();
                     this.reset();
-                    fetchItems(); // Listeyi yenile
-                    fetchStats(); // İstatistikleri yenile
+                    fetchItems();
+                    fetchStats();
                 } else {
                     const err = await res.json();
                     alert('Hata: ' + err.message);
@@ -671,75 +699,77 @@
             if ('serviceWorker' in navigator) {
                 try {
                     const reg = await navigator.serviceWorker.register('/sw.js');
-                    console.log("Service Worker başarıyla kaydedildi, kapsam:", reg.scope);
+                    console.log('Service Worker kaydedildi:', reg.scope);
                 } catch (err) {
-                    console.error("Service Worker kaydı başarısız:", err);
+                    console.error('Service Worker kaydı başarısız:', err);
                 }
             }
         }
 
-        // --- BİLDİRİM (WEB PUSH) İŞLEMLERİ ---
-        const publicVapidKey = 'BOMX48RHHNdUMWnA54hy4bH6nxL9l-kPcF5QPIEIfLPtmnM_cPLEb1ikxXGSlZK-whuNOkE9gfnrtHK4jN89h4I';
-
         function urlBase64ToUint8Array(base64String) {
             const padding = '='.repeat((4 - base64String.length % 4) % 4);
-            const base64 = (base64String + padding)
-                .replace(/\-/g, '+')
-                .replace(/_/g, '/');
-
+            const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
             const rawData = window.atob(base64);
             const outputArray = new Uint8Array(rawData.length);
-
-            for (let i = 0; i < rawData.length; ++i) {
-                outputArray[i] = rawData.charCodeAt(i);
-            }
+            for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
             return outputArray;
         }
 
         async function bildirimlereAboneOl() {
-            if ('serviceWorker' in navigator && 'PushManager' in window) {
-                try {
-                    // 1. Service worker kaydını başlat
-                    await navigator.serviceWorker.register('/sw.js');
+            const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+            const isStandalone = window.navigator.standalone === true;
 
-                    // 2. Service Worker'ın tamamen KURULMASINI VE AKTİF OLMASINI BEKLE (İşte çözüm burası!)
-                    const readyRegistration = await navigator.serviceWorker.ready;
+            // iOS Safari tarayıcısından (PWA değil) açılmışsa modal göster
+            if (isIOS && !isStandalone) {
+                document.getElementById('iosModal').style.display = 'flex';
+                return;
+            }
 
-                    // 3. Tarayıcıdan abonelik al (Artık register yerine readyRegistration kullanıyoruz)
-                    const subscription = await readyRegistration.pushManager.subscribe({
-                        userVisibleOnly: true,
-                        applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
-                    });
-
-                    // 4. Aboneliği backend'e yolla
-                    const res = await fetch('/api/abonelik-kaydet', {
-                        method: 'POST',
-                        body: JSON.stringify(subscription),
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    });
-
-                    if (res.ok) {
-                        alert('Bildirimler açıldı! Yeni ilan eklendiğinde haberiniz olacak.');
-                    } else {
-                        const data = await res.json();
-                        if (data.message === 'Bu cihaz zaten bildirimlere abone.') {
-                            alert('Zaten bildirimlere abonesiniz!');
-                        } else {
-                            alert('Abonelik kaydedilirken bir hata oluştu.');
-                        }
-                    }
-
-                } catch (error) {
-                    console.error('Abonelik hatası:', error);
-                    alert('Bildirim izni verilmedi veya desteklenmiyor.');
-                }
-            } else {
+            if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
                 alert('Tarayıcınız bildirimleri desteklemiyor.');
+                return;
+            }
+
+            try {
+                // Zaten abone mi?
+                const regCheck = await navigator.serviceWorker.ready;
+                const existingSub = await regCheck.pushManager.getSubscription();
+                if (existingSub) {
+                    alert('Zaten bildirimlere abonesiniz!');
+                    setZilMavi();
+                    return;
+                }
+
+                const readyRegistration = await navigator.serviceWorker.ready;
+
+                const subscription = await readyRegistration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+                });
+
+                const res = await fetch('/api/abonelik-kaydet', {
+                    method: 'POST',
+                    body: JSON.stringify(subscription),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (res.ok) {
+                    setZilMavi(); // Başarılı → mavi yap
+                    alert('Bildirimler açıldı! Yeni ilan eklendiğinde haberiniz olacak.');
+                } else {
+                    const data = await res.json();
+                    if (data.message && data.message.includes('zaten')) {
+                        setZilMavi();
+                        alert('Zaten bildirimlere abonesiniz!');
+                    } else {
+                        alert('Abonelik kaydedilirken bir hata oluştu.');
+                    }
+                }
+            } catch (error) {
+                console.error('Abonelik hatası:', error);
+                alert('Bildirim izni verilmedi veya bir hata oluştu.');
             }
         }
     </script>
 </body>
-
 </html>
