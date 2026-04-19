@@ -294,49 +294,51 @@
     }
 
     // 3. İndirme ve Kredi Kontrolü
-    async function handleDownload(filename, originalName) {
-      const btn = document.activeElement; // Tıklanan butonu bul
-      const originalText = btn.innerText;
-      btn.innerText = "İşleniyor...";
-      btn.disabled = true;
+async function handleDownload(filename, originalName) {
+  const btn = document.activeElement;
+  const originalText = btn.innerText;
+  btn.innerText = "İşleniyor...";
+  btn.disabled = true;
 
-      try {
-        // Backend'e istek at (backend.py'da kredi kontrolü burada yapılır)
-        const response = await fetch(`/uploads/notes/${filename}`);
+  try {
+    const response = await fetch(`/uploads/notes/${filename}`);
 
-        // EĞER KREDİ YETERSİZSE BACKEND 403 DÖNER
-        if (response.status === 403) {
-          alert("⚠️ Yetersiz Kredi!\n\nBakiyenizde yeterli kredi yok (Gerekli: 1 Kredi). Lütfen not yükleyerek kredi kazanın.");
-          return;
-        }
-
-        if (!response.ok) {
-          throw new Error("Dosya indirilemedi");
-        }
-
-        // Kredi yeterliyse dosya iner
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        a.remove();
-
-        // Kredi düştüğü için güncel bakiyeyi tekrar çek
-        loadUserInfo();
-
-      } catch (error) {
-        console.error('İndirme hatası:', error);
-        alert("İndirme sırasında bir hata oluştu.");
-      } finally {
-        btn.innerText = originalText;
-        btn.disabled = false;
+    if (response.status === 403) {
+      const data = await response.json();
+      
+      // Mesaja göre farklı uyarı göster
+      if (data.message && data.message.includes('abone')) {
+        alert("🔔 Erişim Kısıtlı!\n\nBu dosyayı indirebilmek için önce kayıp ilanı bildirimlerine abone olmalısınız.\n\nKayıplar sayfasına gidip bildirimlere izin verin.");
+      } else {
+        alert("⚠️ Yetersiz Kredi!\n\nBakiyenizde yeterli kredi yok (Gerekli: 1 Kredi). Lütfen not yükleyerek kredi kazanın.");
       }
+      return;
     }
 
+    if (!response.ok) {
+      throw new Error("Dosya indirilemedi");
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
+
+    loadUserInfo();
+
+  } catch (error) {
+    console.error('İndirme hatası:', error);
+    alert("İndirme sırasında bir hata oluştu.");
+  } finally {
+    btn.innerText = originalText;
+    btn.disabled = false;
+  }
+}
     function displayNotes(notes) {
       const container = document.getElementById('notesContainer');
 
