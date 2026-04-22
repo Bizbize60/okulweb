@@ -249,7 +249,6 @@
   </div>
 
   <script>
-    // 1. Kullanıcının Kredisini Çek
     async function loadUserInfo() {
       try {
         const response = await fetch('/api/user-info');
@@ -263,7 +262,6 @@
       }
     }
 
-    // 2. Notları Çek
     async function loadNotes() {
       try {
         const res = await fetch('/api/ders-notlari');
@@ -293,52 +291,47 @@
       }
     }
 
-    // 3. İndirme ve Kredi Kontrolü
-async function handleDownload(filename, originalName) {
-  const btn = document.activeElement;
-  const originalText = btn.innerText;
-  btn.innerText = "İşleniyor...";
-  btn.disabled = true;
+    async function handleDownload(filename, originalName) {
+      const btn = document.activeElement;
+      const originalText = btn.innerText;
+      btn.innerText = "İşleniyor...";
+      btn.disabled = true;
 
-  try {
-    const response = await fetch(`/uploads/notes/${filename}`);
+      try {
+        const response = await fetch(`/uploads/notes/${filename}`);
 
-    if (response.status === 403) {
-      const data = await response.json();
-      
-      // Mesaja göre farklı uyarı göster
-      if (data.message && data.message.includes('abone')) {
-        alert("🔔 Erişim Kısıtlı!\n\nBu dosyayı indirebilmek için önce kayıp ilanı bildirimlerine abone olmalısınız.\n\nKayıplar sayfasına gidip bildirimlere izin verin.");
-      } else {
-        alert("⚠️ Yetersiz Kredi!\n\nBakiyenizde yeterli kredi yok (Gerekli: 1 Kredi). Lütfen not yükleyerek kredi kazanın.");
+        // 403 hatasını sadece kredi yoksa göstereceğiz
+        // Bunu yapmamızın sebebi ders indirme sitenin en temel özelliği ve buna zorunluluk getirmek kullanıcıları hiç memnun etmez.
+        // En önemli fonksiyonları (ders notları indirme) mümkün olduğunca sorunsuz yapmak istiyoruz. Eğer kullanıcı kredisi yoksa 403 dönecek ve biz de ona özel bir mesaj göstereceğiz.
+        if (response.status === 403) {
+          alert("⚠️ Yetersiz Kredi!\n\nBakiyenizde yeterli kredi yok (Gerekli: 1 Kredi). Lütfen not yükleyerek kredi kazanın.");
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error("Dosya indirilemedi");
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        a.remove();
+
+        loadUserInfo();
+
+      } catch (error) {
+        console.error('İndirme hatası:', error);
+        alert("İndirme sırasında bir hata oluştu.");
+      } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
       }
-      return;
     }
-
-    if (!response.ok) {
-      throw new Error("Dosya indirilemedi");
-    }
-
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    a.remove();
-
-    loadUserInfo();
-
-  } catch (error) {
-    console.error('İndirme hatası:', error);
-    alert("İndirme sırasında bir hata oluştu.");
-  } finally {
-    btn.innerText = originalText;
-    btn.disabled = false;
-  }
-}
     function displayNotes(notes) {
       const container = document.getElementById('notesContainer');
 
