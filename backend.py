@@ -101,22 +101,28 @@ def scrape_duyurular():
     try:
         resp = requests.get(url, timeout=10, verify=False)
         resp.raise_for_status()
+        
         soup = BeautifulSoup(resp.text, "html.parser")
+        
         duyurular = []
         items = soup.select('.col-md-6.col-lg-4.duyuru-gap')
         for item in items:
             # Başlık
             title_tag = item.select_one('h5')
             title = title_tag.get_text(strip=True) if title_tag else "Başlık Yok"
+    
             # Orijinal detay linki: kutunun tamamı veya başlık <a> ile sarılıysa onu al
             link_tag = item.select_one('a')
             link = link_tag['href'] if link_tag and link_tag.has_attr('href') else "#"
+            
             # Eğer link /duyurular/ ile başlıyorsa tam URL yap
             if link.startswith('/duyurular/'):
                 link = f"https://www.thk.edu.tr{link}"
+            
             # Açıklama
             desc_tag = item.select_one('.haberler-content')
             description = desc_tag.get_text(strip=True) if desc_tag else ""
+            
             # Tarih
             date_tag = item.select_one('.haberler-page-date .date')
             date = date_tag.get_text(strip=True) if date_tag else ""
@@ -147,7 +153,6 @@ def bildirim_gonder_herkese(baslik, mesaj, url='/'):
                 vapid_private_key=VAPID_PRIVATE_KEY, 
                 vapid_claims={"sub": "mailto:600tuna@gmail.com"}
             )
-            print(f"Bildirim gönderildi: {abonelik.id}")
         except WebPushException as ex:
             print(f"Gönderim hatası (ID: {abonelik.id}): {ex}")
             # Eğer abonelik süresi dolmuşsa (410 Gone), silebilirsin:
@@ -165,7 +170,6 @@ def scrape_haberler():
         soup = BeautifulSoup(resp.text, "html.parser")
         articles = []
         items = soup.select('.col-md-6.col-lg-4.haberler-gap')
-        print(f"[scrape_haberler] Bulunan haber kutusu: {len(items)}")
         for item in items:
             # Başlık
             title_tag = item.select_one('h5')
@@ -188,7 +192,6 @@ def scrape_haberler():
                 "thumbnail": thumbnail,
                 "source": date
             })
-        print(f"[scrape_haberler] Dönen article sayısı: {len(articles)}")
         return articles
     except Exception as e:
         print(f"[scrape_haberler] HATA: {e}")
@@ -286,12 +289,6 @@ def ders_notlari_sayfa(current_user):
 @app.route('/uploads/notes/<path:filename>', methods=['GET', 'POST'])
 @token_required(next_location='/ders-notlari')
 def download(current_user, filename):
-    abonelik = WebPushSubscription.query.filter_by(user_id=current_user.id).first()
-    if not abonelik:
-        return jsonify({
-            'message': 'Dosya indirmek için önce kayıp ilanı bildirimlerine abone olmalısınız!'
-        }), 403
-
     if current_user.kredi < 1:
         return jsonify({'message': 'Yetersiz kredi! Dosya indirmek için dosya yüklemelisiniz.'}), 403
     uploads = os.path.join(current_app.root_path, app.config['UPLOAD_FOLDER'])
@@ -430,9 +427,7 @@ def login():
             algorithm="HS256"
         )
 
-        print(request.args, request.mimetype_params)
         next_page = request.args.get('next', url_for('main_page'))
-        print(f"Giriş başarılı. Yönlendirilecek sayfa: {next_page}")
         response = make_response(redirect(next_page))
         response.set_cookie('jwt_token', token)
 
@@ -672,7 +667,6 @@ def api_kayip_ekle(current_user):
 
             # Tüm aboneleri çek ve döngüyle gönder
             abonelikler = WebPushSubscription.query.all()
-            print(f">>> BİLDİRİM DÖNGÜSÜ BAŞLADI. ABONE SAYISI: {len(abonelikler)}")
 
             for abonelik in abonelikler:
                 try:
@@ -682,7 +676,6 @@ def api_kayip_ekle(current_user):
                         vapid_private_key=VAPID_PRIVATE_KEY,
                         vapid_claims={"sub": "mailto:600tuna@gmail.com"}
                     )
-                    print(f">>> {abonelik.id} ID'li cihaza gönderildi.")
                 except Exception as e:
                     print(f">>> TEKİL GÖNDERİM HATASI (ID: {abonelik.id}): {str(e)}")
 
@@ -873,13 +866,11 @@ def api_ogretmen_degerlendirmeleri():
             'kanaat_notu': sum(1 for d in tum_degerlendirmeler if d.kanaat_notu) / toplam * 100 if toplam > 0 else 0,
             'projeye_onem': sum(1 for d in tum_degerlendirmeler if d.projeye_onem) / toplam * 100 if toplam > 0 else 0
         }
-        
        
         not_dagilimi = {}
         for d in tum_degerlendirmeler:
             if d.alinan_harf_notu:
                 not_dagilimi[d.alinan_harf_notu] = not_dagilimi.get(d.alinan_harf_notu, 0) + 1
-        
    
         not_dagilimi_yuzde = {}
         toplam_not = sum(not_dagilimi.values())
@@ -971,7 +962,6 @@ def api_utaa_news():
         kulup = None
         if kulup_adi:
             kulup = Kulupler.query.filter_by(kulup_adi=kulup_adi).first()
-        # Fallback to id=2 if name not provided/found
         kulup_id = (kulup.id if kulup else 2)
 
         items = Kulupicerik.query.filter_by(kulup_id=kulup_id).order_by(
@@ -1114,41 +1104,34 @@ def api_utaa_gallery():
 def yemek_saatleri():
     data_obj = openpyxl.load_workbook("yemek.xlsx")
     sheet = data_obj.active
-    new_buffer = {"Pazartesi": [], "Salı": [], "Çarşamba": [], "Perşembe": [], "Cuma": []}
     a =sheet.iter_cols(values_only=True)
-    b = 0
-    for idx,i in  enumerate(a):
-        if idx%2==1 or idx>8:
+    
+    new_buffer = { "Pazartesi": [], "Salı": [], "Çarşamba": [], "Perşembe": [], "Cuma": [] }
+    idx_to_day = { 0: "Pazartesi", 2: "Salı", 4: "Çarşamba", 6: "Perşembe", 8: "Cuma" }
+    for idx, i in enumerate(a):
+        # Sadece 0,2,4,6,8. sütunları (Pzt, Salı, Çarş, Perş, Cuma) işlenir
+        if idx % 2 ==1 or idx > 8:
             continue
-        else:
-            for j in range(32):
-                if i[j] is None:
+        
+        # Her sütundaki hücreler tek tek kontrol edilir
+        for j in range(32):
+            if i[j] is None:
+                continue
+            
+            date_str = None
+            
+            if isinstance(i[j], str):
+                # Eğer hücrede gün isimleri veya "Türk", "Toplam" gibi başlıklar varsa atla
+                if any(k in i[j] for k in ("Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Türk", "Toplam")):
                     continue
-                elif isinstance(i[j],str):
-                    if "Pazartesi" in i[j] or "Salı" in i[j] or "Çarşamba" in i[j] or "Perşembe" in i[j] or "Cuma" in i[j] or "Türk" in i[j] or "Toplam" in i[j]:
-                        continue
-                    else:
-                        if idx==0:
-                            new_buffer["Pazartesi"].append(i[j])
-                        elif idx==2:
-                            new_buffer["Salı"].append(i[j])
-                        elif idx==4:
-                            new_buffer["Çarşamba"].append(i[j])
-                        elif idx==6:
-                            new_buffer["Perşembe"].append(i[j])
-                        elif idx==8:
-                            new_buffer["Cuma"].append(i[j])
-                elif isinstance(i[j], dt.datetime):
-                    if idx==0:
-                        new_buffer["Pazartesi"].append(i[j].strftime("%Y:%m:%d"))
-                    elif idx==2:
-                        new_buffer["Salı"].append(i[j].strftime("%Y:%m:%d"))
-                    elif idx==4:
-                        new_buffer["Çarşamba"].append(i[j].strftime("%Y:%m:%d"))
-                    elif idx==6:
-                        new_buffer["Perşembe"].append(i[j].strftime("%Y:%m:%d"))
-                    elif idx==8:
-                        new_buffer["Cuma"].append(i[j].strftime("%Y:%m:%d"))
+                date_str = i[j]
+            elif isinstance(i[j], dt.datetime):
+                date_str = i[j].strftime("%Y:%m:%d")
+                
+            buffer_index = idx_to_day.get(idx, None)
+            if buffer_index and date_str:
+                new_buffer[buffer_index].append(date_str)
+                
     return jsonify(new_buffer)
 
 @app.get('/api/otobus-saatleri')
@@ -1333,7 +1316,6 @@ def api_ilan_ekle(current_user):
             unique_filename = f"{uuid.uuid4()}_{filename}"
             
             kayit_yolu = os.path.join(app.config['PAZAR_UPLOAD_FOLDER'], unique_filename)
-            print(f"Kayıt Yolu: {kayit_yolu}")
             
             file.save(kayit_yolu)
             

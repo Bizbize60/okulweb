@@ -46,6 +46,22 @@ ALLOWED_IMAGES = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 MAX_CONTENT_LENGTH = 16 * 1024 * 1024
 
 # =============================================================================
+# VAPID Ayarları
+# =============================================================================
+VAPID_PUBLIC_KEY = "vapid_public_key_buraya"
+VAPID_PRIVATE_KEY = "vapid_private_key_buraya"
+
+# =============================================================================
+# Mail Ayarları
+# =============================================================================
+MAIL_SERVER = 'smtp.example.com'
+MAIL_PORT = 587
+MAIL_USE_TLS = True
+MAIL_USERNAME = ''
+MAIL_PASSWORD = ''
+MAIL_DEFAULT_SENDER = ''
+
+# =============================================================================
 # Yükleme Klasörleri
 # =============================================================================
 NOTES_UPLOAD_FOLDER = 'uploads/notes'
