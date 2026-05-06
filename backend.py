@@ -89,7 +89,7 @@ os.makedirs(KULUP_UPLOAD_FOLDER, exist_ok=True)
 
 # Veritabanını başlat
 db.init_app(app)
-# mail = Mail(app)
+mail = Mail(app)
 
 # =============================================================================
 # Scraping Fonksiyonları
