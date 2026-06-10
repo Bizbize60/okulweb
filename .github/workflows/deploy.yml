@@ -1,21 +1,29 @@
-name: Otomatik Canliya Alma (CI/CD)
+name: Deploy to EC2
 
 on:
   push:
     branches:
-      - main # Sadece main dalına kod geldiğinde çalışır
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Sunucuya Baglan ve Kodlari Guncelle
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
           script: |
-            cd /home/ubuntu/okulweb
-            git pull origin main
-            sudo systemctl restart flask-thk
+            cd /home/ubuntu/okulweb || exit
+            git fetch origin
+            git reset --hard origin/main
+
+            if [ -f package.json ]; then npm install; fi
+
+            pm2 restart okulweb || pm2 start index.js --name okulweb
