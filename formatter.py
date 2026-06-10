@@ -23,14 +23,19 @@ Kullanım:
 # ============================= AYAR =============================
 DRY_RUN = True            # True iken hiçbir şey yazılmaz, sadece önizleme basar.
 
-# Kendi Flask uygulamanı ve db nesneni buradan içeri al:
-#   from app import app, db
-# Aşağıdaki satırı projenin yapısına göre düzelt.
-from app import app, db   # <-- GEREKİRSE BURAYI DEĞİŞTİR
+from database.initdb import db
+from database.dersnotu import DersNotuBekleyen, DersNotu
 
-TABLE_NAME  = "ders_notu" # <-- onaylı notların tablo adı (gerekiyorsa değiştir)
-ID_COLUMN   = "id"
-NAME_COLUMN = "ders_adi"
+# Hangi tabloyu düzeltiyorsun?
+#   DersNotu          -> onaylanmış (herkese görünen) notlar
+#   DersNotuBekleyen  -> onay bekleyen notlar
+# Gerekirse MODEL'i değiştirip script'i iki tablo için ayrı ayrı çalıştır.
+MODEL = DersNotu
+
+# Flask uygulama nesneni buradan içeri al (app context için gerekli):
+#   from app import app
+# App factory kullanıyorsan:  from app import create_app; app = create_app()
+from backend import app    # backend.py içindeki app değişkeni
 # ================================================================
 
 
@@ -133,27 +138,23 @@ REVIEW = {
 
 
 def main():
-    from sqlalchemy import text
-
-    sel = text(f"SELECT {ID_COLUMN}, {NAME_COLUMN} FROM {TABLE_NAME} WHERE {ID_COLUMN} = :id")
-    upd = text(f"UPDATE {TABLE_NAME} SET {NAME_COLUMN} = :name WHERE {ID_COLUMN} = :id")
-
     with app.app_context():
         print("=" * 70)
-        print(f"{'DRY-RUN (yazma YOK)' if DRY_RUN else 'UYGULANIYOR (yazılıyor)'} — tablo: {TABLE_NAME}")
+        durum = "DRY-RUN (yazma YOK)" if DRY_RUN else "UYGULANIYOR (yazılıyor)"
+        print(f"{durum} -- model: {MODEL.__name__}")
         print("=" * 70)
 
         applied = skipped = missing = 0
         for nid, new_name in RENAMES.items():
-            row = db.session.execute(sel, {"id": nid}).fetchone()
-            if row is None:
-                print(f"[YOK ] #{nid}: kayıt bulunamadı")
+            kayit = db.session.get(MODEL, nid)
+            if kayit is None:
+                print(f"[YOK ] #{nid}: kayit bulunamadi")
                 missing += 1
                 continue
 
-            old_name = row[1]
+            old_name = kayit.ders_adi
             if old_name == new_name:
-                print(f"[ATLA] #{nid}: zaten doğru")
+                print(f"[ATLA] #{nid}: zaten dogru")
                 skipped += 1
                 continue
 
@@ -161,20 +162,20 @@ def main():
             print(f"        eski: {old_name}")
             print(f"        yeni: {new_name}")
             if not DRY_RUN:
-                db.session.execute(upd, {"id": nid, "name": new_name})
+                kayit.ders_adi = new_name
             applied += 1
 
         if not DRY_RUN:
             db.session.commit()
-            print("\n>>> Değişiklikler kaydedildi (commit).")
+            print("\n>>> Degisiklikler kaydedildi (commit).")
         else:
-            print("\n>>> DRY-RUN: hiçbir şey yazılmadı. Uygulamak için DRY_RUN = False yap.")
+            print("\n>>> DRY-RUN: hicbir sey yazilmadi. Uygulamak icin DRY_RUN = False yap.")
 
-        print(f"\nÖzet: {applied} değişecek/değişti, {skipped} zaten doğru, {missing} bulunamadı.")
+        print(f"\nOzet: {applied} degisecek/degisti, {skipped} zaten dogru, {missing} bulunamadi.")
 
-        # Elle bakılacaklar
+        # Elle bakilacaklar
         print("\n" + "-" * 70)
-        print(f"ELLE GÖZDEN GEÇİR ({len(REVIEW)} kayıt) — otomatik DOKUNULMADI:")
+        print(f"ELLE GOZDEN GECIR ({len(REVIEW)} kayit) -- otomatik DOKUNULMADI:")
         print("-" * 70)
         for nid, (cur, why) in REVIEW.items():
             print(f"  #{nid}: {cur}")
