@@ -4,294 +4,804 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Not Yükle - THKÜ Portal</title>
+  <title>Not Ekle - THKÜ</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
   <style>
     :root {
       --bg: #0d0f14;
-      --surface: rgba(255, 255, 255, 0.07);
-      --surface-hover: rgba(255, 255, 255, 0.11);
-      --border: rgba(255, 255, 255, 0.12);
+      --border: rgba(255, 255, 255, 0.07);
       --text: #e8eaf0;
       --text-muted: #7a8299;
+      --text-dim: #4a5270;
       --accent: #4f8ef7;
-      --success: #38d9a9;
-      --warning: #f5a623;
+      --accent2: #38d9a9;
+      --accent3: #f5a623;
       --danger: #ff6b6b;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
     body {
       font-family: 'Sora', sans-serif;
       background: var(--bg);
-      color: var(--text);
       min-height: 100vh;
-      padding: 40px 20px;
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    .bg-photo {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background: url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=1920&q=80') center center / cover no-repeat;
+    }
+
+    .bg-photo::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(8, 10, 16, 0.74);
+      backdrop-filter: blur(2px);
+    }
+
+    .bg-photo::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 15% 25%, rgba(79, 142, 247, 0.18) 0%, transparent 65%),
+        radial-gradient(ellipse 60% 50% at 85% 75%, rgba(56, 217, 169, 0.12) 0%, transparent 65%);
+      z-index: 1;
     }
 
     .container {
-      max-width: 800px;
+      max-width: 760px;
       margin: 0 auto;
+      padding: 24px 20px 64px;
+      position: relative;
+      z-index: 1;
     }
 
-    /* Üst Başlık */
     .header {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 30px;
-    }
-
-    .header h1 { font-size: 1.6rem; font-weight: 600; }
-    .btn-back { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; transition: 0.2s; }
-    .btn-back:hover { color: var(--text); }
-
-    /* Form Kartı */
-    .card {
-      background: var(--surface);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--border);
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 28px;
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(30px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.13);
       border-radius: 16px;
-      padding: 30px;
-      margin-bottom: 40px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
     }
 
-    .form-group { margin-bottom: 20px; }
-    .form-group label { display: block; margin-bottom: 8px; font-size: 0.9rem; font-weight: 500; color: var(--text-muted); }
-    
-    .form-control {
-      width: 100%;
-      padding: 14px;
-      background: rgba(0, 0, 0, 0.2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      color: var(--text);
-      font-family: 'Sora', sans-serif;
-      outline: none;
-      transition: 0.2s;
-    }
-    .form-control:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79, 142, 247, 0.15); }
-
-    input[type="file"] {
-      padding: 10px;
-      color: var(--text-muted);
-    }
-    input[type="file"]::file-selector-button {
-      background: var(--surface);
-      color: var(--text);
-      border: 1px solid var(--border);
-      padding: 8px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-right: 12px;
-      transition: 0.2s;
-    }
-    input[type="file"]::file-selector-button:hover { background: var(--surface-hover); }
-
-    .btn-submit {
-      width: 100%;
-      padding: 14px;
-      background: var(--accent);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .btn-submit:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-2px); }
-    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
-
-    /* Yüklenen Notlar Listesi */
-    .section-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-    
-    .note-list { display: flex; flex-direction: column; gap: 12px; }
-    
-    .note-item {
+    .logo {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 16px;
-      background: rgba(0, 0, 0, 0.2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      transition: 0.2s;
+      gap: 10px;
+      font-size: 1.15em;
+      font-weight: 700;
+      letter-spacing: -0.02em;
     }
-    .note-item:hover { border-color: rgba(255,255,255,0.2); }
 
-    .note-info h3 { font-size: 1rem; font-weight: 500; margin-bottom: 4px; }
-    .note-info p { font-size: 0.8rem; color: var(--text-muted); }
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1em;
+    }
 
-    .note-actions { display: flex; align-items: center; gap: 16px; }
-
-    /* Durum Rozetleri */
-    .badge { padding: 6px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; }
-    .badge.onaylandi { background: rgba(56, 217, 169, 0.1); color: var(--success); border: 1px solid rgba(56, 217, 169, 0.2); }
-    .badge.beklemede { background: rgba(245, 166, 35, 0.1); color: var(--warning); border: 1px solid rgba(245, 166, 35, 0.2); }
-    .badge.reddedildi { background: rgba(255, 107, 107, 0.1); color: var(--danger); border: 1px solid rgba(255, 107, 107, 0.2); }
-
-    .btn-retract {
-      background: transparent;
-      color: var(--danger);
-      border: 1px solid rgba(255, 107, 107, 0.3);
-      padding: 6px 12px;
-      border-radius: 8px;
+    .btn {
+      padding: 9px 18px;
+      border-radius: 9px;
+      font-size: 0.82em;
+      font-weight: 600;
+      border: none;
       cursor: pointer;
-      font-size: 0.8rem;
-      transition: 0.2s;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Sora', sans-serif;
     }
-    .btn-retract:hover { background: rgba(255, 107, 107, 0.1); border-color: var(--danger); }
+
+    .btn-home {
+      background: rgba(255, 255, 255, 0.07);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+
+    .btn-home:hover {
+      background: rgba(255, 255, 255, 0.11);
+      color: var(--text);
+    }
+
+    /* ---- Format kuralları kutusu ---- */
+    .rules-box {
+      background: rgba(245, 166, 35, 0.08);
+      backdrop-filter: blur(20px) saturate(150%);
+      border: 1px solid rgba(245, 166, 35, 0.25);
+      border-radius: 14px;
+      padding: 22px 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .rules-box .title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1em;
+      font-weight: 700;
+      color: var(--accent3);
+      margin-bottom: 10px;
+    }
+
+    .rules-box .lead {
+      font-size: 0.86em;
+      color: #d8b86a;
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
+
+    .rules-box .lead strong {
+      color: #ffd98a;
+    }
+
+    .rule-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .rule-list li {
+      font-size: 0.8em;
+      color: #c4a256;
+      line-height: 1.5;
+      padding-left: 22px;
+      position: relative;
+    }
+
+    .rule-list li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--accent2);
+      font-weight: 700;
+    }
+
+    .rule-list li.no::before {
+      content: '✕';
+      color: var(--danger);
+    }
+
+    .rule-list code {
+      font-family: 'DM Mono', monospace;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 1px 6px;
+      border-radius: 5px;
+      color: #cfe0fb;
+      font-size: 0.95em;
+    }
+
+    .rule-list .ok-code { color: #8be0c0; }
+    .rule-list .bad-code { color: #ff9999; text-decoration: line-through; }
+
+    /* ---- Form kartı ---- */
+    .form-card {
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(24px) saturate(160%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 26px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .field {
+      margin-bottom: 22px;
+      animation: fadeUp 0.3s ease both;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 0.82em;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 10px;
+      letter-spacing: 0.01em;
+    }
+
+    .field-label .req { color: var(--accent3); }
+    .field-hint {
+      font-weight: 400;
+      color: var(--text-dim);
+      font-size: 0.92em;
+      margin-left: 4px;
+    }
+
+    /* tür seçimi - segmented kartlar */
+    .type-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+    }
+
+    .type-opt {
+      cursor: pointer;
+      padding: 14px 10px;
+      border-radius: 11px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.04);
+      text-align: center;
+      transition: all 0.18s;
+      user-select: none;
+    }
+
+    .type-opt:hover {
+      border-color: rgba(255, 255, 255, 0.22);
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    .type-opt .ic { font-size: 1.4em; display: block; margin-bottom: 6px; }
+    .type-opt .lbl { font-size: 0.78em; font-weight: 600; color: var(--text-muted); }
+
+    .type-opt.selected {
+      border-color: rgba(79, 142, 247, 0.55);
+      background: rgba(79, 142, 247, 0.13);
+      box-shadow: 0 0 0 3px rgba(79, 142, 247, 0.1);
+    }
+    .type-opt.selected .lbl { color: var(--accent); }
+
+    input[type="text"], select {
+      width: 100%;
+      padding: 13px 15px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      font-family: 'Sora', sans-serif;
+      font-size: 0.9em;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+
+    input[type="text"]::placeholder { color: rgba(255, 255, 255, 0.28); }
+
+    input[type="text"]:focus, select:focus {
+      border-color: rgba(79, 142, 247, 0.5);
+      background: rgba(255, 255, 255, 0.09);
+      box-shadow: 0 0 0 3px rgba(79, 142, 247, 0.12);
+    }
+
+    input.invalid {
+      border-color: rgba(255, 107, 107, 0.5);
+      box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.12);
+    }
+
+    select option { background: #161a22; color: var(--text); }
+
+    .err-msg {
+      display: none;
+      font-size: 0.75em;
+      color: var(--danger);
+      margin-top: 7px;
+    }
+    .err-msg.show { display: block; }
+
+    .mono { font-family: 'DM Mono', monospace; }
+
+    /* ortak ders / sadece çözüm onay kutuları */
+    .check-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .check-row + .check-row { margin-top: 10px; }
+    .check-row:hover { background: rgba(255, 255, 255, 0.07); }
+    .check-row input { width: 17px; height: 17px; margin-top: 2px; accent-color: var(--accent2); cursor: pointer; flex-shrink: 0; }
+    .check-row .ctxt { font-size: 0.8em; color: var(--text-muted); line-height: 1.45; }
+    .check-row .ctxt b { color: var(--text); font-weight: 600; }
+
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    /* dosya yükleme */
+    .file-drop {
+      border: 1.5px dashed rgba(255, 255, 255, 0.18);
+      border-radius: 12px;
+      padding: 26px 18px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .file-drop:hover, .file-drop.drag {
+      border-color: rgba(56, 217, 169, 0.5);
+      background: rgba(56, 217, 169, 0.06);
+    }
+    .file-drop .fic { font-size: 1.8em; margin-bottom: 8px; }
+    .file-drop .ftxt { font-size: 0.84em; color: var(--text-muted); }
+    .file-drop .ftxt b { color: var(--accent2); }
+    .file-drop .fsub { font-size: 0.72em; color: var(--text-dim); margin-top: 5px; }
+    .file-drop.has-file { border-color: rgba(56, 217, 169, 0.45); border-style: solid; background: rgba(56, 217, 169, 0.07); }
+
+    /* canlı önizleme - imza alanı */
+    .preview {
+      margin-top: 4px;
+      padding: 18px 20px;
+      background: rgba(0, 0, 0, 0.32);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+    }
+    .preview .plabel {
+      font-size: 0.72em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .preview .pname {
+      font-family: 'DM Mono', monospace;
+      font-size: 1.02em;
+      line-height: 1.5;
+      word-break: break-word;
+      min-height: 1.5em;
+    }
+    .preview .pname .seg-type { color: var(--accent3); }
+    .preview .pname .seg-code { color: var(--accent); font-weight: 500; }
+    .preview .pname .seg-data { color: var(--accent2); }
+    .preview .pname .seg-sol  { color: var(--danger); }
+    .preview .pname .placeholder { color: var(--text-dim); font-style: italic; font-family: 'Sora', sans-serif; }
+
+    .pstatus {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+      font-size: 0.74em;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 50px;
+    }
+    .pstatus.ok { background: rgba(56, 217, 169, 0.12); color: var(--accent2); border: 1px solid rgba(56,217,169,0.2); }
+    .pstatus.bad { background: rgba(255, 107, 107, 0.1); color: var(--danger); border: 1px solid rgba(255,107,107,0.2); }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 26px;
+    }
+    .btn-submit {
+      flex: 1;
+      justify-content: center;
+      padding: 14px;
+      font-size: 0.9em;
+      background: linear-gradient(135deg, var(--accent2), #20c997);
+      color: #0d1a17;
+    }
+    .btn-submit:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
+    .btn-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-copy {
+      padding: 14px 18px;
+      background: rgba(79, 142, 247, 0.12);
+      border: 1px solid rgba(79, 142, 247, 0.25);
+      color: var(--accent);
+    }
+    .btn-copy:hover { background: rgba(79, 142, 247, 0.2); }
+
+    .hidden { display: none !important; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 560px) {
+      .row-2 { grid-template-columns: 1fr; }
+      .actions { flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, .field { animation: none !important; transition: none !important; }
+    }
   </style>
 </head>
 
 <body>
+  <div class="bg-photo"></div>
   <div class="container">
-    
-    <div class="header">
-      <h1>Not Yükle</h1>
-      <a href="/ders-notlari" class="btn-back">← Ders Notlarına Dön</a>
+
+    <header class="header">
+      <div class="logo">
+        <div class="logo-icon">➕</div>
+        Not Ekle
+      </div>
+      <a href="/ders-notlari" class="btn btn-home">← Notlara Dön</a>
+    </header>
+
+    <!-- ============ FORMAT UYARISI (sayfa başı) ============ -->
+    <div class="rules-box">
+      <div class="title">⚠️ Yükleme Kuralları — Lütfen Okuyun</div>
+      <p class="lead">
+        Notlar <strong>standart bir isim formatında</strong> kaydedilmelidir. Aşağıdaki formu kullandığın sürece
+        format otomatik oluşur; <strong>formun dışına çıkılamaz</strong>. Bu kurallara uymayan ya da manuel
+        bozulmuş isimlerle yüklenen notlar <strong>kabul edilmez ve silinir.</strong>
+      </p>
+      <ul class="rule-list">
+        <li>Ders kodu <b>tamamı BÜYÜK</b> ve sayıyla <b>bitişik</b> yazılır: <code class="ok-code">CENG302</code>
+          &nbsp;—&nbsp; <code class="bad-code">CENG 302</code> <code class="bad-code">ceng-302</code></li>
+        <li>Öğretim görevlisinin adı <b>bitişik</b> yazılır: <code class="ok-code">LeylaAtmaca</code></li>
+        <li>Vize / Final / Quiz için <b>yıl</b> zorunludur: <code>Vize(2025)-CENG302-LeylaAtmaca</code></li>
+        <li>Ders ortak olup <b>birden fazla hoca</b> veriyorsa hoca yerine <code>*</code> kullanılır:
+          <code>Vize(2025)-CENG302-*</code></li>
+        <li>Sadece <b>çözümü</b> olan (soruları olmayan) sınavlar başına <code>Çözüm-</code> eklenir:
+          <code>Çözüm-Final(2024)-MAT121-AhmetYilmaz</code></li>
+        <li class="no">Boşluklu, eksik veya formatsız isimler (<code class="bad-code">fizik 2 çalışma</code>) kabul edilmez.</li>
+      </ul>
     </div>
 
-    <div class="card">
-      <form id="uploadForm">
-        <div class="form-group">
-          <label for="dersAdi">Dersin Adı (Örn: Fizik 101)</label>
-          <input type="text" id="dersAdi" name="ders_adi" class="form-control" required placeholder="Dersin adını giriniz">
+    <!-- ============ FORM ============ -->
+    <div class="form-card">
+
+      <!-- 1) Tür -->
+      <div class="field">
+        <label class="field-label">İçerik Türü <span class="req">*</span></label>
+        <div class="type-grid" id="typeGrid">
+          <div class="type-opt" data-type="not">
+            <span class="ic">📘</span><span class="lbl">Çalışma Notu</span>
+          </div>
+          <div class="type-opt" data-type="sorular">
+            <span class="ic">📝</span><span class="lbl">Çalışma Soruları</span>
+          </div>
+          <div class="type-opt" data-type="vize">
+            <span class="ic">📄</span><span class="lbl">Vize</span>
+          </div>
+          <div class="type-opt" data-type="final">
+            <span class="ic">🎓</span><span class="lbl">Final</span>
+          </div>
+          <div class="type-opt" data-type="quiz">
+            <span class="ic">⚡</span><span class="lbl">Quiz</span>
+          </div>
         </div>
-        
-        <div class="form-group">
-          <label for="fileInput">Dosya Seç (PDF, DOCX, PPT vb.)</label>
-          <input type="file" id="fileInput" name="file" class="form-control" required>
+      </div>
+
+      <!-- 2) Ders kodu (her zaman) -->
+      <div class="field hidden" id="f-code">
+        <label class="field-label" for="codeInput">Ders Kodu <span class="req">*</span>
+          <span class="field-hint">— otomatik büyük harf + bitişik (örn: CENG302)</span></label>
+        <input type="text" id="codeInput" class="mono" placeholder="CENG302" autocomplete="off" spellcheck="false" maxlength="12">
+        <div class="err-msg" id="err-code">Geçerli bir kod gir: 2–6 harf + 2–4 rakam, bitişik (örn: CENG302, EEE102, MAT121).</div>
+      </div>
+
+      <!-- 3) Yıl (sınavlar) -->
+      <div class="field hidden" id="f-year">
+        <label class="field-label" for="yearInput">Yıl <span class="req">*</span></label>
+        <select id="yearInput"></select>
+      </div>
+
+      <!-- 4) Öğretim görevlisi (vize/final) -->
+      <div class="field hidden" id="f-teacher">
+        <label class="field-label" for="teacherInput">Öğretim Görevlisi <span class="req">*</span>
+          <span class="field-hint">— otomatik bitişik (örn: LeylaAtmaca)</span></label>
+        <input type="text" id="teacherInput" placeholder="Leyla Atmaca" autocomplete="off" spellcheck="false">
+        <label class="check-row" style="margin-top:10px;" id="commonRow">
+          <input type="checkbox" id="commonCheck">
+          <span class="ctxt"><b>Ortak ders / birden fazla hoca veriyor.</b> Hoca adı yerine <code class="mono">*</code> kullanılsın.</span>
+        </label>
+        <div class="err-msg" id="err-teacher">Öğretim görevlisinin adını gir ya da "ortak ders" seçeneğini işaretle.</div>
+      </div>
+
+      <!-- 5) Konular (not / sorular / quiz) -->
+      <div class="field hidden" id="f-topics">
+        <label class="field-label" for="topicsInput">Konu İçerikleri <span class="req">*</span>
+          <span class="field-hint">— virgülle ayır</span></label>
+        <input type="text" id="topicsInput" placeholder="Limit, Türev, İntegral" autocomplete="off" spellcheck="false">
+        <div class="err-msg" id="err-topics">En az bir konu gir (virgülle ayırarak yazabilirsin).</div>
+      </div>
+
+      <!-- 6) Sadece çözüm (sınavlar) -->
+      <div class="field hidden" id="f-solution">
+        <label class="check-row" id="solRow">
+          <input type="checkbox" id="solCheck">
+          <span class="ctxt"><b>Sadece çözüm var, sorular yok.</b> İsmin başına <code class="mono">Çözüm-</code> eklenir.</span>
+        </label>
+      </div>
+
+      <!-- 7) Dosya -->
+      <div class="field hidden" id="f-file">
+        <label class="field-label">Dosya <span class="req">*</span>
+          <span class="field-hint">— PDF, DOCX, PPTX</span></label>
+        <div class="file-drop" id="fileDrop">
+          <div class="fic">📎</div>
+          <div class="ftxt"><b>Dosya seç</b> veya buraya sürükle</div>
+          <div class="fsub" id="fileSub">PDF · DOC · DOCX · PPT · PPTX</div>
         </div>
+        <input type="file" id="fileInput" class="hidden" accept=".pdf,.doc,.docx,.ppt,.pptx">
+      </div>
 
-        <button type="submit" id="submitBtn" class="btn-submit">Yükle ve Onaya Gönder</button>
-      </form>
+      <!-- Canlı önizleme -->
+      <div class="field hidden" id="f-preview">
+        <div class="preview">
+          <div class="plabel">🔎 Kaydedilecek isim</div>
+          <div class="pname" id="previewName"><span class="placeholder">Önce bir tür seç…</span></div>
+          <span class="pstatus bad" id="pstatus">Eksik alanlar var</span>
+        </div>
+      </div>
+
+      <!-- Aksiyonlar -->
+      <div class="field hidden" id="f-actions" style="margin-bottom:0;">
+        <div class="actions">
+          <button class="btn btn-submit" id="submitBtn" disabled>📤 Notu Yükle (2 Kredi)</button>
+          <button class="btn btn-copy" id="copyBtn" title="İsmi kopyala">📋 Kopyala</button>
+        </div>
+      </div>
+
     </div>
-
-    <h2 class="section-title">Yüklediğim Notlar</h2>
-    <div class="note-list" id="myNotesList">
-      <div style="text-align: center; color: var(--text-muted); padding: 20px;">Yükleniyor...</div>
-    </div>
-
   </div>
 
   <script>
-    const uploadForm = document.getElementById('uploadForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const myNotesList = document.getElementById('myNotesList');
+    // ====== Yapılandırma ======
+    // Notu kaydeden backend endpoint'i (kendi sunucuna göre değiştir).
+    const UPLOAD_ENDPOINT = '/api/not-ekle';
 
-    const escapeHTML = str => {
-      if (!str) return '';
-      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' };
-      return String(str).replace(/[&<>'"]/g, tag => map[tag] || tag);
+    // ====== Durum ======
+    const state = { type: null, code: '', year: '', teacher: '', common: false, topics: '', solution: false, file: null };
+
+    const $ = id => document.getElementById(id);
+
+    // Her türün hangi alanlara ihtiyacı var
+    const TYPE_FIELDS = {
+      not:     { code:1, topics:1 },
+      sorular: { code:1, topics:1 },
+      vize:    { code:1, year:1, teacher:1, solution:1 },
+      final:   { code:1, year:1, teacher:1, solution:1 },
+      quiz:    { code:1, year:1, topics:1, solution:1 },
     };
+    const TYPE_PREFIX = { vize: 'Vize', final: 'Final', quiz: 'Quiz' };
 
-    const formatDate = dateStr => {
-      return new Date(dateStr).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit' });
-    };
-
-    const loadMyNotes = async () => {
-      try {
-        const res = await fetch('/api/kullanici-notlari');
-        if (!res.ok) throw new Error('Veri çekilemedi');
-        
-        const data = await res.json();
-        
-        if (data.length === 0) {
-          myNotesList.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 20px;">Henüz hiç not yüklemediniz.</div>';
-          return;
-        }
-
-        myNotesList.innerHTML = data.map(note => {
-          const safeName = escapeHTML(note.ders_adi);
-          const safeDate = formatDate(note.tarih);
-          
-          let badgeClass = '';
-          if (note.durum === 'APPROVED') badgeClass = 'onaylandi';
-          else if (note.durum === 'PENDING') badgeClass = 'beklemede';
-          else badgeClass = 'reddedildi';
-
-          const showRetractBtn = (note.durum === 'PENDING');
-          const retractHtml = showRetractBtn 
-            ? `<button class="btn-retract" onclick="retractNote(${note.id})">🗑️ Geri Çek</button>` 
-            : '';
-
-          return `
-            <div class="note-item">
-              <div class="note-info">
-                <h3>${safeName}</h3>
-                <p>${safeDate}</p>
-              </div>
-              <div class="note-actions">
-                <span class="badge ${badgeClass}">${escapeHTML(note.durum)}</span>
-                ${retractHtml}
-              </div>
-            </div>
-          `;
-        }).join('');
-
-      } catch (error) {
-        console.error(error);
-        myNotesList.innerHTML = '<div style="color: var(--danger); text-align: center; padding: 20px;">Notlarınız yüklenirken bir hata oluştu.</div>';
+    // ====== Yıl seçeneklerini doldur ======
+    (function fillYears() {
+      const sel = $('yearInput');
+      const now = new Date().getFullYear();
+      for (let y = now; y >= now - 12; y--) {
+        const o = document.createElement('option');
+        o.value = y; o.textContent = y;
+        sel.appendChild(o);
       }
-    };
+      state.year = String(now);
+    })();
 
-    uploadForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      submitBtn.disabled = true;
-      submitBtn.innerText = 'Yükleniyor... Lütfen bekleyin';
+    // ====== Yardımcı biçimlendiriciler ======
+    // Ders kodu: Türkçe-uyumlu BÜYÜK harf, boşluk/tire/diğer ayraçlar silinir
+    function formatCode(raw) {
+      return raw.toLocaleUpperCase('tr-TR').replace(/[^A-ZÇĞİÖŞÜ0-9]/g, '');
+    }
+    const CODE_RE = /^[A-ZÇĞİÖŞÜ]{2,6}[0-9]{2,4}$/;
 
-      const formData = new FormData(uploadForm);
+    // Hoca adı: her kelimenin baş harfi büyük, kalanı küçük, boşluklar silinir → bitişik
+    function formatTeacher(raw) {
+      return raw.trim().split(/\s+/).filter(Boolean).map(w =>
+        w.charAt(0).toLocaleUpperCase('tr-TR') + w.slice(1).toLocaleLowerCase('tr-TR')
+      ).join('');
+    }
 
+    // Konular: virgülle ayır, her birini kırp, baş harfleri büyüt, "K1,K2" olarak birleştir
+    function formatTopics(raw) {
+      return raw.split(',').map(t => t.trim()).filter(Boolean).map(t =>
+        t.split(/\s+/).map(w => w.charAt(0).toLocaleUpperCase('tr-TR') + w.slice(1)).join(' ')
+      ).join(',');
+    }
+
+    // ====== Tür seçimi ======
+    $('typeGrid').addEventListener('click', e => {
+      const opt = e.target.closest('.type-opt');
+      if (!opt) return;
+      document.querySelectorAll('.type-opt').forEach(o => o.classList.toggle('selected', o === opt));
+      state.type = opt.dataset.type;
+      applyVisibility();
+      update();
+    });
+
+    function applyVisibility() {
+      const needs = TYPE_FIELDS[state.type] || {};
+      $('f-code').classList.toggle('hidden', !needs.code);
+      $('f-year').classList.toggle('hidden', !needs.year);
+      $('f-teacher').classList.toggle('hidden', !needs.teacher);
+      $('f-topics').classList.toggle('hidden', !needs.topics);
+      $('f-solution').classList.toggle('hidden', !needs.solution);
+      // tür seçilince dosya, önizleme ve butonlar görünür
+      const on = !!state.type;
+      $('f-file').classList.toggle('hidden', !on);
+      $('f-preview').classList.toggle('hidden', !on);
+      $('f-actions').classList.toggle('hidden', !on);
+    }
+
+    // ====== Girdi olayları ======
+    $('codeInput').addEventListener('input', e => {
+      const pos = e.target.selectionStart;
+      e.target.value = formatCode(e.target.value);
+      state.code = e.target.value;
+      try { e.target.setSelectionRange(pos, pos); } catch (_) {}
+      update();
+    });
+    $('yearInput').addEventListener('change', e => { state.year = e.target.value; update(); });
+    $('teacherInput').addEventListener('input', e => { state.teacher = e.target.value; update(); });
+    $('teacherInput').addEventListener('blur', e => {
+      if (!state.common && e.target.value.trim()) { e.target.value = formatTeacher(e.target.value); state.teacher = e.target.value; update(); }
+    });
+    $('commonCheck').addEventListener('change', e => {
+      state.common = e.target.checked;
+      $('teacherInput').disabled = state.common;
+      $('teacherInput').style.opacity = state.common ? 0.4 : 1;
+      update();
+    });
+    $('topicsInput').addEventListener('input', e => { state.topics = e.target.value; update(); });
+    $('topicsInput').addEventListener('blur', e => {
+      if (e.target.value.trim()) { e.target.value = formatTopics(e.target.value); state.topics = e.target.value; update(); }
+    });
+    $('solCheck').addEventListener('change', e => { state.solution = e.target.checked; update(); });
+
+    // ====== Dosya ======
+    const fileDrop = $('fileDrop'), fileInput = $('fileInput');
+    fileDrop.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
+    ['dragover', 'dragenter'].forEach(ev => fileDrop.addEventListener(ev, e => { e.preventDefault(); fileDrop.classList.add('drag'); }));
+    ['dragleave', 'drop'].forEach(ev => fileDrop.addEventListener(ev, e => { e.preventDefault(); fileDrop.classList.remove('drag'); }));
+    fileDrop.addEventListener('drop', e => { if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]); });
+
+    function setFile(f) {
+      if (!f) return;
+      state.file = f;
+      fileDrop.classList.add('has-file');
+      fileDrop.querySelector('.fic').textContent = '✅';
+      fileDrop.querySelector('.ftxt').innerHTML = '<b>' + escapeHTML(f.name) + '</b>';
+      $('fileSub').textContent = (f.size / 1024 / 1024).toFixed(2) + ' MB · değiştirmek için tıkla';
+      update();
+    }
+    const escapeHTML = s => (s || '').replace(/[&<>'"]/g, t => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[t]));
+
+    // ====== İsim üretimi + doğrulama ======
+    function buildName() {
+      const t = state.type;
+      if (!t) return { ok: false, html: '<span class="placeholder">Önce bir tür seç…</span>', text: '' };
+
+      const code = state.code;
+      const codeOk = CODE_RE.test(code);
+      const segCode = `<span class="seg-code">${escapeHTML(code || 'DERSKODU')}</span>`;
+
+      if (t === 'not' || t === 'sorular') {
+        const label = t === 'not' ? 'Çalışma-Notu' : 'Çalışma-Soruları';
+        const topics = formatTopics(state.topics);
+        const topicsOk = topics.length > 0;
+        const ok = codeOk && topicsOk;
+        const segTopics = `<span class="seg-data">(${escapeHTML(topics || 'Konu1,Konu2')})</span>`;
+        return {
+          ok,
+          html: `<span class="seg-type">${label}:</span>${segCode}-${segTopics}`,
+          text: `${label}:${code}-(${topics})`
+        };
+      }
+
+      // vize / final / quiz
+      const prefix = TYPE_PREFIX[t];
+      const yearOk = !!state.year;
+      const solPrefix = state.solution ? '<span class="seg-sol">Çözüm-</span>' : '';
+      const solText = state.solution ? 'Çözüm-' : '';
+      const head = `${solPrefix}<span class="seg-type">${prefix}(${escapeHTML(state.year || 'YIL')})-</span>${segCode}-`;
+      const headText = `${solText}${prefix}(${state.year})-${code}-`;
+
+      if (t === 'quiz') {
+        const topics = formatTopics(state.topics);
+        const topicsOk = topics.length > 0;
+        const ok = codeOk && yearOk && topicsOk;
+        return {
+          ok,
+          html: head + `<span class="seg-data">(${escapeHTML(topics || 'Konu1,Konu2')})</span>`,
+          text: headText + `(${topics})`
+        };
+      }
+
+      // vize / final → öğretim görevlisi veya *
+      let teacher, teacherOk;
+      if (state.common) { teacher = '*'; teacherOk = true; }
+      else { teacher = formatTeacher(state.teacher); teacherOk = teacher.length > 0; }
+      const ok = codeOk && yearOk && teacherOk;
+      return {
+        ok,
+        html: head + `<span class="seg-data">${escapeHTML(teacher || 'HocaAdi')}</span>`,
+        text: headText + teacher
+      };
+    }
+
+    function update() {
+      const res = buildName();
+      $('previewName').innerHTML = res.html;
+
+      // alan içi hata göstergeleri
+      const codeShown = !$('f-code').classList.contains('hidden');
+      if (codeShown) {
+        const bad = state.code.length > 0 && !CODE_RE.test(state.code);
+        $('codeInput').classList.toggle('invalid', bad);
+        $('err-code').classList.toggle('show', bad);
+      }
+
+      const ready = res.ok && !!state.file;
+      const ps = $('pstatus');
+      if (res.ok) {
+        ps.className = 'pstatus ok';
+        ps.textContent = state.file ? '✓ Hazır' : '✓ İsim geçerli — dosya bekleniyor';
+      } else {
+        ps.className = 'pstatus bad';
+        ps.textContent = 'Eksik / hatalı alanlar var';
+      }
+      $('submitBtn').disabled = !ready;
+
+      // sonraki kullanım için son metni sakla
+      $('submitBtn').dataset.name = res.text;
+      $('copyBtn').dataset.name = res.text;
+    }
+
+    // ====== Kopyala ======
+    $('copyBtn').addEventListener('click', async () => {
+      const name = $('copyBtn').dataset.name || '';
+      if (!name) return;
+      try { await navigator.clipboard.writeText(name); flash($('copyBtn'), '✅ Kopyalandı'); }
+      catch { flash($('copyBtn'), '⚠️ Olmadı'); }
+    });
+    function flash(btn, txt) {
+      const old = btn.innerHTML; btn.innerHTML = txt;
+      setTimeout(() => btn.innerHTML = old, 1400);
+    }
+
+    // ====== Gönderim ======
+    $('submitBtn').addEventListener('click', async () => {
+      const btn = $('submitBtn');
+      const name = btn.dataset.name;
+      if (!name || !state.file) return;
+
+      const fd = new FormData();
+      fd.append('ders_adi', name);    // standart formatlı isim
+      fd.append('file', state.file);  // backend dosyayı 'file' anahtarıyla bekliyor; tip kendi türetiliyor
+
+      const orig = btn.innerHTML;
+      btn.innerHTML = '⏳ Yükleniyor...'; btn.disabled = true;
       try {
-        const res = await fetch('/api/not-ekle', {
-          method: 'POST',
-          body: formData
-        });
-
-        const data = await res.json();
-
-        if (res.ok) {
-          alert('✓ ' + data.message);
-          uploadForm.reset();
-          loadMyNotes();
-        } else {
-          alert('HATA: ' + data.message);
-        }
-      } catch (error) {
-        console.error(error);
-        alert('Sunucuya ulaşılamadı. Lütfen daha sonra tekrar deneyin.');
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerText = 'Yükle ve Onaya Gönder';
+        const res = await fetch(UPLOAD_ENDPOINT, { method: 'POST', body: fd });
+        if (res.status === 401) { window.location.href = '/login'; return; }
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        btn.innerHTML = '✅ Onaya gönderildi!';
+        setTimeout(() => { window.location.href = '/ders-notlari'; }, 1100);
+      } catch (err) {
+        console.error('Yükleme hatası:', err);
+        alert('Yükleme sırasında bir hata oluştu. Lütfen tekrar dene.');
+        btn.innerHTML = orig; btn.disabled = false;
       }
     });
 
-    window.retractNote = async (id) => {
-      const isConfirmed = confirm("Bu notu yönetici onayından geri çekmek ve silmek istediğinize emin misiniz?");
-      if (!isConfirmed) return;
-
-      try {
-        const res = await fetch(`/api/not-geri-cek/${id}`, { method: 'DELETE' });
-        const data = await res.json();
-
-        if (res.ok) {
-          loadMyNotes();
-        } else {
-          alert('HATA: ' + data.message);
-        }
-      } catch (error) {
-        console.error(error);
-        alert('Bir hata oluştu.');
-      }
-    };
-
-    document.addEventListener('DOMContentLoaded', loadMyNotes);
-
+    update();
   </script>
 </body>
+
 </html>
