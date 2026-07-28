@@ -1,245 +1,323 @@
 <!DOCTYPE html>
 <html lang="tr">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Giriş Yap - THKÜ</title>
+  <title>Giriş Yap — Gayriresmi THKÜ Portal</title>
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='kedi.ico') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-base: #050506;
+      --bg-elevated: #0d0d10;
+      --surface: rgba(255,255,255,0.05);
+      --surface-hover: rgba(255,255,255,0.08);
+      --fg: #EDEDEF;
+      --fg-muted: #8A8F98;
+      --accent: #5E6AD2;
+      --accent-bright: #6872D9;
+      --accent-glow: rgba(94,106,210,0.25);
+      --border: rgba(255,255,255,0.06);
+      --border-hover: rgba(255,255,255,0.10);
+      --border-accent: rgba(94,106,210,0.28);
+      --warn: #f59e0b;
+      --warn-bg: rgba(245,158,11,0.08);
+      --warn-border: rgba(245,158,11,0.25);
+      --error-bg: rgba(239,68,68,0.08);
+      --error-border: rgba(239,68,68,0.25);
+      --error-fg: #fca5a5;
     }
+
+    html { height: 100%; }
 
     body {
-      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-      background: #f8f9fa;
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg-base);
+      color: var(--fg);
       min-height: 100vh;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
-      padding: 20px;
+      justify-content: center;
+      padding: 80px 20px 40px;
+      overflow-x: hidden;
     }
 
-    .login-container {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      border: 1px solid #e2e8f0;
-      padding: 48px 40px;
-      width: 100%;
-      max-width: 420px;
+    /* Background */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: -1;
+      background:
+        radial-gradient(ellipse at top, #0a0a0f 0%, #050506 50%, #020203 100%);
+    }
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: -1;
+      background-image:
+        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      opacity: .4;
+    }
+    .blob {
+      position: fixed; border-radius: 50%; filter: blur(120px); z-index: -1;
+      pointer-events: none;
+    }
+    .blob-1 { width:600px;height:400px; background:var(--accent-glow); top:-100px; left:50%; transform:translateX(-50%); opacity:.3; }
+    .blob-2 { width:400px;height:500px; background:linear-gradient(135deg,rgba(139,92,246,.1),rgba(94,106,210,.12)); bottom:0; right:-100px; opacity:.5; }
+
+    /* Unofficial bar */
+    .unofficial-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: var(--warn-bg); border-bottom: 1px solid var(--warn-border);
+      padding: 8px 24px;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      font-size: .78rem; color: #fbbf24; font-weight: 500;
+      backdrop-filter: blur(8px);
+    }
+    .unofficial-bar a { color: #93c5fd; text-decoration: underline; text-underline-offset: 2px; }
+    .unofficial-bar a:hover { color: #bfdbfe; }
+
+    /* Card */
+    .card {
+      width: 100%; max-width: 420px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px 36px 32px;
+      box-shadow: 0 24px 64px rgba(0,0,0,.4), 0 0 0 1px var(--border);
+      animation: slideUp .4s cubic-bezier(.16,1,.3,1);
+    }
+    @keyframes slideUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+
+    /* Logo / header */
+    .card-logo {
+      display: flex; align-items: center; justify-content: center;
+      gap: 12px; margin-bottom: 28px;
+    }
+    .logo-icon {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-bright));
+      border-radius: 11px; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 18px;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+    .logo-text { font-weight: 600; font-size: 1rem; letter-spacing: -.02em; }
+    .logo-badge {
+      font-size: .6rem; font-weight: 700; color: var(--warn);
+      background: var(--warn-bg); border: 1px solid var(--warn-border);
+      padding: 2px 6px; border-radius: 100px; letter-spacing: .05em;
+      text-transform: uppercase;
     }
 
-    h1 {
-      text-align: center;
-      color: #1a202c;
-      margin-bottom: 8px;
-      font-size: 1.875em;
-      font-weight: 600;
+    .card-title {
+      font-size: 1.5rem; font-weight: 700; letter-spacing: -.03em;
+      margin-bottom: 6px; text-align: center;
+      background: linear-gradient(to bottom, #fff, rgba(255,255,255,.75));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .card-subtitle {
+      font-size: .85rem; color: var(--fg-muted); text-align: center; margin-bottom: 28px;
     }
 
-    .subtitle {
-      text-align: center;
-      color: #718096;
-      margin-bottom: 32px;
-      font-size: 0.9em;
-      font-weight: 400;
+    /* Flash messages */
+    .flash-error {
+      background: var(--error-bg); border: 1px solid var(--error-border);
+      border-radius: 10px; padding: 12px 14px;
+      font-size: .85rem; color: var(--error-fg);
+      margin-bottom: 20px; line-height: 1.5;
     }
 
-    .form-group {
-      margin-bottom: 20px;
-    }
+    /* Form */
+    .form-group { margin-bottom: 18px; }
 
     label {
-      display: block;
-      margin-bottom: 6px;
-      color: #4a5568;
-      font-weight: 500;
-      font-size: 0.9em;
+      display: block; margin-bottom: 7px;
+      font-size: .82rem; font-weight: 600; color: var(--fg-muted);
+      letter-spacing: .01em;
     }
 
     input[type="email"],
     input[type="password"] {
-      width: 100%;
-      padding: 11px 14px;
-      border: 1px solid #cbd5e0;
-      border-radius: 8px;
-      font-size: 0.95em;
-      transition: all 0.2s;
-      background: white;
+      width: 100%; padding: 11px 14px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--border);
+      border-radius: 10px; color: var(--fg);
+      font-size: .9rem; font-family: inherit;
+      transition: all .2s;
     }
-
     input[type="email"]:focus,
     input[type="password"]:focus {
       outline: none;
-      border-color: #3182ce;
-      box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+      border-color: var(--border-accent);
+      background: rgba(94,106,210,.06);
+      box-shadow: 0 0 0 3px rgba(94,106,210,.12);
     }
+    input::placeholder { color: rgba(255,255,255,.2); }
 
-    input[type="email"]::placeholder,
-    input[type="password"]::placeholder {
-      color: #a0aec0;
-    }
-
-    .email-hint {
-      font-size: 0.8em;
-      color: #718096;
-      margin-top: 6px;
-      display: block;
+    .input-hint {
+      font-size: .75rem; color: var(--fg-muted); margin-top: 5px; display: block;
     }
 
     .submit-btn {
-      width: 100%;
-      padding: 12px;
-      background: #3182ce;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 0.95em;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-      margin-top: 8px;
+      width: 100%; padding: 12px 24px; margin-top: 8px;
+      background: var(--accent); color: #fff;
+      border: none; border-radius: 10px;
+      font-size: .9rem; font-weight: 600; font-family: inherit;
+      cursor: pointer; letter-spacing: .01em;
+      box-shadow: 0 4px 16px rgba(94,106,210,.35);
+      transition: all .2s;
+    }
+    .submit-btn:hover { background: var(--accent-bright); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(94,106,210,.45); }
+    .submit-btn:active { transform: scale(.98); }
+
+    /* Divider */
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 22px 0; color: var(--fg-muted); font-size: .75rem;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
     }
 
-    .submit-btn:hover {
-      background: #2c5282;
+    /* Links */
+    .card-links {
+      display: flex; flex-direction: column; gap: 10px;
+      text-align: center; margin-top: 20px;
     }
+    .card-links p { font-size: .85rem; color: var(--fg-muted); }
+    .card-links a { color: #818cf8; text-decoration: none; font-weight: 500; transition: color .2s; }
+    .card-links a:hover { color: #a5b4fc; }
+    .back-link { font-size: .8rem; color: rgba(255,255,255,.3); text-decoration: none; transition: color .2s; }
+    .back-link:hover { color: var(--fg-muted); }
 
-    .submit-btn:active {
-      transform: scale(0.98);
-    }
-
-    .register-link {
-      text-align: center;
+    /* Official site notice */
+    .official-notice {
       margin-top: 24px;
-      color: #718096;
-      font-size: 0.9em;
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 14px;
+      background: rgba(59,130,246,.06);
+      border: 1px solid rgba(59,130,246,.15);
+      border-radius: 10px;
+      text-decoration: none; color: inherit;
+      transition: background .2s;
     }
-
-    .register-link a {
-      color: #805ad5;
-      text-decoration: none;
-      font-weight: 500;
-      transition: color 0.2s;
-    }
-
-    .register-link a:hover {
-      color: #6b46c1;
-    }
-
-    .home-link {
-      text-align: center;
-      margin-top: 16px;
-    }
-
-    .home-link a {
-      color: #a0aec0;
-      text-decoration: none;
-      font-size: 0.875em;
-      transition: color 0.2s;
-    }
-
-    .home-link a:hover {
-      color: #718096;
-    }
-
-    .error-message {
-      background: #fff5f5;
-      border-left: 3px solid #e53e3e;
-      color: #c53030;
-      padding: 12px 16px;
-      border-radius: 6px;
-      margin-bottom: 20px;
-      font-size: 0.875em;
-    }
+    .official-notice:hover { background: rgba(59,130,246,.1); }
+    .official-notice-text { flex: 1; }
+    .official-notice-label { font-size: .68rem; font-weight: 700; color: #60a5fa; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 2px; }
+    .official-notice-url { font-size: .8rem; color: var(--fg-muted); }
   </style>
 </head>
-
 <body>
-  <div class="login-container">
-    <h1>Giriş Yap</h1>
-    <p class="subtitle">THKÜ Öğrenci Ofis Sistemi</p>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+
+  <!-- Unofficial bar -->
+  <div class="unofficial-bar">
+    <span>⚠️</span>
+    <span>Bu site <strong>gayriresmi</strong> bir öğrenci projesidir.</span>
+    <span>·</span>
+    <a href="https://www.thk.edu.tr" target="_blank" rel="noopener noreferrer">Resmi Site →</a>
+  </div>
+
+  <div class="card">
+    <div class="card-logo">
+      <div class="logo-icon">T</div>
+      <span class="logo-text">THKÜ Portal</span>
+      <span class="logo-badge">Gayriresmi</span>
+    </div>
+
+    <h1 class="card-title">Giriş Yap</h1>
+    <p class="card-subtitle">Öğrenci hesabınla devam et</p>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for message in messages %}
+      <div class="flash-error">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+    {% endwith %}
 
     <form id="loginForm">
       <div class="form-group">
         <label for="email">Öğrenci E-postası</label>
-        <input type="email" id="email" name="email" required placeholder="s123456789@stu.thk.edu.tr">
-        <span class="email-hint">* Sadece @stu.thk.edu.tr uzantılı e-postalar kabul edilir</span>
+        <input type="email" id="email" name="email" required placeholder="s123456789@stu.thk.edu.tr" autocomplete="email">
+        <span class="input-hint">Sadece @stu.thk.edu.tr uzantılı e-postalar</span>
       </div>
 
       <div class="form-group">
         <label for="password">Şifre</label>
-        <input type="password" id="password" name="password" required placeholder="Şifrenizi girin">
+        <input type="password" id="password" name="password" required placeholder="••••••••" autocomplete="current-password">
       </div>
 
       <button type="submit" class="submit-btn">Giriş Yap</button>
     </form>
 
-    <div class="register-link">
-      Hesabınız yok mu? <a href="/signup">Kayıt Ol</a>
+    <div class="card-links">
+      <p>Hesabın yok mu? <a href="/signup">Kayıt Ol</a></p>
+      <a href="/" class="back-link">← Anasayfaya Dön</a>
     </div>
 
-    <div class="home-link">
-      <a href="/">← Anasayfaya Dön</a>
-    </div>
+    <a href="https://www.thk.edu.tr" target="_blank" rel="noopener noreferrer" class="official-notice">
+      <span style="font-size:18px;">🏛️</span>
+      <div class="official-notice-text">
+        <div class="official-notice-label">Resmi Site</div>
+        <div class="official-notice-url">Anasayfa | THK Üniversitesi — thk.edu.tr</div>
+      </div>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+    </a>
   </div>
 
   <script>
-
     function validateEmail(email) {
-      const re = /^s\d{9,10}@stu\.thk\.edu\.tr$/;
-      return re.test(email);
+      return /^s\d{9,10}@stu\.thk\.edu\.tr$/.test(email);
     }
 
     async function submitForm(event) {
       event.preventDefault();
-
-      const emailInput = document.getElementById('email');
+      const emailInput    = document.getElementById('email');
       const passwordInput = document.getElementById('password');
-      const email = emailInput.value.trim();
+      const btn           = document.querySelector('.submit-btn');
+      const email         = emailInput.value.trim();
 
       if (!validateEmail(email)) {
         alert('Lütfen geçerli bir THKÜ öğrenci e-postası kullanın (@stu.thk.edu.tr)');
         emailInput.focus();
-        return false;
+        return;
       }
 
-      const form = document.getElementById('loginForm');
-      const formData = new FormData(form);
+      btn.disabled = true;
+      btn.textContent = 'Giriş yapılıyor…';
 
       try {
-        const response = await fetch("/login", {
+        const formData = new FormData(document.getElementById('loginForm'));
+        const response = await fetch('/login', {
           method: 'POST',
           body: formData,
           credentials: 'same-origin'
         });
 
-        if (response.redirected) {
-          window.location.href = response.url;
-          return;
-        }
+        if (response.redirected) { window.location.href = response.url; return; }
+        if (response.ok)         { window.location.reload(); return; }
 
-        if (response.ok) {
-          window.location.reload();
-          return;
-        }
-
-        const errorData = await response.json();
-        alert(`Giriş başarısız. ${errorData.message || 'Lütfen bilgilerinizi kontrol edin.'}`);
+        const err = await response.json();
+        alert('Giriş başarısız. ' + (err.message || 'Lütfen bilgilerinizi kontrol edin.'));
         passwordInput.focus();
-      } catch (error) {
+      } catch {
         alert('Sunucuya bağlanılamadı.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Giriş Yap';
       }
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
-      const form = document.getElementById('loginForm');
-      form.addEventListener('submit', submitForm);
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('loginForm').addEventListener('submit', submitForm);
     });
   </script>
 </body>
-
 </html>
