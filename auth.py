@@ -34,7 +34,7 @@ def token_required(next_location="/"):
                 if request.path.startswith('/api/'):
                     return jsonify({'message': 'Unauthorized'}), 401
 
-                return redirect(url_for('login', next=next_location))
+                return redirect(url_for('auth.login', next=next_location))
 
             try:
                 data = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=["HS256"])
@@ -48,7 +48,7 @@ def token_required(next_location="/"):
                 if request.path.startswith('/api/'):
                     return jsonify({'message': 'Unauthorized'}), 401
 
-                return redirect(url_for('login', next=next_location)) # Token geçersizse de giriş sayfasına yönlendirelim böylece kullanıcı tekrar giriş yaparak yeni bir token alabilir
+                return redirect(url_for('auth.login', next=next_location)) # Token geçersizse de giriş sayfasına yönlendirelim böylece kullanıcı tekrar giriş yaparak yeni bir token alabilir
 
             return f(current_user, *args, **kwargs)
         
