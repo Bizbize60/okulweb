@@ -18,7 +18,7 @@ def main_page():
 
 @pages.route('/ders-notlari')
 @token_required(next_location='/login')
-def ders_notlari_page():
+def ders_notlari_page(current_user):
     return render_template('ders-notlari.html')
 
 @pages.route('/not-ekle')
@@ -36,7 +36,7 @@ def duyurular_page():
 
 @pages.route('/ofis-saatleri')
 @token_required(next_location='/login')
-def ofis_saatleri_page():
+def ofis_saatleri_page(current_user):
     return render_template('ofis-saatleri.html')
 
 @pages.route('/kroki')
@@ -45,17 +45,17 @@ def kroki_page():
 
 @pages.route('/kayiplar')
 @token_required(next_location='/login')
-def kayiplar_page():
+def kayiplar_page(current_user):
     return render_template('kayiplar.html')
 
 @pages.route('/KampusteHayat')
 @token_required(next_location='/login')
-def enstantaneler_sayfa():
+def enstantaneler_sayfa(current_user):
     return render_template('enstantaneler.html')
 
 @pages.route('/yemekhane')
 @token_required(next_location='/login')
-def yemekhane_sayfa():
+def yemekhane_sayfa(current_user):
     return render_template('yemekhane.html')
 
 @pages.route('/otobus-saatleri')
@@ -64,7 +64,7 @@ def otobus_saatleri_sayfa():
 
 @pages.route('/forum')
 @token_required(next_location='/login')
-def forum_sayfa():
+def forum_sayfa(current_user):
     return render_template('forum.html')
 
 @pages.route('/ogretmen-degerlendirme')
@@ -74,7 +74,7 @@ def ogretmen_degerlendirme_sayfa(current_user):
 
 @pages.route('/ogretmen-listesi')
 @token_required(next_location='/login')
-def ogretmen_listesi_sayfa():
+def ogretmen_listesi_sayfa(current_user):
     return render_template('ogretmen-listesi.html')
 
 @pages.route('/ilan-ekle')
@@ -84,7 +84,7 @@ def ilan_ekle_sayfa(current_user):
 
 @pages.route('/bit-pazari')
 @token_required(next_location='/login')
-def bit_pazari_sayfa():
+def bit_pazari_sayfa(current_user):
     return render_template('pazar.html')
 
 # Kulüp Sayfaları
