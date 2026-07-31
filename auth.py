@@ -117,7 +117,8 @@ def register():
         
         if User.query.filter_by(email=email).first():
             return "Bu email zaten kayıtlı!", 400
-
+        if not re.match(r'^s\d{9,10}@stu\.thk\.edu\.tr$', email):
+            return 'orosbu evladı seni yakalarsam ağzını yüzünü sikicem işim var diye ellemiyorum o okula getirtme beni'
         session['temp_user'] = {
             'name': request.form['name'],
             'email': email,
