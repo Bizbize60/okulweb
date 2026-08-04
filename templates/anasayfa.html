@@ -4,7 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gayriresmi THKÜ Öğrenci Portalı</title>
+  <title>[GAYRİRESMİ] THKÜ Öğrenci Portalı — THK Üniversitesi ile bağı yoktur</title>
+  <meta name="description" content="Bu site bağımsız öğrenciler tarafından yapılmış gayriresmi bir projedir. THK Üniversitesi ile hiçbir resmi, hukuki veya kurumsal bağı bulunmamaktadır.">
   <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='kedi.ico') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -127,13 +128,14 @@
     /* ── GAYRİRESMİ BANT ────────────────────────── */
     .unofficial-bar {
       position: fixed; top: 0; left: 0; right: 0; z-index: 1100;
-      background: var(--warn-bg);
+      background: rgba(245,158,11,0.18);
       border-bottom: 1px solid var(--warn-border);
       padding: 8px 24px;
       display: flex; align-items: center; justify-content: center; gap: 10px;
-      font-size: .8rem; color: #fbbf24; font-weight: 500;
+      font-size: .85rem; color: #fbbf24; font-weight: 500;
       backdrop-filter: blur(8px);
     }
+    .unofficial-bar .bar-emphasis { font-weight: 800; text-decoration: underline; }
     .unofficial-bar a { color: #93c5fd; text-decoration: underline; text-underline-offset: 2px; }
     .unofficial-bar a:hover { color: #bfdbfe; }
 
@@ -509,10 +511,12 @@
     .footer { padding: 40px 24px; border-top: 1px solid var(--border); }
     .footer-content { max-width: 640px; margin: 0 auto; text-align: center; }
     .footer-disclaimer {
-      font-size: .8rem; color: #fbbf24;
-      background: var(--warn-bg); border: 1px solid var(--warn-border);
-      border-radius: 10px; padding: 12px 16px; margin-bottom: 20px; line-height: 1.5;
+      font-size: .82rem; color: #fbbf24;
+      background: var(--warn-bg); border: 2px solid var(--warn-border);
+      border-radius: 10px; padding: 18px 20px; margin-bottom: 20px; line-height: 1.7;
+      text-align: left;
     }
+    .footer-disclaimer-title { font-size: .95rem; font-weight: 800; display: block; margin-bottom: 8px; letter-spacing: .02em; }
     .footer-disclaimer a { color: #93c5fd; }
     .footer-text { color: var(--fg-muted); font-size: .85rem; margin-bottom: 14px; }
     .footer-links { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
@@ -536,14 +540,12 @@
   <div class="legal-overlay" id="legalOverlay">
     <div class="legal-modal" role="dialog" aria-modal="true" aria-labelledby="legalTitle">
       <div class="legal-icon">⚠️</div>
-      <div class="legal-title" id="legalTitle">Yasal Uyarı — Lütfen Okuyun</div>
+      <div class="legal-title" id="legalTitle">⚠️ Önemli Yasal Uyarı — Lütfen Okumadan Geçme</div>
       <p class="legal-text">
-        <strong>thkuogrenci.com</strong>, bağımsız bir öğrenci projesi olup
-        <strong>Türk Hava Kurumu Üniversitesi</strong> ile hiçbir resmi veya
-        hukuki bağı bulunmamaktadır.<br><br>
-        Sitedeki içerikler kullanıcılar tarafından oluşturulmakta olup
-        üniversiteyi temsil etmez. Bu site gayriresmidir ve yalnızca öğrenci
-        topluluğuna yardımcı olmak amacıyla geliştirilmiştir.
+        Bu site <strong>thkuogrenci.com</strong>'dur ve tamamen <strong>bağımsız öğrenciler tarafından</strong> gönüllülük esasıyla geliştirilmiştir.<br><br>
+        <strong>Türk Hava Kurumu Üniversitesi (THKÜ)</strong> bu siteyi <strong>kurmamış, yönetmemiş, onaylamamış veya desteklememiştir.</strong><br><br>
+        Sitedeki hiçbir içerik (ders notları, yorumlar, ilanlar, duyurular vb.) üniversiteyi temsil etmez ve resmi kaynak sayılamaz. Buraya yüklenen içerikler kullanıcılara aittir; site yöneticileri bu içeriklerden sorumlu tutulamaz.<br><br>
+        Resmi akademik bilgi, kayıt, sınav ve idari işlemler için yalnızca üniversitenin resmi kanalları kullanılmalıdır.
       </p>
       <div class="legal-divider"></div>
       <p style="font-size:.78rem;color:var(--fg-muted);margin-bottom:12px;font-weight:500;">Üniversitenin resmi web sitesi:</p>
@@ -555,14 +557,14 @@
         </div>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
       </a>
-      <button class="legal-accept" id="legalAcceptBtn">Anladım, Devam Et</button>
+      <button class="legal-accept" id="legalAcceptBtn">Anladım — Bu site gayriresmidir, devam ediyorum</button>
     </div>
   </div>
 
   <!-- GAYRİRESMİ BANT -->
   <div class="unofficial-bar">
     <span>⚠️</span>
-    <span>Bu site <strong>gayriresmi</strong> bir öğrenci projesidir. THK Üniversitesi ile resmi bağı yoktur.</span>
+    <span>Bu site THK Üniversitesi'nin <span class="bar-emphasis">RESMİ sitesi DEĞİLDİR</span>.&nbsp; Öğrenciler tarafından, öğrenciler için yapılmış bağımsız bir projedir.</span>
     <span>·</span>
     <a href="https://www.thk.edu.tr" target="_blank" rel="noopener noreferrer">Resmi Site →</a>
   </div>
@@ -661,7 +663,7 @@
     <div class="hero-content">
       <div class="hero-badge">
         <span class="hero-badge-dot"></span>
-        Gayriresmi Öğrenci Projesi · thkuogrenci.com
+        🚫 Gayriresmi Öğrenci Projesi · THK Üniversitesi ile bağı yoktur
       </div>
       <h1 class="hero-title">
         Gayriresmi<br><span class="accent">THKÜ Öğrenci</span><br>Portalı
@@ -669,6 +671,7 @@
       <p class="hero-subtitle">
         Ders notları, ofis saatleri, yemekhane menüsü, forum ve daha fazlası —
         öğrenciler tarafından öğrenciler için geliştirildi.
+        Bu platform öğrenciler tarafından geliştirilmiş olup üniversite ile hiçbir resmi bağı yoktur.
       </p>
       <div class="hero-actions" id="heroActions">
         <a href="/signup" class="btn btn-primary">Hemen Başla →</a>
@@ -857,8 +860,11 @@
   <footer class="footer">
     <div class="footer-content">
       <div class="footer-disclaimer">
-        ⚠️ Bu site <strong>gayriresmi</strong> bir öğrenci projesidir. THK Üniversitesi ile resmi veya hukuki bağı yoktur.
-        Resmi site: <a href="https://www.thk.edu.tr" target="_blank" rel="noopener noreferrer">thk.edu.tr</a>
+        <span class="footer-disclaimer-title">⚠️ GAYRİRESMİ PROJE UYARISI</span>
+        Bu web sitesi ("thkuogrenci.com"), Türk Hava Kurumu Üniversitesi öğrencileri tarafından tamamen bağımsız ve gönüllü olarak geliştirilmiş gayriresmi bir öğrenci projesidir.<br><br>
+        • THK Üniversitesi bu siteyi kurmamış, yönetmemiş veya onaylamamıştır.<br>
+        • Buradaki içerikler resmi akademik kaynak değildir.<br>
+        • Resmi bilgi için: <a href="https://www.thk.edu.tr" target="_blank" rel="noopener noreferrer">thk.edu.tr</a>
       </div>
       <p class="footer-text">Gayriresmi THKÜ Öğrenci Portalı — Öğrenciler tarafından, öğrenciler için geliştirildi.</p>
       <div class="footer-links">
