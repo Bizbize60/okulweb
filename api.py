@@ -1236,7 +1236,8 @@ def delete_subscription(current_user, id):
         return jsonify({'message': 'Abonelik başarıyla silindi!'}), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({'message': f'Silme hatası: {str(e)}'}), 500
+        print(f'Abonelik silme hatası: {e}')
+        return jsonify({'message': 'Abonelik silinirken bir hata oluştu.'}), 500
 
 @api_bp.get('/api/admin/istekler')
 @token_required()
@@ -1262,7 +1263,8 @@ def admin_istek_sil(current_user, istek_id):
         return jsonify({'message': 'İstek başarıyla silindi.'}), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({'message': str(e)}), 500
+        print(f'İstek silme hatası: {e}')
+        return jsonify({'message': 'İstek silinirken bir hata oluştu.'}), 500
 
 @api_bp.put('/api/admin/istekler/<int:istek_id>/durum')
 @token_required()
@@ -1279,7 +1281,8 @@ def admin_istek_durum(current_user, istek_id):
         return jsonify({'message': 'Durum güncellendi.', 'istek': istek.to_dict()}), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({'message': str(e)}), 500
+        print(f'İstek durum güncelleme hatası: {e}')
+        return jsonify({'message': 'Durum güncellenirken bir hata oluştu.'}), 500
 
 @api_bp.post('/api/istekler')
 @token_required()
@@ -1317,7 +1320,8 @@ def istek_sil(istek_id):
         return jsonify({'status': 'success', 'message': 'İstek başarıyla silindi.'}), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+        print(f'İstek silme hatası: {e}')
+        return jsonify({'status': 'error', 'message': 'İstek silinirken bir hata oluştu.'}), 500
 
 
 # --- KATKIDA BULUNANLAR ---
@@ -1367,7 +1371,8 @@ def katkida_ekle(current_user):
         return jsonify({'message': 'Katkıda bulunan eklendi.', 'kisi': kisi.to_dict()}), 201
     except Exception as e:
         db.session.rollback()
-        return jsonify({'message': str(e)}), 500
+        print(f'Katkıda bulunan ekleme hatası: {e}')
+        return jsonify({'message': 'Kayıt eklenirken bir hata oluştu.'}), 500
 
 @api_bp.put('/api/admin/katkida-bulunanlar/<int:id>')
 @token_required()
@@ -1413,7 +1418,8 @@ def katkida_guncelle(current_user, id):
         return jsonify({'message': 'Kayıt güncellendi.', 'kisi': kisi.to_dict()}), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({'message': str(e)}), 500
+        print(f'Katkıda bulunan güncelleme hatası: {e}')
+        return jsonify({'message': 'Kayıt güncellenirken bir hata oluştu.'}), 500
 
 @api_bp.delete('/api/admin/katkida-bulunanlar/<int:id>')
 @token_required()
@@ -1433,4 +1439,5 @@ def katkida_sil(current_user, id):
         return jsonify({'message': 'Katkıda bulunan silindi.'}), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({'message': str(e)}), 500
+        print(f'Katkıda bulunan silme hatası: {e}')
+        return jsonify({'message': 'Kayıt silinirken bir hata oluştu.'}), 500
