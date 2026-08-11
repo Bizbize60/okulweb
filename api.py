@@ -28,7 +28,7 @@ from database.katkida import KatkidaBulunan
 
 from config import VAPID_PRIVATE_KEY
 from utils import allowed_file, allowed_image, bildirim_gonder_kullaniciya, kayip_upload_path, enstantane_upload_path, scrape_duyurular, scrape_haberler, bildirim_gonder
-from auth import token_required, is_club_admin, is_admin
+from auth import token_required, token_required_api, is_club_admin, is_admin
 from durak import durak_sorgula
 
 KATKIDA_UPLOAD_FOLDER = os.path.join('uploads', 'katkida')
@@ -1327,7 +1327,8 @@ def istek_sil(istek_id):
 # --- KATKIDA BULUNANLAR ---
 
 @api_bp.get('/api/katkida-bulunanlar')
-def katkida_bulunanlari_listele():
+@token_required_api
+def katkida_bulunanlari_listele(current_user):
     kisiler = KatkidaBulunan.query.order_by(KatkidaBulunan.sira.asc(), KatkidaBulunan.id.asc()).all()
     return jsonify([k.to_dict() for k in kisiler]), 200
 

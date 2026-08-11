@@ -483,6 +483,37 @@
     .stat-num { font-size: 1.4rem; font-weight: 700; color: #818cf8; }
     .stat-lbl { font-size: .72rem; color: var(--fg-muted); }
 
+    /* ── KATKIDA BULUNANLAR ─────────────────────── */
+    .contributors-section { padding: 10px 24px 80px; position: relative; }
+    .contributors-grid {
+      max-width: 1020px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px;
+    }
+    .contributor-card {
+      padding: 22px 20px; border-radius: 18px;
+      background: linear-gradient(135deg, rgba(94,106,210,0.16), rgba(255,255,255,0.04));
+      border: 1px solid rgba(94,106,210,0.24);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.18);
+      text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      min-height: 220px;
+    }
+    .contributor-photo {
+      width: 72px; height: 72px; border-radius: 50%; object-fit: cover;
+      border: 2px solid rgba(94,106,210,0.4);
+      background: rgba(255,255,255,0.06);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; color: var(--fg);
+    }
+    .contributor-placeholder { font-size: 1.05rem; letter-spacing: .04em; }
+    .contributor-name { font-size: 1rem; font-weight: 700; color: var(--fg); }
+    .contributor-role { font-size: .84rem; color: var(--fg-muted); line-height: 1.6; min-height: 2.8em; }
+    .contributor-link {
+      margin-top: auto; text-decoration: none; font-size: .8rem; font-weight: 600;
+      color: #a5b4fc; transition: color .2s;
+    }
+    .contributor-link:hover { color: #c7d2fe; }
+
     /* ── KULÜPLER ───────────────────────────────── */
     .clubs-section { padding: 60px 24px 100px; border-top: 1px solid var(--border); position: relative; }
     .clubs-section::before { content:''; position:absolute; top:0; left:50%; transform:translateX(-50%); width:40%; height:1px; background:linear-gradient(90deg,transparent,var(--accent-glow),transparent); }
@@ -820,6 +851,18 @@
     </div>
   </section>
 
+  {% if show_contributors %}
+  <!-- KATKIDA BULUNANLAR -->
+  <section class="contributors-section" id="contributorsSection">
+    <div class="features-header">
+      <span class="section-tag">Katkıda Bulunanlar</span>
+      <h2 class="section-title">Bu projeye katkı sağlayanlar</h2>
+      <p class="section-subtitle">Giriş yapan kullanıcılar için seçilmiş katkı sağlayıcılar burada görünür.</p>
+    </div>
+    <div class="contributors-grid" id="contributorsGrid"></div>
+  </section>
+  {% endif %}
+
   <!-- KULÜPLER -->
   <section class="clubs-section">
     <div class="features-header">
@@ -867,17 +910,22 @@
         • Resmi bilgi için: <a href="https://www.thk.edu.tr" target="_blank" rel="noopener noreferrer">thk.edu.tr</a>
       </div>
       <p class="footer-text">Gayriresmi THKÜ Öğrenci Portalı — Öğrenciler tarafından, öğrenciler için geliştirildi.</p>
-      <div class="footer-links">
+      <div class="footer-links" id="footerLinks">
         <a href="/kroki" class="footer-link">Kampüs Krokisi</a>
         <a href="/ofis-saatleri" class="footer-link">Ofis Saatleri</a>
         <a href="/yemekhane" class="footer-link">Yemekhane</a>
+        {% if show_contributors %}
         <a href="/katkida-bulunanlar" class="footer-link">Katkıda Bulunanlar</a>
+        {% endif %}
         <a href="https://www.thk.edu.tr" target="_blank" rel="noopener noreferrer" class="footer-link" style="color:#93c5fd;">Resmi Site</a>
       </div>
     </div>
   </footer>
 
   <script>
+    const isLoggedIn = {{ 'true' if is_logged_in else 'false' }};
+    const showContributors = {{ 'true' if show_contributors else 'false' }};
+
     const escapeHTML = s => {
       if (!s) return '';
       return String(s).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
@@ -914,9 +962,76 @@
       });
     });
 
+    const getSafeContributorGithubUrl = (url) => {
+      if (typeof url !== 'string') return '';
+      const value = url.trim();
+      if (!value) return '';
+      try {
+        const parsed = new URL(value);
+        if (!['http:', 'https:'].includes(parsed.protocol)) return '';
+        if (parsed.hostname !== 'github.com' && parsed.hostname !== 'www.github.com') return '';
+        return parsed.toString();
+      } catch (e) {
+        return '';
+      }
+    };
+
+    const getSafeContributorPhotoUrl = (url) => {
+      if (typeof url !== 'string') return '';
+      const value = url.trim();
+      if (!value) return '';
+
+      let normalized = value;
+      try {
+        normalized = decodeURIComponent(value);
+      } catch (e) {
+        normalized = value;
+      }
+
+      return normalized.startsWith('/uploads/katkida/') ? normalized : '';
+    };
+
+    const renderContributorsPreview = async () => {
+      const section = document.getElementById('contributorsSection');
+      const grid = document.getElementById('contributorsGrid');
+      if (!section || !grid) return;
+
+      try {
+        const res = await fetch('/api/katkida-bulunanlar');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        const contributors = Array.isArray(data) ? data.filter(Boolean).slice(0, 4) : [];
+
+        if (!contributors.length) {
+          section.style.display = 'none';
+          return;
+        }
+
+        section.style.display = 'block';
+        grid.innerHTML = contributors.map(k => {
+          const fullName = `${(k.ad || '').trim()} ${(k.soyad || '').trim()}`.trim();
+          const photo = getSafeContributorPhotoUrl(k.fotograf_url);
+          const github = getSafeContributorGithubUrl(k.github_url);
+          const initials = fullName ? fullName.split(/\s+/).slice(0, 2).map(part => part[0] || '').join('').toUpperCase() : '👤';
+
+          return `
+            <article class="contributor-card">
+              ${photo
+                ? `<img class="contributor-photo" src="${escapeHTML(photo)}" alt="${escapeHTML(fullName)}">`
+                : `<div class="contributor-photo contributor-placeholder">${escapeHTML(initials)}</div>`}
+              <h3 class="contributor-name">${escapeHTML(fullName || 'Katkıda Bulunan')}</h3>
+              <p class="contributor-role">${escapeHTML(k.aciklama || 'Katkı sağlayıcı')}</p>
+              ${github ? `<a class="contributor-link" href="${escapeHTML(github)}" target="_blank" rel="noopener noreferrer">GitHub profili</a>` : ''}
+            </article>`;
+        }).join('');
+      } catch (e) {
+        section.style.display = 'none';
+      }
+    };
+
     // Giriş durumu kontrolü
-    const checkLoginStatus = () => {
-      if (!document.cookie.includes('jwt_token=')) return;
+    const checkLoginStatus = async () => {
+      if (!isLoggedIn) return;
       const logoutForm = `
         <form method="POST" action="/logout" style="margin:0;width:100%;">
           <button type="submit" class="btn btn-logout" style="width:100%;">Çıkış Yap</button>
@@ -945,6 +1060,10 @@
           <a href="/forum" class="btn btn-secondary">Foruma Katıl</a>
           <a href="https://www.thk.edu.tr" target="_blank" rel="noopener noreferrer" class="official-link-hero">🏛️ Resmi Site: thk.edu.tr</a>
         `;
+      }
+
+      if (showContributors) {
+        await renderContributorsPreview();
       }
     };
 

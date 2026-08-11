@@ -56,6 +56,30 @@ def token_required(next_location="/"):
 
     return decorator
 
+
+def token_required_api(f):
+    """API istekleri için JWT doğrulaması yapan decorator."""
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = request.cookies.get('jwt_token')
+
+        if not token:
+            return jsonify({'message': 'Unauthorized'}), 401
+
+        try:
+            data = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=["HS256"])
+            current_user = User.query.filter_by(public_id=data['public_id']).first()
+
+            if not current_user:
+                raise Exception("Kullanıcı bulunamadı!")
+        except Exception:
+            return jsonify({'message': 'Unauthorized'}), 401
+
+        return f(current_user, *args, **kwargs)
+
+    return decorated
+
 def is_admin(f):
     @wraps(f)
     def wrapper(current_user, *args, **kwargs):
