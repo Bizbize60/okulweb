@@ -116,7 +116,8 @@ def turk_tarih_page():
 
 
 @pages.route('/istekler')
-def istekler_page():
+@token_required(next_location='/login')
+def istekler_page(current_user):
     return render_template('istekler.html')
 
 @pages.route('/katkida-bulunanlar')
