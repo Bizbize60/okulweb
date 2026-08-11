@@ -1304,16 +1304,21 @@ def istek_olustur(current_user):
 
 
 @api_bp.get('/api/istekler')
-def istekleri_listele():
-    istekler = Istek.query.order_by(Istek.tarih.desc()).all()
+@token_required(next_location='/login')
+def istekleri_listele(current_user):
+    istekler = Istek.query.filter_by(user_id=current_user.id).order_by(Istek.tarih.desc()).all()
     return jsonify([i.to_dict() for i in istekler]), 200
 
 @api_bp.route('/api/istekler/<int:istek_id>', methods=['DELETE'])
-def istek_sil(istek_id):
+@token_required(next_location='/login')
+def istek_sil(current_user, istek_id):
     try:
         istek = Istek.query.get(istek_id)
         if not istek:
             return jsonify({'status': 'error', 'message': 'İstek bulunamadı.'}), 404
+
+        if istek.user_id != current_user.id:
+            return jsonify({'status': 'error', 'message': 'Bu isteği silme yetkiniz yok.'}), 403
 
         db.session.delete(istek)
         db.session.commit()
