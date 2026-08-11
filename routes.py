@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template
+import jwt
+from flask import Blueprint, render_template, request, current_app
 from auth import token_required, is_club_admin, is_admin
 
 # 'pages' adında bir Blueprint oluşturuyoruz
@@ -14,7 +15,20 @@ def admin_page(current_user):
 # Genel sayfalar
 @pages.route('/')
 def main_page():
-    return render_template('anasayfa.html')
+    is_logged_in = False
+    show_contributors = False
+    token = request.cookies.get('jwt_token')
+
+    if token:
+        try:
+            jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+            is_logged_in = True
+            show_contributors = True
+        except Exception:
+            is_logged_in = False
+            show_contributors = False
+
+    return render_template('anasayfa.html', is_logged_in=is_logged_in, show_contributors=show_contributors)
 
 @pages.route('/ders-notlari')
 @token_required(next_location='/login')
@@ -121,5 +135,6 @@ def istekler_page(current_user):
     return render_template('istekler.html')
 
 @pages.route('/katkida-bulunanlar')
-def katkida_bulunanlar_page():
+@token_required(next_location='/katkida-bulunanlar')
+def katkida_bulunanlar_page(current_user):
     return render_template('katkida-bulunanlar.html')
