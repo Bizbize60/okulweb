@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İstek & Öneri Bildir</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+        }
+
+        .custom-card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+        }
+
+        .custom-input {
+            background-color: #1e293b !important;
+            border: 1px solid #334155 !important;
+            color: #f8fafc !important;
+            border-radius: 8px !important;
+        }
+
+        /* Placeholder (Örnek Metin) Rengi ve Görünürlüğü */
+        .custom-input::placeholder {
+            color: #94a3b8 !important;
+            opacity: 1;
+        }
+
+        .custom-input:focus {
+            border-color: #8b5cf6 !important;
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.3) !important;
+        }
+
+        .custom-btn {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .custom-btn:hover {
+            opacity: 0.9;
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .request-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+        }
+
+        /* Sil Butonu Stili */
+        .btn-delete-istek {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-delete-istek:hover {
+            background-color: #ef4444;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container py-5" style="max-width: 800px;">
+    <!-- Başlık -->
+    <div class="text-center mb-4">
+        <h2 class="fw-bold display-6 text-white mb-2">💡 İstek & Öneri Bildir</h2>
+        <p class="text-secondary">Görüşleriniz ve önerileriniz platformumuzu geliştirmemize yardımcı olur.</p>
+    </div>
+
+    <!-- Form -->
+    <div class="custom-card p-4 shadow-lg mb-5">
+        <form id="istekForm">
+            <div class="mb-3">
+                <label for="baslik" class="form-label text-light fw-medium">Başlık</label>
+                <input type="text" id="baslik" class="form-control custom-input" placeholder="Örn: Yemekhane menüsü hk." required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="kategori" class="form-label text-light fw-medium">Kategori</label>
+                <select id="kategori" class="form-select custom-input">
+                    <option value="Genel">Genel</option>
+                    <option value="Şikayet">Şikayet</option>
+                    <option value="Öneri">Öneri</option>
+                    <option value="Teknik Problem">Teknik Problem</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label for="aciklama" class="form-label text-light fw-medium">Açıklama</label>
+                <textarea id="aciklama" class="form-control custom-input" rows="4" placeholder="Detayları buraya yazabilirsiniz..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn w-100 py-2.5 custom-btn">
+                🚀 Gönder
+            </button>
+        </form>
+    </div>
+
+    <!-- İstek Listesi -->
+    <h4 class="fw-bold mb-3 text-white">📋 Gönderilen İstekler</h4>
+    <div id="istekListesi" class="row g-3"></div>
+</div>
+
+<script>
+async function istekleriGetir() {
+    try {
+        const response = await fetch('/api/istekler');
+        const veriler = await response.json();
+        const listeAlani = document.getElementById('istekListesi');
+        listeAlani.innerHTML = '';
+
+        if (!veriler || veriler.length === 0) {
+            listeAlani.innerHTML = '<p class="text-secondary">Henüz bildirilmiş bir istek bulunmuyor.</p>';
+            return;
+        }
+
+        veriler.forEach(item => {
+            listeAlani.innerHTML += `
+                <div class="col-md-6">
+                    <div class="card request-card h-100 p-3 text-light">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="card-title m-0 fw-bold fs-6 text-white">${item.baslik}</h5>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-secondary">${item.durum || 'Beklemede'}</span>
+                                <button onclick="istekSil(${item.id})" class="btn-delete-istek" title="İsteği Sil">
+                                    🗑️ Sil
+                                </button>
+                            </div>
+                        </div>
+                        <p class="card-text text-secondary small mb-3">${item.aciklama}</p>
+                        <div class="d-flex justify-content-between text-secondary small pt-2 border-top border-secondary">
+                            <span>Kategori: <b>${item.kategori}</b></span>
+                            <span>${item.tarih || ''}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    } catch (err) {
+        console.error('İstekler yüklenirken hata oluştu:', err);
+    }
+}
+
+async function istekSil(istekId) {
+    if (!confirm("Bu isteği silmek istediğinize emin misiniz?")) return;
+
+    try {
+        const token = localStorage.getItem('access_token');
+        const response = await fetch(`/api/istekler/${istekId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : ''
+            }
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            istekleriGetir(); // Sayfayı tamamen yenilemeden kartı listeden düşürür
+        } else {
+            alert(data.message || "Silme işlemi başarısız.");
+        }
+    } catch (error) {
+        console.error("Hata:", error);
+        alert("Sunucuya bağlanılamadı.");
+    }
+}
+
+document.getElementById('istekForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('access_token'); 
+
+    const payload = {
+        baslik: document.getElementById('baslik').value,
+        kategori: document.getElementById('kategori').value,
+        aciklama: document.getElementById('aciklama').value
+    };
+
+    try {
+        const response = await fetch('/api/istekler', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : ''
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const resData = await response.json();
+
+        if (response.ok) {
+            alert('İsteğiniz başarıyla iletildi!');
+            document.getElementById('istekForm').reset();
+            istekleriGetir();
+        } else {
+            alert(resData.message || 'Bir hata oluştu.');
+        }
+    } catch (err) {
+        console.error('Gönderim hatası:', err);
+    }
+});
+
+document.addEventListener('DOMContentLoaded', istekleriGetir);
+</script>
+
+</body>
+</html>

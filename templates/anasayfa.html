@@ -1015,5 +1015,53 @@
       fetchAndRenderNews();
     });
   </script>
+<!-- Floating İstek/Öneri Butonu -->
+<a href="/istekler" class="floating-feedback-btn" title="İstek veya Öneri Bildir">
+    <span class="icon">💡</span>
+    <span class="text">İstek / Öneri</span>
+</a>
+
+<style>
+.floating-feedback-btn {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    color: #ffffff;
+    padding: 12px 20px;
+    border-radius: 50px;
+    box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(8px);
+}
+
+.floating-feedback-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 15px 30px rgba(99, 102, 241, 0.6);
+    color: #ffffff;
+}
+
+.floating-feedback-btn .icon {
+    font-size: 18px;
+}
+
+@media (max-width: 576px) {
+    .floating-feedback-btn .text {
+        display: none;
+    }
+    .floating-feedback-btn {
+        padding: 12px;
+        border-radius: 50%;
+    }
+}
+</style>
+
 </body>
 </html>

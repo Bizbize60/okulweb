@@ -23,6 +23,7 @@ from database.kulupicerik import Kulupicerik
 from database.kulupyonetim import KulupYonetim
 from database.kulupler import Kulupler
 from database.dersnotu import DersNotuBekleyen, DersNotu
+from database.istek import Istek
 
 from config import VAPID_PRIVATE_KEY
 from utils import allowed_file, allowed_image, bildirim_gonder_kullaniciya, kayip_upload_path, enstantane_upload_path, scrape_duyurular, scrape_haberler, bildirim_gonder
@@ -1205,3 +1206,41 @@ def get_subscriptions(current_user):
         'kullanici_ad': sub[1],
         'kullanici_email': sub[2]
     } for sub in subscriptions])
+
+@api_bp.post('/api/istekler')
+@token_required()
+def istek_olustur(current_user):
+    data = request.get_json()
+    if not data or not data.get('baslik') or not data.get('aciklama'):
+        return jsonify({'message': 'Başlık ve açıklama alanları zorunludur.'}), 400
+
+    yeni_istek = Istek(
+        baslik=data['baslik'],
+        aciklama=data['aciklama'],
+        kategori=data.get('kategori', 'Genel'),
+        user_id=current_user.id
+    )
+    db.session.add(yeni_istek)
+    db.session.commit()
+    
+    return jsonify({'message': 'İsteğiniz başarıyla alındı.', 'istek': yeni_istek.to_dict()}), 201
+
+
+@api_bp.get('/api/istekler')
+def istekleri_listele():
+    istekler = Istek.query.order_by(Istek.tarih.desc()).all()
+    return jsonify([i.to_dict() for i in istekler]), 200
+
+@api_bp.route('/api/istekler/<int:istek_id>', methods=['DELETE'])
+def istek_sil(istek_id):
+    try:
+        istek = Istek.query.get(istek_id)
+        if not istek:
+            return jsonify({'status': 'error', 'message': 'İstek bulunamadı.'}), 404
+
+        db.session.delete(istek)
+        db.session.commit()
+        return jsonify({'status': 'success', 'message': 'İstek başarıyla silindi.'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'status': 'error', 'message': str(e)}), 500

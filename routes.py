@@ -113,3 +113,8 @@ def makine_muh_page():
 @pages.route('/kulupler/turk-tarih-toplulugu')
 def turk_tarih_page():
     return render_template('turktarih.html')
+
+
+@pages.route('/istekler')
+def istekler_page():
+    return render_template('istekler.html')

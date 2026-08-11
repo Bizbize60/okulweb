@@ -19,6 +19,7 @@ from database.kulupler import Kulupler
 from database.kulupyonetim import KulupYonetim
 from database.saatler import Saatler, SaatlerPending
 from database.subscription import WebPushSubscription
+from database.istek import Istek
 
 with app.app_context():
     db.create_all()
