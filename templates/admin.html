@@ -1058,7 +1058,7 @@
                         </td>
                         <td style="font-weight:600;">${escapeHTML(k.ad)} ${escapeHTML(k.soyad)}</td>
                         <td style="color:var(--text-muted);">${escapeHTML(k.aciklama || '-')}</td>
-                        <td>${k.github_url ? `<a href="${escapeHTML(k.github_url)}" target="_blank" rel="noopener">GitHub</a>` : '-'}</td>
+                        <td>${(k.github_url && /^https?:\/\//i.test(k.github_url)) ? `<a href="${escapeHTML(k.github_url)}" target="_blank" rel="noopener">GitHub</a>` : '-'}</td>
                         <td>${k.sira ?? 0}</td>
                         <td class="flex-actions">
                             <button class="btn btn-primary" style="padding:6px 10px;font-size:0.8rem;" onclick="editKatkida(${k.id})">Düzenle</button>

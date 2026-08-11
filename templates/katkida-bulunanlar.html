@@ -96,6 +96,19 @@
       const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' };
       return String(str).replace(/[&<>'"]/g, t => map[t] || t);
     };
+    const safeHttpUrl = (url) => {
+      if (!url) return '';
+      const u = String(url).trim();
+      const lower = u.toLowerCase();
+      if (lower.startsWith('https://') || lower.startsWith('http://')) return u;
+      return '';
+    };
+    const safeAssetUrl = (url) => {
+      if (!url) return '';
+      const u = String(url).trim();
+      if (u.startsWith('/uploads/katkida/')) return u;
+      return '';
+    };
 
     async function load() {
       const grid = document.getElementById('grid');
@@ -107,16 +120,19 @@
           empty.style.display = 'block';
           return;
         }
-        grid.innerHTML = data.map(k => `
+        grid.innerHTML = data.map(k => {
+          const photo = safeAssetUrl(k.fotograf_url);
+          const gh = safeHttpUrl(k.github_url);
+          return `
           <article class="card">
-            ${k.fotograf_url
-              ? `<img class="photo" src="${escapeHTML(k.fotograf_url)}" alt="${escapeHTML(k.ad)} ${escapeHTML(k.soyad)}">`
+            ${photo
+              ? `<img class="photo" src="${escapeHTML(photo)}" alt="${escapeHTML(k.ad)} ${escapeHTML(k.soyad)}">`
               : `<div class="photo placeholder">👤</div>`}
             <div class="name">${escapeHTML(k.ad)} ${escapeHTML(k.soyad)}</div>
             <div class="desc">${escapeHTML(k.aciklama || '')}</div>
-            ${k.github_url ? `<a class="gh" href="${escapeHTML(k.github_url)}" target="_blank" rel="noopener noreferrer">GitHub profili →</a>` : ''}
-          </article>
-        `).join('');
+            ${gh ? `<a class="gh" href="${escapeHTML(gh)}" target="_blank" rel="noopener noreferrer">GitHub profili →</a>` : ''}
+          </article>`;
+        }).join('');
       } catch (e) {
         empty.style.display = 'block';
         empty.textContent = 'Liste yüklenirken bir hata oluştu.';

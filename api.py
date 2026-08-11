@@ -34,6 +34,17 @@ from durak import durak_sorgula
 KATKIDA_UPLOAD_FOLDER = os.path.join('uploads', 'katkida')
 os.makedirs(KATKIDA_UPLOAD_FOLDER, exist_ok=True)
 
+def _safe_http_url(url):
+    if not url:
+        return None
+    url = url.strip()
+    if not url:
+        return None
+    lower = url.lower()
+    if lower.startswith('https://') or lower.startswith('http://'):
+        return url
+    return None
+
 api_bp = Blueprint('api', __name__)
 
 @api_bp.post('/api/kulupler')
@@ -1322,7 +1333,7 @@ def katkida_bulunanlari_listele():
 def katkida_ekle(current_user):
     ad = (request.form.get('ad') or '').strip()
     soyad = (request.form.get('soyad') or '').strip()
-    github_url = (request.form.get('github_url') or '').strip() or None
+    github_url = _safe_http_url(request.form.get('github_url'))
     aciklama = (request.form.get('aciklama') or '').strip() or None
     try:
         sira = int(request.form.get('sira') or 0)
@@ -1371,7 +1382,7 @@ def katkida_guncelle(current_user, id):
     kisi.ad = ad
     kisi.soyad = soyad
     if 'github_url' in request.form:
-        kisi.github_url = (request.form.get('github_url') or '').strip() or None
+        kisi.github_url = _safe_http_url(request.form.get('github_url'))
     if 'aciklama' in request.form:
         kisi.aciklama = (request.form.get('aciklama') or '').strip() or None
     if 'sira' in request.form:
