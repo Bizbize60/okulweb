@@ -88,5 +88,13 @@ def enstantane_gorsel_indir(filename):
 def sw():
     return send_from_directory('static', 'sw.js', mimetype='application/javascript')
 
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'kedi.ico', mimetype='image/vnd.microsoft.icon')
+
+@app.route('/uploads/katkida/<path:filename>')
+def katkida_gorsel_indir(filename):
+    return send_from_directory(os.path.join(app.root_path, 'uploads', 'katkida'), filename)
+
 if __name__ == '__main__':
     app.run(host=HOST, port=PORT, debug=DEBUG)
