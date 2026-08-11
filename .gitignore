@@ -60,9 +60,11 @@ Thumbs.db
 uploads/kulup/*
 uploads/notes/*
 uploads/pazar/*
+uploads/katkida/*
 !uploads/kulup/.gitkeep
 !uploads/notes/.gitkeep
 !uploads/pazar/.gitkeep
+!uploads/katkida/.gitkeep
 
 # Yedekler ve geçici dosyalar
 *.bak
