@@ -118,3 +118,7 @@ def turk_tarih_page():
 @pages.route('/istekler')
 def istekler_page():
     return render_template('istekler.html')
+
+@pages.route('/katkida-bulunanlar')
+def katkida_bulunanlar_page():
+    return render_template('katkida-bulunanlar.html')

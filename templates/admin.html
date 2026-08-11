@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yönetim Paneli - THKÜ Portal</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='kedi.ico') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -265,6 +266,37 @@
             outline: none;
             border-color: var(--primary);
         }
+
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-family: inherit;
+        }
+
+        .avatar-sm {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #edf2f7;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: #edf2f7;
+            color: #4a5568;
+        }
+
+        .badge-ok { background: rgba(56, 161, 105, 0.12); color: var(--success); }
+        .badge-wait { background: rgba(79, 142, 247, 0.12); color: var(--primary); }
     </style>
 </head>
 
@@ -273,10 +305,12 @@
     <aside class="sidebar">
         <div class="sidebar-title">⚙️ THKÜ Admin</div>
         <button class="nav-btn active" onclick="switchTab('users')">👥 Kullanıcı Yönetimi</button>
-        <button class="nav-btn" onclick="switchTab('requests')">📝 Bekleyen İstekler</button>
+        <button class="nav-btn" onclick="switchTab('requests')">📝 Bekleyen Öğretmenler</button>
+        <button class="nav-btn" onclick="switchTab('istekler')">💡 Kullanıcı İstekleri</button>
         <button class="nav-btn" onclick="switchTab('notes')">📚 Not Onayları</button>
         <button class="nav-btn" onclick="switchTab('all-notes')">📂 Tüm Notlar</button>
         <button class="nav-btn" onclick="switchTab('subs')">📧 Abonelikler</button>
+        <button class="nav-btn" onclick="switchTab('katkida')">⭐ Katkıda Bulunanlar</button>
         <div style="margin-top: 40px; border-top: 1px solid var(--border); padding-top: 20px;">
             <a href="/" style="text-decoration: none; color: var(--text-muted); font-size: 0.9rem;">← Siteye Dön</a>
         </div>
@@ -384,6 +418,32 @@
             </div>
         </section>
 
+        <section id="istekler-panel" class="panel-section">
+            <div class="header">
+                <h1>Kullanıcı İstek / Şikayetleri</h1>
+            </div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Gönderen</th>
+                            <th>Başlık</th>
+                            <th>Kategori</th>
+                            <th>Durum</th>
+                            <th>Tarih</th>
+                            <th>İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="isteklerTableBody">
+                        <tr>
+                            <td colspan="7" class="empty-state">Yükleniyor...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
         <section id="subs-panel" class="panel-section">
             <div class="header">
                 <h1>Abonelikler</h1>
@@ -392,19 +452,48 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>Abonelik ID</th>
+                            <th>Kullanıcı ID</th>
                             <th>Ad Soyad</th>
                             <th>Email</th>
                             <th>Kayıt Tarihi</th>
+                            <th>İşlem</th>
                         </tr>
                     </thead>
                     <tbody id="subsTableBody">
                         <tr>
-                            <td colspan="4" class="empty-state">Yükleniyor...</td>
+                            <td colspan="6" class="empty-state">Yükleniyor...</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
+        </section>
+
+        <section id="katkida-panel" class="panel-section">
+            <div class="header">
+                <h1>Katkıda Bulunanlar</h1>
+                <button class="btn btn-primary" onclick="openKatkidaModal()">+ Kişi Ekle</button>
+            </div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Foto</th>
+                            <th>Ad Soyad</th>
+                            <th>Açıklama</th>
+                            <th>GitHub</th>
+                            <th>Sıra</th>
+                            <th>İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="katkidaTableBody">
+                        <tr>
+                            <td colspan="6" class="empty-state">Yükleniyor...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </main>
 
     <div class="modal-overlay" id="addUserModal">
@@ -452,15 +541,67 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="katkidaModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="katkidaModalTitle">Katkıda Bulunan Ekle</h2>
+                <button class="close-btn" onclick="closeKatkidaModal()">&times;</button>
+            </div>
+            <form id="katkidaForm" onsubmit="submitKatkidaForm(event)">
+                <input type="hidden" id="katkidaId">
+                <div class="form-group">
+                    <label>Ad</label>
+                    <input type="text" id="katkidaAd" required placeholder="Ad">
+                </div>
+                <div class="form-group">
+                    <label>Soyad</label>
+                    <input type="text" id="katkidaSoyad" required placeholder="Soyad">
+                </div>
+                <div class="form-group">
+                    <label>Açıklama</label>
+                    <input type="text" id="katkidaAciklama" placeholder="Örn: Backend geliştirici">
+                </div>
+                <div class="form-group">
+                    <label>GitHub URL</label>
+                    <input type="url" id="katkidaGithub" placeholder="https://github.com/...">
+                </div>
+                <div class="form-group">
+                    <label>Sıra</label>
+                    <input type="number" id="katkidaSira" value="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Fotoğraf</label>
+                    <input type="file" id="katkidaFotograf" accept="image/*">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;"
+                    id="submitKatkidaBtn">Kaydet</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="istekDetailModal">
+        <div class="modal-content" style="max-width: 520px;">
+            <div class="modal-header">
+                <h2>İstek Detayı</h2>
+                <button class="close-btn" onclick="closeIstekDetail()">&times;</button>
+            </div>
+            <div id="istekDetailBody" style="line-height: 1.6; color: var(--text);"></div>
+        </div>
+    </div>
+
     <script>
         const usersPanel = document.getElementById('users-panel');
         const requestsPanel = document.getElementById('requests-panel');
+        const isteklerPanel = document.getElementById('istekler-panel');
         const usersTableBody = document.getElementById('usersTableBody');
         const requestsTableBody = document.getElementById('requestsTableBody');
+        const isteklerTableBody = document.getElementById('isteklerTableBody');
         const userSearch = document.getElementById('userSearch');
         const navBtns = document.querySelectorAll('.nav-btn');
         const addUserModal = document.getElementById('addUserModal');
         const editCreditModal = document.getElementById('editCreditModal');
+        const katkidaModal = document.getElementById('katkidaModal');
+        const istekDetailModal = document.getElementById('istekDetailModal');
         const notesPanel = document.getElementById('notes-panel');
         const notesTableBody = document.getElementById('notesTableBody');
         const notesSearch = document.getElementById('notesSearch');
@@ -468,6 +609,10 @@
         const allNotesTableBody = document.getElementById('allNotesTableBody');
         const subsPanel = document.getElementById('subs-panel');
         const subsTableBody = document.getElementById('subsTableBody');
+        const katkidaPanel = document.getElementById('katkida-panel');
+        const katkidaTableBody = document.getElementById('katkidaTableBody');
+        let istekCache = [];
+        let katkidaCache = [];
 
         const escapeHTML = str => {
             if (!str) return '';
@@ -478,11 +623,8 @@
         const switchTab = (tabName) => {
             navBtns.forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
-            usersPanel.classList.remove('active');
-            requestsPanel.classList.remove('active');
-            notesPanel.classList.remove('active');
-            allNotesPanel.classList.remove('active');
-            subsPanel.classList.remove('active');
+            [usersPanel, requestsPanel, isteklerPanel, notesPanel, allNotesPanel, subsPanel, katkidaPanel]
+                .forEach(p => p && p.classList.remove('active'));
 
             if (tabName === 'users') {
                 usersPanel.classList.add('active');
@@ -490,6 +632,9 @@
             } else if (tabName === 'requests') {
                 requestsPanel.classList.add('active');
                 loadPendingRequests();
+            } else if (tabName === 'istekler') {
+                isteklerPanel.classList.add('active');
+                loadIstekler();
             } else if (tabName === 'notes') {
                 notesPanel.classList.add('active');
                 loadPendingNotes();
@@ -499,6 +644,9 @@
             } else if (tabName === 'subs') {
                 subsPanel.classList.add('active');
                 loadSubscriptions();
+            } else if (tabName === 'katkida') {
+                katkidaPanel.classList.add('active');
+                loadKatkida();
             }
         };
 
@@ -789,28 +937,219 @@
                 const data = await res.json();
 
                 if (data.length === 0) {
-                    subsTableBody.innerHTML = '<tr><td colspan="4" class="empty-state">Henüz abonelik yok. 🎉</td></tr>';
+                    subsTableBody.innerHTML = '<tr><td colspan="6" class="empty-state">Henüz abonelik yok. 🎉</td></tr>';
                     return;
                 }
 
                 subsTableBody.innerHTML = data.map(s => `
                     <tr>
-                        <td>#${s.user_id}</td>
+                        <td>#${s.id}</td>
+                        <td>#${s.user_id ?? '-'}</td>
                         <td style="font-weight: 500;">${escapeHTML(s.kullanici_ad)}</td>
                         <td style="color: var(--text-muted); font-size: 0.8rem;">${escapeHTML(s.kullanici_email)}</td>
-                        <td>${s.olusturulma_tarihi}</td>
+                        <td>${escapeHTML(String(s.olusturulma_tarihi || '-'))}</td>
+                        <td>
+                            <button class="btn btn-danger" onclick="deleteSubscription(${s.id})">Sil</button>
+                        </td>
                     </tr>
                 `).join('');
             } catch (e) { console.error(e); }
+        };
+
+        const deleteSubscription = async (id) => {
+            if (!confirm('Bu aboneliği veritabanından silmek istediğinize emin misiniz?')) return;
+            try {
+                const res = await fetch(`/api/admin/subscriptions/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(data.message);
+                    loadSubscriptions();
+                } else {
+                    alert('HATA: ' + data.message);
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Silme işlemi sırasında hata oluştu.');
+            }
+        };
+
+        /* --- KULLANICI İSTEKLERİ --- */
+        const loadIstekler = async () => {
+            try {
+                const res = await fetch('/api/admin/istekler');
+                const data = await res.json();
+                istekCache = data;
+
+                if (!data.length) {
+                    isteklerTableBody.innerHTML = '<tr><td colspan="7" class="empty-state">Henüz istek/şikayet yok. 🎉</td></tr>';
+                    return;
+                }
+
+                isteklerTableBody.innerHTML = data.map(i => `
+                    <tr>
+                        <td>#${i.id}</td>
+                        <td>
+                            <div style="font-weight: 500;">${escapeHTML(i.kullanici_ad)}</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(i.kullanici_email)}</div>
+                        </td>
+                        <td style="font-weight: 600; max-width: 220px;">${escapeHTML(i.baslik)}</td>
+                        <td><span class="badge">${escapeHTML(i.kategori || 'Genel')}</span></td>
+                        <td><span class="badge badge-wait">${escapeHTML(i.durum || 'Gönderildi')}</span></td>
+                        <td>${escapeHTML(i.tarih || '-')}</td>
+                        <td class="flex-actions">
+                            <button class="btn btn-primary" style="padding:6px 10px;font-size:0.8rem;" onclick="showIstekDetail(${i.id})">Detay</button>
+                            <button class="btn btn-danger" style="padding:6px 10px;font-size:0.8rem;" onclick="deleteIstek(${i.id})">Sil</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error(e);
+                isteklerTableBody.innerHTML = '<tr><td colspan="7" class="empty-state" style="color:red;">Hata oluştu.</td></tr>';
+            }
+        };
+
+        const showIstekDetail = (id) => {
+            const i = istekCache.find(x => x.id === id);
+            if (!i) return;
+            document.getElementById('istekDetailBody').innerHTML = `
+                <p><strong>Gönderen:</strong> ${escapeHTML(i.kullanici_ad)} (${escapeHTML(i.kullanici_email)})</p>
+                <p style="margin-top:10px;"><strong>Başlık:</strong> ${escapeHTML(i.baslik)}</p>
+                <p style="margin-top:10px;"><strong>Kategori:</strong> ${escapeHTML(i.kategori || 'Genel')}</p>
+                <p style="margin-top:10px;"><strong>Durum:</strong> ${escapeHTML(i.durum || 'Gönderildi')}</p>
+                <p style="margin-top:10px;"><strong>Tarih:</strong> ${escapeHTML(i.tarih || '-')}</p>
+                <p style="margin-top:14px; padding:12px; background:#f7fafc; border-radius:8px; white-space:pre-wrap;">${escapeHTML(i.aciklama || '')}</p>
+            `;
+            istekDetailModal.classList.add('active');
+        };
+        const closeIstekDetail = () => istekDetailModal.classList.remove('active');
+
+        const deleteIstek = async (id) => {
+            if (!confirm('Bu isteği silmek istediğinize emin misiniz?')) return;
+            try {
+                const res = await fetch(`/api/admin/istekler/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (res.ok) {
+                    loadIstekler();
+                } else {
+                    alert('HATA: ' + (data.message || 'Silinemedi'));
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Silme işlemi sırasında hata oluştu.');
+            }
+        };
+
+        /* --- KATKIDA BULUNANLAR --- */
+        const loadKatkida = async () => {
+            try {
+                const res = await fetch('/api/katkida-bulunanlar');
+                const data = await res.json();
+                katkidaCache = data;
+                if (!data.length) {
+                    katkidaTableBody.innerHTML = '<tr><td colspan="6" class="empty-state">Henüz katkıda bulunan eklenmemiş.</td></tr>';
+                    return;
+                }
+                katkidaTableBody.innerHTML = data.map(k => `
+                    <tr>
+                        <td>
+                            ${k.fotograf_url
+                                ? `<img class="avatar-sm" src="${escapeHTML(k.fotograf_url)}" alt="">`
+                                : `<div class="avatar-sm" style="display:flex;align-items:center;justify-content:center;font-size:0.75rem;color:#a0aec0;">Yok</div>`}
+                        </td>
+                        <td style="font-weight:600;">${escapeHTML(k.ad)} ${escapeHTML(k.soyad)}</td>
+                        <td style="color:var(--text-muted);">${escapeHTML(k.aciklama || '-')}</td>
+                        <td>${(k.github_url && /^https?:\/\//i.test(k.github_url)) ? `<a href="${escapeHTML(k.github_url)}" target="_blank" rel="noopener">GitHub</a>` : '-'}</td>
+                        <td>${k.sira ?? 0}</td>
+                        <td class="flex-actions">
+                            <button class="btn btn-primary" style="padding:6px 10px;font-size:0.8rem;" onclick="editKatkida(${k.id})">Düzenle</button>
+                            <button class="btn btn-danger" style="padding:6px 10px;font-size:0.8rem;" onclick="deleteKatkida(${k.id})">Sil</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error(e);
+                katkidaTableBody.innerHTML = '<tr><td colspan="6" class="empty-state" style="color:red;">Hata oluştu.</td></tr>';
+            }
+        };
+
+        const openKatkidaModal = () => {
+            document.getElementById('katkidaForm').reset();
+            document.getElementById('katkidaId').value = '';
+            document.getElementById('katkidaModalTitle').innerText = 'Katkıda Bulunan Ekle';
+            document.getElementById('katkidaSira').value = 0;
+            katkidaModal.classList.add('active');
+        };
+        const closeKatkidaModal = () => {
+            katkidaModal.classList.remove('active');
+            document.getElementById('katkidaForm').reset();
+        };
+        const editKatkida = (id) => {
+            const k = katkidaCache.find(x => x.id === id);
+            if (!k) return;
+            document.getElementById('katkidaId').value = k.id;
+            document.getElementById('katkidaAd').value = k.ad || '';
+            document.getElementById('katkidaSoyad').value = k.soyad || '';
+            document.getElementById('katkidaAciklama').value = k.aciklama || '';
+            document.getElementById('katkidaGithub').value = k.github_url || '';
+            document.getElementById('katkidaSira').value = k.sira ?? 0;
+            document.getElementById('katkidaFotograf').value = '';
+            document.getElementById('katkidaModalTitle').innerText = 'Katkıda Bulunan Düzenle';
+            katkidaModal.classList.add('active');
+        };
+        const submitKatkidaForm = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitKatkidaBtn');
+            btn.disabled = true;
+            btn.innerText = 'Kaydediliyor...';
+            const id = document.getElementById('katkidaId').value;
+            const formData = new FormData();
+            formData.append('ad', document.getElementById('katkidaAd').value.trim());
+            formData.append('soyad', document.getElementById('katkidaSoyad').value.trim());
+            formData.append('aciklama', document.getElementById('katkidaAciklama').value.trim());
+            formData.append('github_url', document.getElementById('katkidaGithub').value.trim());
+            formData.append('sira', document.getElementById('katkidaSira').value || 0);
+            const file = document.getElementById('katkidaFotograf').files[0];
+            if (file) formData.append('fotograf', file);
+
+            try {
+                const res = await fetch(id ? `/api/admin/katkida-bulunanlar/${id}` : '/api/admin/katkida-bulunanlar', {
+                    method: id ? 'PUT' : 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    closeKatkidaModal();
+                    loadKatkida();
+                } else {
+                    alert('HATA: ' + (data.message || 'İşlem başarısız'));
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Kayıt sırasında hata oluştu.');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Kaydet';
+            }
+        };
+        const deleteKatkida = async (id) => {
+            if (!confirm('Bu kişiyi silmek istediğinize emin misiniz?')) return;
+            try {
+                const res = await fetch(`/api/admin/katkida-bulunanlar/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (res.ok) loadKatkida();
+                else alert('HATA: ' + (data.message || 'Silinemedi'));
+            } catch (e) {
+                console.error(e);
+                alert('Silme işlemi sırasında hata oluştu.');
+            }
         };
 
         // Modal dışına tıklayınca kapatma
         window.onclick = function (event) {
             if (event.target == editCreditModal) closeEditCreditModal();
             if (event.target == addUserModal) closeAddUserModal();
-            if (event.target == notesPanel) loadPendingNotes();
-            if (event.target == allNotesPanel) loadAllNotes();
-            if (event.target == subsPanel) loadSubscriptions();
+            if (event.target == katkidaModal) closeKatkidaModal();
+            if (event.target == istekDetailModal) closeIstekDetail();
         }
 
         // Arama (Debounce ile)
@@ -823,7 +1162,7 @@
         let timeout_notes;
         notesSearch.addEventListener('input', (e) => {
             clearTimeout(timeout_notes);
-            timeout_notes = setTimeout(() => loadPendingNotes(e.target.value), 300);
+            timeout_notes = setTimeout(() => loadAllNotes(e.target.value), 300);
         });
         
 

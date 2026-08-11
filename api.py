@@ -24,11 +24,26 @@ from database.kulupyonetim import KulupYonetim
 from database.kulupler import Kulupler
 from database.dersnotu import DersNotuBekleyen, DersNotu
 from database.istek import Istek
+from database.katkida import KatkidaBulunan
 
 from config import VAPID_PRIVATE_KEY
 from utils import allowed_file, allowed_image, bildirim_gonder_kullaniciya, kayip_upload_path, enstantane_upload_path, scrape_duyurular, scrape_haberler, bildirim_gonder
 from auth import token_required, is_club_admin, is_admin
 from durak import durak_sorgula
+
+KATKIDA_UPLOAD_FOLDER = os.path.join('uploads', 'katkida')
+os.makedirs(KATKIDA_UPLOAD_FOLDER, exist_ok=True)
+
+def _safe_http_url(url):
+    if not url:
+        return None
+    url = url.strip()
+    if not url:
+        return None
+    lower = url.lower()
+    if lower.startswith('https://') or lower.startswith('http://'):
+        return url
+    return None
 
 api_bp = Blueprint('api', __name__)
 
@@ -1068,6 +1083,8 @@ def delete_user(current_user, id):
         return jsonify({'message': 'Kendi yönetici hesabınızı silemezsiniz!'}), 400
 
     try:
+        # Abonelik ilişkisi kullanıcı silmeyi engellemesin
+        WebPushSubscription.query.filter_by(user_id=user_to_delete.id).delete(synchronize_session=False)
         db.session.delete(user_to_delete)
         db.session.commit()
         return jsonify({'message': 'Kullanıcı başarıyla silindi!'}), 200
@@ -1198,14 +1215,74 @@ def delete_note(current_user, id):
 @is_admin
 def get_subscriptions(current_user):
     subscriptions = db.session.query(WebPushSubscription, User.name, User.email)\
-        .join(User, WebPushSubscription.user_id == User.id).all()
+        .outerjoin(User, WebPushSubscription.user_id == User.id).all()
     return jsonify([{
         'id': sub[0].id,
-        'olusturulma_tarihi': sub[0].olusturulma_tarihi,
+        'olusturulma_tarihi': sub[0].olusturulma_tarihi.strftime('%d.%m.%Y %H:%M') if sub[0].olusturulma_tarihi else None,
         'user_id': sub[0].user_id,
-        'kullanici_ad': sub[1],
-        'kullanici_email': sub[2]
+        'kullanici_ad': sub[1] or 'Bilinmiyor',
+        'kullanici_email': sub[2] or '-',
+        'kullanici_ajani': sub[0].kullanici_ajani
     } for sub in subscriptions])
+
+@api_bp.delete('/api/admin/subscriptions/<int:id>')
+@token_required()
+@is_admin
+def delete_subscription(current_user, id):
+    sub = WebPushSubscription.query.get_or_404(id)
+    try:
+        db.session.delete(sub)
+        db.session.commit()
+        return jsonify({'message': 'Abonelik başarıyla silindi!'}), 200
+    except Exception as e:
+        db.session.rollback()
+        print(f'Abonelik silme hatası: {e}')
+        return jsonify({'message': 'Abonelik silinirken bir hata oluştu.'}), 500
+
+@api_bp.get('/api/admin/istekler')
+@token_required()
+@is_admin
+def admin_istekleri_listele(current_user):
+    rows = db.session.query(Istek, User.name, User.email)\
+        .outerjoin(User, Istek.user_id == User.id)\
+        .order_by(Istek.tarih.desc()).all()
+    return jsonify([{
+        **i.to_dict(),
+        'kullanici_ad': name or 'Anonim',
+        'kullanici_email': email or '-'
+    } for i, name, email in rows]), 200
+
+@api_bp.delete('/api/admin/istekler/<int:istek_id>')
+@token_required()
+@is_admin
+def admin_istek_sil(current_user, istek_id):
+    istek = Istek.query.get_or_404(istek_id)
+    try:
+        db.session.delete(istek)
+        db.session.commit()
+        return jsonify({'message': 'İstek başarıyla silindi.'}), 200
+    except Exception as e:
+        db.session.rollback()
+        print(f'İstek silme hatası: {e}')
+        return jsonify({'message': 'İstek silinirken bir hata oluştu.'}), 500
+
+@api_bp.put('/api/admin/istekler/<int:istek_id>/durum')
+@token_required()
+@is_admin
+def admin_istek_durum(current_user, istek_id):
+    istek = Istek.query.get_or_404(istek_id)
+    data = request.get_json() or {}
+    yeni_durum = data.get('durum')
+    if not yeni_durum:
+        return jsonify({'message': 'Durum belirtilmedi.'}), 400
+    istek.durum = yeni_durum
+    try:
+        db.session.commit()
+        return jsonify({'message': 'Durum güncellendi.', 'istek': istek.to_dict()}), 200
+    except Exception as e:
+        db.session.rollback()
+        print(f'İstek durum güncelleme hatası: {e}')
+        return jsonify({'message': 'Durum güncellenirken bir hata oluştu.'}), 500
 
 @api_bp.post('/api/istekler')
 @token_required()
@@ -1243,4 +1320,124 @@ def istek_sil(istek_id):
         return jsonify({'status': 'success', 'message': 'İstek başarıyla silindi.'}), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+        print(f'İstek silme hatası: {e}')
+        return jsonify({'status': 'error', 'message': 'İstek silinirken bir hata oluştu.'}), 500
+
+
+# --- KATKIDA BULUNANLAR ---
+
+@api_bp.get('/api/katkida-bulunanlar')
+def katkida_bulunanlari_listele():
+    kisiler = KatkidaBulunan.query.order_by(KatkidaBulunan.sira.asc(), KatkidaBulunan.id.asc()).all()
+    return jsonify([k.to_dict() for k in kisiler]), 200
+
+@api_bp.post('/api/admin/katkida-bulunanlar')
+@token_required()
+@is_admin
+def katkida_ekle(current_user):
+    ad = (request.form.get('ad') or '').strip()
+    soyad = (request.form.get('soyad') or '').strip()
+    github_url = _safe_http_url(request.form.get('github_url'))
+    aciklama = (request.form.get('aciklama') or '').strip() or None
+    try:
+        sira = int(request.form.get('sira') or 0)
+    except ValueError:
+        sira = 0
+
+    if not ad or not soyad:
+        return jsonify({'message': 'Ad ve soyad zorunludur.'}), 400
+
+    fotograf_adi = None
+    if 'fotograf' in request.files:
+        file = request.files['fotograf']
+        if file and file.filename:
+            if not allowed_image(file.filename):
+                return jsonify({'message': 'Sadece görsel dosyaları (png, jpg, jpeg, gif, webp) yüklenebilir.'}), 400
+            filename = secure_filename(file.filename)
+            fotograf_adi = f"{uuid.uuid4()}_{filename}"
+            file.save(os.path.join(KATKIDA_UPLOAD_FOLDER, fotograf_adi))
+
+    kisi = KatkidaBulunan(
+        ad=ad,
+        soyad=soyad,
+        fotograf=fotograf_adi,
+        github_url=github_url,
+        aciklama=aciklama,
+        sira=sira
+    )
+    try:
+        db.session.add(kisi)
+        db.session.commit()
+        return jsonify({'message': 'Katkıda bulunan eklendi.', 'kisi': kisi.to_dict()}), 201
+    except Exception as e:
+        db.session.rollback()
+        print(f'Katkıda bulunan ekleme hatası: {e}')
+        return jsonify({'message': 'Kayıt eklenirken bir hata oluştu.'}), 500
+
+@api_bp.put('/api/admin/katkida-bulunanlar/<int:id>')
+@token_required()
+@is_admin
+def katkida_guncelle(current_user, id):
+    kisi = KatkidaBulunan.query.get_or_404(id)
+    ad = (request.form.get('ad') or kisi.ad or '').strip()
+    soyad = (request.form.get('soyad') or kisi.soyad or '').strip()
+    if not ad or not soyad:
+        return jsonify({'message': 'Ad ve soyad zorunludur.'}), 400
+
+    kisi.ad = ad
+    kisi.soyad = soyad
+    if 'github_url' in request.form:
+        kisi.github_url = _safe_http_url(request.form.get('github_url'))
+    if 'aciklama' in request.form:
+        kisi.aciklama = (request.form.get('aciklama') or '').strip() or None
+    if 'sira' in request.form:
+        try:
+            kisi.sira = int(request.form.get('sira') or 0)
+        except ValueError:
+            pass
+
+    if 'fotograf' in request.files:
+        file = request.files['fotograf']
+        if file and file.filename:
+            if not allowed_image(file.filename):
+                return jsonify({'message': 'Sadece görsel dosyaları yüklenebilir.'}), 400
+            if kisi.fotograf:
+                eski = os.path.join(KATKIDA_UPLOAD_FOLDER, kisi.fotograf)
+                if os.path.exists(eski):
+                    try:
+                        os.remove(eski)
+                    except OSError:
+                        pass
+            filename = secure_filename(file.filename)
+            fotograf_adi = f"{uuid.uuid4()}_{filename}"
+            file.save(os.path.join(KATKIDA_UPLOAD_FOLDER, fotograf_adi))
+            kisi.fotograf = fotograf_adi
+
+    try:
+        db.session.commit()
+        return jsonify({'message': 'Kayıt güncellendi.', 'kisi': kisi.to_dict()}), 200
+    except Exception as e:
+        db.session.rollback()
+        print(f'Katkıda bulunan güncelleme hatası: {e}')
+        return jsonify({'message': 'Kayıt güncellenirken bir hata oluştu.'}), 500
+
+@api_bp.delete('/api/admin/katkida-bulunanlar/<int:id>')
+@token_required()
+@is_admin
+def katkida_sil(current_user, id):
+    kisi = KatkidaBulunan.query.get_or_404(id)
+    try:
+        if kisi.fotograf:
+            path = os.path.join(KATKIDA_UPLOAD_FOLDER, kisi.fotograf)
+            if os.path.exists(path):
+                try:
+                    os.remove(path)
+                except OSError:
+                    pass
+        db.session.delete(kisi)
+        db.session.commit()
+        return jsonify({'message': 'Katkıda bulunan silindi.'}), 200
+    except Exception as e:
+        db.session.rollback()
+        print(f'Katkıda bulunan silme hatası: {e}')
+        return jsonify({'message': 'Kayıt silinirken bir hata oluştu.'}), 500
