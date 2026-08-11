@@ -613,12 +613,17 @@
 
       <div class="nav-desktop" id="navDesktop">
         <a href="/" class="nav-link active">Ana Sayfa</a>
+        {% if is_logged_in %}
         <a href="/KampusteHayat" class="nav-link">Kampüste Hayat</a>
         <a href="/kayiplar" class="nav-link">Kayıp Eşya</a>
         <a href="/ofis-saatleri" class="nav-link">Ofis Saatleri</a>
+        {% endif %}
         <a href="/yemekhane" class="nav-link">Yemekhane</a>
         <a href="/otobus-saatleri" class="nav-link">Otobüs</a>
         <a href="/bit-pazari" class="nav-link">Bit Pazarı</a>
+        {% if is_logged_in %}
+        <a href="/katkida-bulunanlar" class="nav-link">Katkıda Bulunanlar</a>
+        {% endif %}
         <div class="dropdown">
           <button class="dropdown-trigger">
             Kulüpler
@@ -661,9 +666,11 @@
     <div class="mobile-nav-section">
       <div class="mobile-nav-title">Genel</div>
       <a href="/" class="mobile-nav-link"><span class="icon">🏠</span>Ana Sayfa</a>
+      {% if is_logged_in %}
       <a href="/KampusteHayat" class="mobile-nav-link"><span class="icon">📸</span>Kampüste Hayat</a>
       <a href="/kayiplar" class="mobile-nav-link"><span class="icon">☂️</span>Kayıp Eşya</a>
       <a href="/ofis-saatleri" class="mobile-nav-link"><span class="icon">📅</span>Ofis Saatleri</a>
+      {% endif %}
       <a href="/yemekhane" class="mobile-nav-link"><span class="icon">🍽️</span>Yemekhane</a>
       <a href="/otobus-saatleri" class="mobile-nav-link"><span class="icon">🚌</span>Otobüs Saatleri</a>
       <a href="/bit-pazari" class="mobile-nav-link"><span class="icon">🛍️</span>Bit Pazarı</a>
@@ -674,6 +681,7 @@
       <a href="/forum" class="mobile-nav-link"><span class="icon">💬</span>Forum</a>
       <a href="/ders-notlari" class="mobile-nav-link"><span class="icon">📚</span>Ders Notları</a>
       <a href="/ogretmen-listesi" class="mobile-nav-link"><span class="icon">👨‍🏫</span>Öğretmenler</a>
+      <a href="/katkida-bulunanlar" class="mobile-nav-link"><span class="icon">👥</span>Katkıda Bulunanlar</a>
     </div>
     <div class="mobile-nav-section">
       <div class="mobile-nav-title">Kulüpler</div>
@@ -800,6 +808,7 @@
         <span class="card-deco">🚌</span>
       </a>
 
+      {% if is_logged_in %}
       <!-- KAYIP — 2×1 geniş (sarı) -->
       <a href="/kayiplar" class="bento-card bc-kayip">
         <div class="card-label" style="color:#fde047">☂️ Topluluk</div>
@@ -835,6 +844,7 @@
         </div>
         <span class="card-deco">📸</span>
       </a>
+      {% endif %}
 
       <!-- KROKİ — 1×1 (cyan) -->
       <a href="/kroki" class="bento-card bc-kroki">
@@ -912,7 +922,9 @@
       <p class="footer-text">Gayriresmi THKÜ Öğrenci Portalı — Öğrenciler tarafından, öğrenciler için geliştirildi.</p>
       <div class="footer-links" id="footerLinks">
         <a href="/kroki" class="footer-link">Kampüs Krokisi</a>
+        {% if is_logged_in %}
         <a href="/ofis-saatleri" class="footer-link">Ofis Saatleri</a>
+        {% endif %}
         <a href="/yemekhane" class="footer-link">Yemekhane</a>
         {% if show_contributors %}
         <a href="/katkida-bulunanlar" class="footer-link">Katkıda Bulunanlar</a>
