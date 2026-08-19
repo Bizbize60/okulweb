@@ -25,6 +25,7 @@ from database.kulupler import Kulupler
 from database.dersnotu import DersNotuBekleyen, DersNotu
 from database.istek import Istek
 from database.katkida import KatkidaBulunan
+from database.moderator import Moderator
 
 from config import VAPID_PRIVATE_KEY
 from utils import allowed_file, allowed_image, bildirim_gonder_kullaniciya, kayip_upload_path, enstantane_upload_path, scrape_duyurular, scrape_haberler, bildirim_gonder
@@ -33,6 +34,9 @@ from durak import durak_sorgula
 
 KATKIDA_UPLOAD_FOLDER = os.path.join('uploads', 'katkida')
 os.makedirs(KATKIDA_UPLOAD_FOLDER, exist_ok=True)
+
+MODERATOR_UPLOAD_FOLDER = os.path.join('uploads', 'moderator')
+os.makedirs(MODERATOR_UPLOAD_FOLDER, exist_ok=True)
 
 def _safe_http_url(url):
     if not url:
@@ -1446,4 +1450,121 @@ def katkida_sil(current_user, id):
     except Exception as e:
         db.session.rollback()
         print(f'Katkıda bulunan silme hatası: {e}')
+        return jsonify({'message': 'Kayıt silinirken bir hata oluştu.'}), 500
+# ─── Moderatör Ekibi ────────────────────────────────────────────────────────
+
+@api_bp.get('/api/moderatorler')
+def moderatorleri_listele():
+    kisiler = Moderator.query.order_by(Moderator.sira.asc(), Moderator.id.asc()).all()
+    return jsonify([k.to_dict() for k in kisiler]), 200
+
+@api_bp.post('/api/admin/moderatorler')
+@token_required()
+@is_admin
+def moderator_ekle(current_user):
+    ad = (request.form.get('ad') or '').strip()
+    soyad = (request.form.get('soyad') or '').strip()
+    email = (request.form.get('email') or '').strip() or None
+    unvan = (request.form.get('unvan') or '').strip() or None
+    try:
+        sira = int(request.form.get('sira') or 0)
+    except ValueError:
+        sira = 0
+
+    if not ad or not soyad:
+        return jsonify({'message': 'Ad ve soyad zorunludur.'}), 400
+
+    fotograf_adi = None
+    if 'fotograf' in request.files:
+        file = request.files['fotograf']
+        if file and file.filename:
+            if not allowed_image(file.filename):
+                return jsonify({'message': 'Sadece görsel dosyaları (png, jpg, jpeg, gif, webp) yüklenebilir.'}), 400
+            filename = secure_filename(file.filename)
+            fotograf_adi = f"{uuid.uuid4()}_{filename}"
+            file.save(os.path.join(MODERATOR_UPLOAD_FOLDER, fotograf_adi))
+
+    kisi = Moderator(
+        ad=ad,
+        soyad=soyad,
+        fotograf=fotograf_adi,
+        email=email,
+        unvan=unvan,
+        sira=sira
+    )
+    try:
+        db.session.add(kisi)
+        db.session.commit()
+        return jsonify({'message': 'Moderatör eklendi.', 'kisi': kisi.to_dict()}), 201
+    except Exception as e:
+        db.session.rollback()
+        print(f'Moderatör ekleme hatası: {e}')
+        return jsonify({'message': 'Kayıt eklenirken bir hata oluştu.'}), 500
+
+@api_bp.put('/api/admin/moderatorler/<int:id>')
+@token_required()
+@is_admin
+def moderator_guncelle(current_user, id):
+    kisi = Moderator.query.get_or_404(id)
+    ad = (request.form.get('ad') or kisi.ad or '').strip()
+    soyad = (request.form.get('soyad') or kisi.soyad or '').strip()
+    if not ad or not soyad:
+        return jsonify({'message': 'Ad ve soyad zorunludur.'}), 400
+
+    kisi.ad = ad
+    kisi.soyad = soyad
+    if 'email' in request.form:
+        kisi.email = (request.form.get('email') or '').strip() or None
+    if 'unvan' in request.form:
+        kisi.unvan = (request.form.get('unvan') or '').strip() or None
+    if 'sira' in request.form:
+        try:
+            kisi.sira = int(request.form.get('sira') or 0)
+        except ValueError:
+            pass
+
+    if 'fotograf' in request.files:
+        file = request.files['fotograf']
+        if file and file.filename:
+            if not allowed_image(file.filename):
+                return jsonify({'message': 'Sadece görsel dosyaları yüklenebilir.'}), 400
+            if kisi.fotograf:
+                eski = os.path.join(MODERATOR_UPLOAD_FOLDER, kisi.fotograf)
+                if os.path.exists(eski):
+                    try:
+                        os.remove(eski)
+                    except OSError:
+                        pass
+            filename = secure_filename(file.filename)
+            fotograf_adi = f"{uuid.uuid4()}_{filename}"
+            file.save(os.path.join(MODERATOR_UPLOAD_FOLDER, fotograf_adi))
+            kisi.fotograf = fotograf_adi
+
+    try:
+        db.session.commit()
+        return jsonify({'message': 'Moderatör güncellendi.', 'kisi': kisi.to_dict()}), 200
+    except Exception as e:
+        db.session.rollback()
+        print(f'Moderatör güncelleme hatası: {e}')
+        return jsonify({'message': 'Kayıt güncellenirken bir hata oluştu.'}), 500
+
+@api_bp.delete('/api/admin/moderatorler/<int:id>')
+@token_required()
+@is_admin
+def moderator_sil(current_user, id):
+    kisi = Moderator.query.get_or_404(id)
+    try:
+        if kisi.fotograf:
+            path = os.path.join(MODERATOR_UPLOAD_FOLDER, kisi.fotograf)
+            if os.path.exists(path):
+                try:
+                    os.remove(path)
+                except OSError:
+                    pass
+        db.session.delete(kisi)
+        db.session.commit()
+        return jsonify({'message': 'Moderatör silindi.'}), 200
+    except Exception as e:
+        db.session.rollback()
+        print(f'Moderatör silme hatası: {e}')
         return jsonify({'message': 'Kayıt silinirken bir hata oluştu.'}), 500

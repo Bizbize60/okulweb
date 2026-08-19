@@ -138,3 +138,7 @@ def istekler_page(current_user):
 @token_required(next_location='/katkida-bulunanlar')
 def katkida_bulunanlar_page(current_user):
     return render_template('katkida-bulunanlar.html')
+
+@pages.route('/moderatorler')
+def moderatorler_page():
+    return render_template('moderatorler.html')

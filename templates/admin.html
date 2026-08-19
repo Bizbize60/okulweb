@@ -311,6 +311,7 @@
         <button class="nav-btn" onclick="switchTab('all-notes')">📂 Tüm Notlar</button>
         <button class="nav-btn" onclick="switchTab('subs')">📧 Abonelikler</button>
         <button class="nav-btn" onclick="switchTab('katkida')">⭐ Katkıda Bulunanlar</button>
+        <button class="nav-btn" onclick="switchTab('moderatorler')">🛡️ Moderatör Ekibi</button>
         <div style="margin-top: 40px; border-top: 1px solid var(--border); padding-top: 20px;">
             <a href="/" style="text-decoration: none; color: var(--text-muted); font-size: 0.9rem;">← Siteye Dön</a>
         </div>
@@ -494,6 +495,32 @@
                 </table>
             </div>
         </section>
+
+        <section id="moderatorler-panel" class="panel-section">
+            <div class="header">
+                <h1>Moderatör Ekibi</h1>
+                <button class="btn btn-primary" onclick="openModeratorModal()">+ Moderatör Ekle</button>
+            </div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Foto</th>
+                            <th>Ad Soyad</th>
+                            <th>Ünvan</th>
+                            <th>Email</th>
+                            <th>Sıra</th>
+                            <th>İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="moderatorTableBody">
+                        <tr>
+                            <td colspan="6" class="empty-state">Yükleniyor...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </main>
 
     <div class="modal-overlay" id="addUserModal">
@@ -579,6 +606,44 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="moderatorModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="moderatorModalTitle">Moderatör Ekle</h2>
+                <button class="close-btn" onclick="closeModeratorModal()">&times;</button>
+            </div>
+            <form id="moderatorForm" onsubmit="submitModeratorForm(event)">
+                <input type="hidden" id="moderatorId">
+                <div class="form-group">
+                    <label>Ad</label>
+                    <input type="text" id="moderatorAd" required placeholder="Ad">
+                </div>
+                <div class="form-group">
+                    <label>Soyad</label>
+                    <input type="text" id="moderatorSoyad" required placeholder="Soyad">
+                </div>
+                <div class="form-group">
+                    <label>Ünvan</label>
+                    <input type="text" id="moderatorUnvan" placeholder="Örn: İçerik Moderatörü">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="moderatorEmail" placeholder="ornek@thk.edu.tr">
+                </div>
+                <div class="form-group">
+                    <label>Sıra</label>
+                    <input type="number" id="moderatorSira" value="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Fotoğraf</label>
+                    <input type="file" id="moderatorFotograf" accept="image/*">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;"
+                    id="submitModeratorBtn">Kaydet</button>
+            </form>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="istekDetailModal">
         <div class="modal-content" style="max-width: 520px;">
             <div class="modal-header">
@@ -611,8 +676,12 @@
         const subsTableBody = document.getElementById('subsTableBody');
         const katkidaPanel = document.getElementById('katkida-panel');
         const katkidaTableBody = document.getElementById('katkidaTableBody');
+        const moderatorModal = document.getElementById('moderatorModal');
+        const moderatorlerPanel = document.getElementById('moderatorler-panel');
+        const moderatorTableBody = document.getElementById('moderatorTableBody');
         let istekCache = [];
         let katkidaCache = [];
+        let moderatorCache = [];
 
         const escapeHTML = str => {
             if (!str) return '';
@@ -623,7 +692,7 @@
         const switchTab = (tabName) => {
             navBtns.forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
-            [usersPanel, requestsPanel, isteklerPanel, notesPanel, allNotesPanel, subsPanel, katkidaPanel]
+            [usersPanel, requestsPanel, isteklerPanel, notesPanel, allNotesPanel, subsPanel, katkidaPanel, moderatorlerPanel]
                 .forEach(p => p && p.classList.remove('active'));
 
             if (tabName === 'users') {
@@ -647,6 +716,9 @@
             } else if (tabName === 'katkida') {
                 katkidaPanel.classList.add('active');
                 loadKatkida();
+            } else if (tabName === 'moderatorler') {
+                moderatorlerPanel.classList.add('active');
+                loadModerators();
             }
         };
 
@@ -1144,12 +1216,118 @@
             }
         };
 
+        /* --- MODERATÖR EKİBİ --- */
+        const loadModerators = async () => {
+            try {
+                const res = await fetch('/api/moderatorler');
+                const data = await res.json();
+                moderatorCache = data;
+                if (!data.length) {
+                    moderatorTableBody.innerHTML = '<tr><td colspan="6" class="empty-state">Henüz moderatör eklenmemiş.</td></tr>';
+                    return;
+                }
+                moderatorTableBody.innerHTML = data.map(k => `
+                    <tr>
+                        <td>
+                            ${k.fotograf_url
+                                ? `<img class="avatar-sm" src="${escapeHTML(k.fotograf_url)}" alt="">`
+                                : `<div class="avatar-sm" style="display:flex;align-items:center;justify-content:center;font-size:0.75rem;color:#a0aec0;">Yok</div>`}
+                        </td>
+                        <td style="font-weight:600;">${escapeHTML(k.ad)} ${escapeHTML(k.soyad)}</td>
+                        <td style="color:var(--text-muted);">${escapeHTML(k.unvan || '-')}</td>
+                        <td>${k.email ? `<a href="mailto:${escapeHTML(k.email)}">${escapeHTML(k.email)}</a>` : '-'}</td>
+                        <td>${k.sira ?? 0}</td>
+                        <td class="flex-actions">
+                            <button class="btn btn-primary" style="padding:6px 10px;font-size:0.8rem;" onclick="editModerator(${k.id})">Düzenle</button>
+                            <button class="btn btn-danger" style="padding:6px 10px;font-size:0.8rem;" onclick="deleteModerator(${k.id})">Sil</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error(e);
+                moderatorTableBody.innerHTML = '<tr><td colspan="6" class="empty-state" style="color:red;">Hata oluştu.</td></tr>';
+            }
+        };
+
+        const openModeratorModal = () => {
+            document.getElementById('moderatorForm').reset();
+            document.getElementById('moderatorId').value = '';
+            document.getElementById('moderatorModalTitle').innerText = 'Moderatör Ekle';
+            document.getElementById('moderatorSira').value = 0;
+            moderatorModal.classList.add('active');
+        };
+        const closeModeratorModal = () => {
+            moderatorModal.classList.remove('active');
+            document.getElementById('moderatorForm').reset();
+        };
+        const editModerator = (id) => {
+            const k = moderatorCache.find(x => x.id === id);
+            if (!k) return;
+            document.getElementById('moderatorId').value = k.id;
+            document.getElementById('moderatorAd').value = k.ad || '';
+            document.getElementById('moderatorSoyad').value = k.soyad || '';
+            document.getElementById('moderatorUnvan').value = k.unvan || '';
+            document.getElementById('moderatorEmail').value = k.email || '';
+            document.getElementById('moderatorSira').value = k.sira ?? 0;
+            document.getElementById('moderatorFotograf').value = '';
+            document.getElementById('moderatorModalTitle').innerText = 'Moderatör Düzenle';
+            moderatorModal.classList.add('active');
+        };
+        const submitModeratorForm = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitModeratorBtn');
+            btn.disabled = true;
+            btn.innerText = 'Kaydediliyor...';
+            const id = document.getElementById('moderatorId').value;
+            const formData = new FormData();
+            formData.append('ad', document.getElementById('moderatorAd').value.trim());
+            formData.append('soyad', document.getElementById('moderatorSoyad').value.trim());
+            formData.append('unvan', document.getElementById('moderatorUnvan').value.trim());
+            formData.append('email', document.getElementById('moderatorEmail').value.trim());
+            formData.append('sira', document.getElementById('moderatorSira').value || 0);
+            const file = document.getElementById('moderatorFotograf').files[0];
+            if (file) formData.append('fotograf', file);
+
+            try {
+                const res = await fetch(id ? `/api/admin/moderatorler/${id}` : '/api/admin/moderatorler', {
+                    method: id ? 'PUT' : 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    closeModeratorModal();
+                    loadModerators();
+                } else {
+                    alert('HATA: ' + (data.message || 'İşlem başarısız'));
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Kayıt sırasında hata oluştu.');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Kaydet';
+            }
+        };
+        const deleteModerator = async (id) => {
+            if (!confirm('Bu moderatörü silmek istediğinize emin misiniz?')) return;
+            try {
+                const res = await fetch(`/api/admin/moderatorler/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (res.ok) loadModerators();
+                else alert('HATA: ' + (data.message || 'Silinemedi'));
+            } catch (e) {
+                console.error(e);
+                alert('Silme işlemi sırasında hata oluştu.');
+            }
+        };
+
         // Modal dışına tıklayınca kapatma
         window.onclick = function (event) {
             if (event.target == editCreditModal) closeEditCreditModal();
             if (event.target == addUserModal) closeAddUserModal();
             if (event.target == katkidaModal) closeKatkidaModal();
             if (event.target == istekDetailModal) closeIstekDetail();
+            if (event.target == moderatorModal) closeModeratorModal();
         }
 
         // Arama (Debounce ile)
