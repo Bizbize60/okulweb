@@ -1481,6 +1481,8 @@ def moderator_ekle(current_user):
             if not allowed_image(file.filename):
                 return jsonify({'message': 'Sadece görsel dosyaları (png, jpg, jpeg, gif, webp) yüklenebilir.'}), 400
             filename = secure_filename(file.filename)
+            if not filename:
+                return jsonify({'message': 'Geçersiz dosya adı.'}), 400
             fotograf_adi = f"{uuid.uuid4()}_{filename}"
             file.save(os.path.join(MODERATOR_UPLOAD_FOLDER, fotograf_adi))
 
@@ -1536,6 +1538,8 @@ def moderator_guncelle(current_user, id):
                     except OSError:
                         pass
             filename = secure_filename(file.filename)
+            if not filename:
+                return jsonify({'message': 'Geçersiz dosya adı.'}), 400
             fotograf_adi = f"{uuid.uuid4()}_{filename}"
             file.save(os.path.join(MODERATOR_UPLOAD_FOLDER, fotograf_adi))
             kisi.fotograf = fotograf_adi
