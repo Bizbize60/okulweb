@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elçi Panelim — THKÜ Portal</title>
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='kedi.ico') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- THKU UI Global -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/ui.css') }}">
+  <style>
+    :root{ --bg:#050506;--card:#0d0d10;--fg:#EDEDEF;--muted:#8A8F98;--acc:#5E6AD2;--bd:rgba(255,255,255,.06);--gold:#F59E0B;--red:#EF4444;--green:#10B981;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--fg);padding:80px 20px 60px;min-height:100vh;}
+    body::before{content:'';position:fixed;inset:0;z-index:-1;background:radial-gradient(ellipse at top,#0a0a0f 0%,#050506 55%,#020203 100%);}
+    body::after{content:'';position:fixed;inset:0;z-index:-1;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:60px 60px;opacity:.4;}
+    .wrap{max-width:1000px;margin:0 auto;}
+    .topbar{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:20px;margin-bottom:28px;}
+    h1{font-size:2rem;letter-spacing:-.03em;}
+    .info-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+    .seviye-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:100px;font-weight:700;font-size:.82rem;}
+    .seviye-Uye{background:rgba(94,106,210,.12);color:#818cf8;border:1px solid rgba(94,106,210,.3);}
+    .seviye-Bronz{background:rgba(205,127,50,.12);color:#CD7F32;border:1px solid rgba(205,127,50,.3);}
+    .seviye-Gumus{background:rgba(192,192,192,.12);color:#C0C0C0;border:1px solid rgba(192,192,192,.3);}
+    .seviye-Altın{background:rgba(255,215,0,.12);color:#FFD700;border:1px solid rgba(255,215,0,.3);}
+    .seviye-Elmas{background:rgba(185,242,255,.12);color:#B9F2FF;border:1px solid rgba(185,242,255,.3);}
+    .grid{display:grid;grid-template-columns:1.1fr 1fr;gap:18px;margin-bottom:20px;}
+    @media(max-width:760px){.grid{grid-template-columns:1fr;}}
+    .card{background:var(--card);border:1px solid var(--bd);padding:24px;border-radius:16px;}
+    h2{font-size:1.05rem;margin-bottom:14px;letter-spacing:-.01em;}
+    .prog{margin-top:16px;}
+    .prog-label{display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted);margin-bottom:6px;}
+    .prog-bar{height:8px;border-radius:100px;background:rgba(255,255,255,.06);overflow:hidden;}
+    .prog-fill{height:100%;background:linear-gradient(90deg,var(--acc),#A78BFA);border-radius:100px;transition:width .6s;}
+    .ref-box{background:rgba(94,106,210,.08);border:1px dashed rgba(94,106,210,.35);padding:14px;border-radius:12px;display:flex;gap:10px;margin-top:10px;align-items:center;flex-wrap:wrap;}
+    .ref-box input{flex:1;min-width:200px;padding:8px 12px;border:1px solid var(--bd);border-radius:8px;background:rgba(0,0,0,.3);color:var(--fg);font-size:.85rem;font-family:monospace;}
+    .btn{padding:9px 16px;border:none;border-radius:8px;font-weight:600;font-size:.82rem;cursor:pointer;transition:.15s;}
+    .btn-primary{background:var(--acc);color:#fff;}
+    .btn-primary:hover{background:#6872D9;}
+    .btn-outline{background:transparent;color:var(--fg);border:1px solid var(--bd);}
+    .btn-outline:hover{border-color:rgba(94,106,210,.3);}
+    .btn-green{background:var(--green);color:#fff;}
+    .btn-red{background:var(--red);color:#fff;}
+    .btn:disabled{opacity:.5;cursor:not-allowed;}
+    .link-hint{font-size:.75rem;color:var(--muted);margin-top:6px;}
+    .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:10px 0 18px;}
+    @media(max-width:640px){.stat-row{grid-template-columns:repeat(2,1fr);}}
+    .stat{background:rgba(255,255,255,.04);border:1px solid var(--bd);padding:14px;border-radius:10px;text-align:center;}
+    .stat .v{font-size:1.5rem;font-weight:700;letter-spacing:-.02em;}
+    .stat .l{font-size:.72rem;color:var(--muted);margin-top:2px;}
+    .badges{display:flex;flex-wrap:wrap;gap:10px;}
+    .badge{background:rgba(255,255,255,.04);border:1px solid var(--bd);border-radius:100px;padding:6px 12px;display:inline-flex;align-items:center;gap:6px;font-size:.8rem;}
+    .badge .e{font-size:1rem;}
+    .badge.locked{opacity:.35;filter:grayscale(1);}
+    .reward{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--bd);align-items:center;}
+    .reward:last-child{border-bottom:none;}
+    .reward-icon{font-size:1.8rem;flex-shrink:0;}
+    .reward-info{flex:1;min-width:0;}
+    .reward-info h4{font-size:.9rem;margin-bottom:4px;}
+    .reward-info p{font-size:.76rem;color:var(--muted);line-height:1.4;}
+    .reward-cost{font-size:.85rem;font-weight:700;white-space:nowrap;}
+    .invites{margin-top:6px;max-height:260px;overflow:auto;}
+    .invite{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:8px;background:rgba(255,255,255,.03);margin-bottom:6px;font-size:.82rem;}
+    .invite .ok{color:var(--green);}
+    .empty{padding:24px;text-align:center;color:var(--muted);font-size:.85rem;}
+    .msg{margin-top:12px;padding:10px;border-radius:8px;font-size:.82rem;display:none;}
+    .ok{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);color:#6ee7b7;display:block;}
+    .err{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);color:#fca5a5;display:block;}
+    .back{display:inline-block;margin-bottom:20px;color:var(--muted);text-decoration:none;font-size:.85rem;}
+    .back:hover{color:var(--fg);}
+    .streak{color:var(--red);font-weight:700;}
+    .streak.e{color:var(--muted);}
+  </style>
+</head>
+<body>
+  <!-- REUSABLE NAVBAR -->
+  <div id="navbarRoot"></div>
+  <script src="{{ url_for('static', filename='js/components.js') }}" defer></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', function(){
+      var opts = { is_logged_in: true, active: 'elci' };  // elci paneline ozel aktif secili
+      if (window.THKU_UI && window.THKU_UI.Navbar) window.THKU_UI.Navbar.render('#navbarRoot', opts);
+      if (window.THKU_UI && window.THKU_UI.Footer)  window.THKU_UI.Footer.render('#footerRoot');
+    });
+  </script>
+<div class="wrap">
+  <a href="/" class="back">← Anasayfaya dön</a>
+  <div class="topbar">
+    <div>
+      <h1>👋 Merhaba, <span id="userName" style="background:linear-gradient(135deg,#818cf8,#A78BFA);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Yükleniyor...</span> 🌟</h1>
+      <div class="info-row" style="margin-top:10px;">
+        <span id="seviyeBadge" class="seviye-badge seviye-Uye">● Üye</span>
+        <span class="badge"><span class="e">🔥</span> <span id="streakDays" class="streak e">0</span> gün streak</span>
+        <span class="badge"><span class="e">🪙</span> <span id="krediSayi">0</span> kredi</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat"><div class="v" id="puanSayi">0</div><div class="l">Aktivite Puanın</div></div>
+    <div class="stat"><div class="v" id="davetSayi">0</div><div class="l">Davet Sayın</div></div>
+    <div class="stat"><div class="v" id="haftaDavet">0</div><div class="l">Son 7 Gün</div></div>
+    <div class="stat"><div class="v" id="siralama">-</div><div class="l">Sıralaman</div></div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>📈 Seviye İlerlemesi</h2>
+      <div class="prog">
+        <div class="prog-label"><span id="seviyeAdi">Üye</span> <span id="ileriYuzde">0%</span></div>
+        <div class="prog-bar"><div id="ileriBar" class="prog-fill" style="width:0%;"></div></div>
+        <div class="prog-label" style="margin-top:8px;">
+          <span id="sonrakiSeviye">Bir sonraki: Bronz Elçi</span>
+          <span id="kalanPuan">100 puan kaldı</span>
+        </div>
+      </div>
+
+      <h2 style="margin-top:26px;">🔗 Davet Linkin — Arkadaşlarını Davet Et, Kazan!</h2>
+      <div class="ref-box">
+        <input type="text" id="refLink" readonly value="Yükleniyor...">
+        <button class="btn btn-primary" id="copyBtn">📋 Kopyala</button>
+        <button class="btn btn-outline" id="kisaBtn">🔗 Kısa Link</button>
+      </div>
+      <p class="link-hint">💡 Arkadaşına linkini gönder: davet ederek kayıt olursa sen <strong style="color:#10B981;">+150 puan + 2 kredi</strong>, o <strong style="color:#10B981;">+2 ekstra kredi</strong> kazanır!</p>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">
+        <button class="btn" id="shareWA" style="background:#25D366;color:white;border:none;">
+          💬 WhatsApp'ta Paylaş
+        </button>
+        <button class="btn" id="shareTG" style="background:#0088cc;color:white;border:none;">
+          ✈️ Telegram'da Paylaş
+        </button>
+        <button class="btn" id="shareMail" style="background:#6366F1;color:white;border:none;">
+          📧 Mail/Mesaj ile
+        </button>
+        <button class="btn" id="shareIG" style="background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:white;border:none;">
+          📸 Instagram Hikaye
+        </button>
+      </div>
+      <div id="copyMsg" class="msg"></div>
+
+      <details style="margin-top:18px;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--card-bg);">
+        <summary style="cursor:pointer;font-weight:600;">📝 Kopyala-Yapıştır Hazır Davet Mesajları (sınıf grubuna yapıştır)</summary>
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px;">
+          <div style="padding:10px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3);border-radius:8px;">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">SINIF GRUBU / WHATSAPP GENEL (dostça ton)</div>
+            <div style="margin-bottom:6px;"><em>Selam millet! THKÜ için kendi öğrencilerin yapmış olduğu <strong>ücretsiz öğrenci portalı</strong> var — ders notları, öğretmen değerlendirme, yemekhane menüsü, otobüs saatleri, bit pazarı hepsi bir arada. Ben de üye oldum, siz de üye olun 👇 Kayıt olduğunda benden davet sayılırsın, bana +2 kredi kazandırırsın 💚:<br><span id="msg1Link" style="color:#10B981;font-weight:600;"></span></em></div>
+            <button class="btn btn-outline" onclick="kopyalaMesaj('msg1')">📋 Mesajı Kopyala</button>
+          </div>
+          <div style="padding:10px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.3);border-radius:8px;">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">BİREBİR ARKADAŞA (samimi)</div>
+            <div style="margin-bottom:6px;"><em>Selam! Sana göstermek istediğim bir site var — THKÜ öğrencilerinin kendi aramızda kullandığı <strong>öğrenci portalı</strong>. Ders notu indirebilir, hocayı değerlendirebilirsin, yemekhane ve otobüs saatlerini anında görürsün. Kayıt linkim: <span id="msg2Link" style="color:#6366F1;font-weight:600;"></span> — Kayıt olursan bana +150 puan kazandırmış olursun, sana da +2 ekstra kredi veriyor 💙</em></div>
+            <button class="btn btn-outline" onclick="kopyalaMesaj('msg2')">📋 Mesajı Kopyala</button>
+          </div>
+          <div style="padding:10px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);border-radius:8px;">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">KULÜP / SOSYAL MEDYA (resmi ton)</div>
+            <div style="margin-bottom:6px;"><em>🌟 <strong>THKÜ Öğrenci Elçileri Programı başladi!</strong> Kampüs hayatını kolaylaştıran öğrenci portalına davetlisin. Ders notları, yemekhane, bit pazarı ve daha fazlası tek linkte: <span id="msg3Link" style="color:#F59E0B;font-weight:600;"></span><br>— Kayıt olarak #benimTHKAnim etiketiyle paylaşabilir, Elçi rozeti kazanabilirsin 🎖️</em></div>
+            <button class="btn btn-outline" onclick="kopyalaMesaj('msg3')">📋 Mesajı Kopyala</button>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <div class="card">
+      <h2>🏆 Rozetlerin</h2>
+      <div id="badgesArea" class="badges"><div class="empty">Yükleniyor...</div></div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>🛒 Puan Dükkanı — Ödül Al</h2>
+      <div id="rewardsArea"><div class="empty">Yükleniyor...</div></div>
+      <div id="rewardMsg" class="msg"></div>
+    </div>
+    <div class="card">
+      <h2>👥 Son Davetlerin</h2>
+      <div id="invitesArea" class="invites"><div class="empty">Yükleniyor...</div></div>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:28px;">
+    <a href="/liderlik-tablosu" class="btn btn-outline">🏆 Genel Liderlik Tablosu</a>
+    <a href="/ogrenci-elcisi" class="btn btn-outline">📋 Elçi Başvurusu</a>
+  </div>
+</div>
+
+<script>
+const $ = (s)=>document.querySelector(s);
+let cache = null;
+async function load() {
+  try {
+    const r = await fetch('/api/ambassador/me', {credentials:'include'});
+    if(!r.ok) throw new Error('Yetkisiz');
+    cache = await r.json();
+    const u = cache.user;
+    $('#userName').textContent = u.name;
+    $('#seviyeBadge').className = 'seviye-badge seviye-' + u.seviye_adi.replace(/ğ/i,'g').replace(/ı/i,'i').replace(/ş/i,'s');
+    $('#seviyeBadge').innerHTML = (u.seviye_ikon||'●') + ' ' + u.seviye_adi;
+    $('#puanSayi').textContent = u.ambassador_points.toLocaleString('tr');
+    $('#davetSayi').textContent = u.referral_count || 0;
+    $('#haftaDavet').textContent = cache.hafta_davet || 0;
+    $('#siralama').textContent = cache.siralama ? '#'+cache.siralama : '-';
+    const sd = $('#streakDays'); sd.textContent = u.streak_gun || 0;
+    if(u.streak_gun > 0){ sd.classList.remove('e'); sd.classList.add('streak'); }
+    $('#krediSayi').textContent = u.kredi || 0;
+    $('#seviyeAdi').textContent = u.seviye_adi;
+    $('#ileriYuzde').textContent = cache.ilerleme_yuzde + '%';
+    $('#ileriBar').style.width = cache.ilerleme_yuzde + '%';
+    $('#sonrakiSeviye').textContent = 'Bir sonraki: ' + (cache.sonraki_seviye || 'Tebrikler, en üst seviyedesin!');
+    $('#kalanPuan').textContent = cache.kalan_puan != null ? cache.kalan_puan.toLocaleString('tr') + ' puan kaldı' : '';
+    $('#refLink').value = cache.referral_link;
+    $('#badgesArea').innerHTML = '';
+    if(!cache.badges || !cache.badges.length){
+      $('#badgesArea').innerHTML = '<div class="empty">Henüz rozetin yok, ilk davetini yapmaya ne dersin? 😊</div>';
+    } else {
+      cache.badges.forEach(b=>{
+        const el=document.createElement('span'); el.className='badge'; el.title=b.aciklama||'';
+        el.innerHTML = '<span class="e">'+(b.ikon_emoji||'🏅')+'</span> '+b.ad;
+        $('#badgesArea').appendChild(el);
+      });
+    }
+    $('#rewardsArea').innerHTML = '';
+    if(cache.rewards && cache.rewards.length){
+      cache.rewards.forEach(rw=>{
+        const row=document.createElement('div'); row.className='reward';
+        const can = (u.ambassador_points||0) >= rw.maliyet_puan && rw.aktif_mi;
+        row.innerHTML = `<div class="reward-icon">${rw.aciklama.includes('Bit')?'🛒':rw.aciklama.includes('Profil')?'🎨':rw.aciklama.includes('Duyuru')?'📣':rw.aciklama.includes('Ana Sayfa')?'🏆':'💎'}</div>
+          <div class="reward-info"><h4>${rw.ad}</h4><p>${rw.aciklama||''}</p></div>
+          <div style="text-align:right;">
+            <div class="reward-cost" style="color:${can?'var(--green)':'var(--muted)'};">${rw.maliyet_puan.toLocaleString('tr')} puan</div>
+            <button class="btn btn-green" style="margin-top:6px;font-size:.72rem;padding:6px 10px;" ${can?'':'disabled'} data-id="${rw.id}">Satın Al</button>
+          </div>`;
+        const btn=row.querySelector('button');
+        btn.addEventListener('click', ()=>odulAl(rw.id));
+        $('#rewardsArea').appendChild(row);
+      });
+    }
+    $('#invitesArea').innerHTML = '';
+    if(!cache.invites || !cache.invites.length){
+      $('#invitesArea').innerHTML = '<div class="empty">Henüz kimseyi davet etmedin. Yukarıdaki linki arkadaşlarınla paylaş! 🚀</div>';
+    } else {
+      cache.invites.forEach(i=>{
+        const row=document.createElement('div'); row.className='invite';
+        row.innerHTML = `<span>👤 ${i.name} <small style="color:var(--muted);">(${i.email})</small></span>
+          <span class="ok">+150 puan ✅ <small style="color:var(--muted);">${new Date(i.created_at).toLocaleDateString('tr')}</small></span>`;
+        $('#invitesArea').appendChild(row);
+      });
+    }
+    // --- HAZIR MESAJLARA LINKLERI YAZ ---
+    const link = $('#refLink').value;
+    $('#msg1Link').textContent = link;
+    $('#msg2Link').textContent = link;
+    $('#msg3Link').textContent = link;
+    window._son_link = link;  // global olarak tut, kopyalaMesaj kullansin
+  } catch(err){
+    console.error(err);
+  }
+}
+
+// --- SOSYAL PAYLASIM BUTONLARI ---
+$('#shareWA').addEventListener('click', ()=>{
+  const link = $('#refLink').value;
+  const metin = encodeURIComponent(
+    'Selam! THKÜ öğrencilerinin kendi aramızda kullandığı öğrenci portalına davetlisin. '+
+    'Ders notları, öğretmen değerlendirme, yemekhane, bit pazarı ve daha fazlası var. '+
+    'Link: '+link+
+    ' — Kayıt olduğunda sana da +2 ekstra kredi verilir 💚'
+  );
+  window.open('https://wa.me/?text='+metin, '_blank');
+});
+$('#shareTG').addEventListener('click', ()=>{
+  const link = $('#refLink').value;
+  const metin = encodeURIComponent(
+    '🌟 THKÜ Öğrenci Portalı — Ders notları, yemekhane, otobüs saatleri, bit pazarı ve daha fazlası tek yerde!\n'+
+    'Davet linkim: '+link+'\n'+
+    'Kayıt ol, +2 kredi kazan! 💙'
+  );
+  window.open('https://t.me/share/url?url='+encodeURIComponent(link)+'&text='+metin, '_blank');
+});
+$('#shareMail').addEventListener('click', ()=>{
+  const link = $('#refLink').value;
+  const konu = encodeURIComponent('THKÜ Öğrenci Portalı Daveti 🌟');
+  const govde = encodeURIComponent(
+    'Merhaba!\n\n'+
+    'THKÜ için kendi öğrencilerin geliştirdiği ücretsiz öğrenci portalına davetlisin:\n'+link+'\n\n'+
+    'Sitede neler var?\n'+
+    '📚 Ders notu paylaşımı (ücretsiz indirme)\n'+
+    '⭐ Öğretmen değerlendirme\n'+
+    '💬 Forum & kulüp duyuruları\n'+
+    '🍽️ Yemekhane menüsü / 🚌 Otobüs saatleri\n'+
+    '🛍️ Bit pazarı (2.el alışveriş)\n\n'+
+    'Kayıt olduğunda sana +2 ekstra kredi hediye edilecektir 💜\n'+
+    'İyi eğlenceler!'
+  );
+  window.open('mailto:?subject='+konu+'&body='+govde, '_blank');
+});
+$('#shareIG').addEventListener('click', ()=>{
+  const link = $('#refLink').value;
+  navigator.clipboard.writeText(link);
+  const m=$('#copyMsg'); m.className='msg ok';
+  m.innerHTML='✅ Davet linkin panoya <strong>kopyalandı</strong>!<br><small>Instagram uygulamasını aç → Hikaye oluştur → "Link" butonuna tıkla → kopyaladığın linki yapıştır → Paylaş 🎉</small>';
+  setTimeout(()=>{m.className='msg';},7000);
+});
+
+// --- HAZIR MESAJ KOPYALA ---
+window.kopyalaMesaj = function(tur){
+  const link = $('#refLink').value;
+  let metin = '';
+  if(tur==='msg1'){
+    metin = 'Selam millet! THKÜ için kendi öğrencilerin yapmış olduğu ücretsiz öğrenci portalı var — '+
+            'ders notları, öğretmen değerlendirme, yemekhane menüsü, otobüs saatleri, bit pazarı hepsi bir arada. '+
+            'Ben de üye oldum, siz de üye olun 👇 Kayıt olduğunda benden davet sayılırsın, bana +2 kredi kazandırırsın 💚:\n'+link;
+  } else if(tur==='msg2'){
+    metin = 'Selam! Sana göstermek istediğim bir site var — THKÜ öğrencilerinin kendi aramızda kullandığı öğrenci portalı. '+
+            'Ders notu indirebilir, hocayı değerlendirebilirsin, yemekhane ve otobüs saatlerini anında görürsün. '+
+            'Kayıt linkim: '+link+' — Kayıt olursan bana +150 puan kazandırmış olursun, sana da +2 ekstra kredi veriyor 💙';
+  } else {
+    metin = '🌟 THKÜ Öğrenci Elçileri Programı başladı! Kampüs hayatını kolaylaştıran öğrenci portalına davetlisin. '+
+            'Ders notları, yemekhane, bit pazarı ve daha fazlası tek linkte: '+link+'\n'+
+            '— Kayıt olarak #benimTHKAnim etiketiyle paylaşabilir, Elçi rozeti kazanabilirsin 🎖️';
+  }
+  navigator.clipboard.writeText(metin);
+  const m=$('#copyMsg'); m.className='msg ok';
+  m.textContent='✅ '+ (tur==='msg1'?'Sınıf grubu mesajı':tur==='msg2'?'Arkadaşa özel mesaj':'Kulüp/Sosyal medya mesajı') +' kopyalandı! Gruba yapıştırıp gönderebilirsin 🚀';
+  setTimeout(()=>{m.className='msg';},4000);
+};
+
+$('#copyBtn').addEventListener('click',()=>{
+  const link = $('#refLink').value;
+  navigator.clipboard.writeText(link);
+  const m=$('#copyMsg'); m.className='msg ok'; m.textContent='✅ Davet linkin panoya kopyalandı! Arkadaşlarınla paylaşabilirsin.';
+  setTimeout(()=>{m.className='msg';},3000);
+});
+$('#kisaBtn').addEventListener('click',async ()=>{
+  try {
+    const r=await fetch('/api/ambassador/referral-link',{credentials:'include'});
+    const d=await r.json();
+    $('#refLink').value=d.short_link || d.referral_link;
+    navigator.clipboard.writeText($('#refLink').value);
+    const m=$('#copyMsg'); m.className='msg ok'; m.textContent='🔗 Kısa link oluşturuldu ve kopyalandı!';
+    setTimeout(()=>{m.className='msg';},3000);
+    load();  // mesajlardaki linki de guncelle
+  }catch(e){}
+});
+async function odulAl(id){
+  const m=$('#rewardMsg'); m.className='msg'; m.textContent='';
+  try {
+    const r = await fetch(`/api/ambassador/rewards/${id}/satinal`,{method:'POST',credentials:'include'});
+    const d=await r.json();
+    m.className='msg ' + (r.ok?'ok':'err');
+    m.textContent=d.message||'Hata';
+    if(r.ok){ await load(); setTimeout(()=>{m.className='msg';},5000); }
+  } catch(e){ m.className='msg err'; m.textContent='Bağlantı hatası'; }
+}
+load();
+</script>
+
+  <!-- REUSABLE FOOTER -->
+  <div id="footerRoot"></div>
+</body>
+</html>

@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yönetim Paneli - THKÜ Portal</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='kedi.ico') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f4f7f6;
+            --surface: #ffffff;
+            --text: #2d3748;
+            --text-muted: #718096;
+            --primary: #4f8ef7;
+            --success: #38a169;
+            --danger: #e53e3e;
+            --border: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 24px;
+        }
+
+        .sidebar-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: var(--text);
+        }
+
+        .nav-btn {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            transition: 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: #f7fafc;
+            color: var(--text);
+        }
+
+        .nav-btn.active {
+            background: #ebf4ff;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .panel-section {
+            display: none;
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+            border: 1px solid var(--border);
+        }
+
+        .panel-section.active {
+            display: block;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .search-box:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 142, 247, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th,
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            font-size: 0.95rem;
+        }
+
+        .btn {
+            padding: 8px 14px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        .btn-success {
+            background: rgba(56, 161, 105, 0.1);
+            color: var(--success);
+        }
+
+        .btn-success:hover {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: rgba(229, 62, 62, 0.1);
+            color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            padding: 10px 20px;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary:hover {
+            background: #3b76d6;
+        }
+
+        .flex-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+
+        /* Modal Tasarımı */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            padding: 30px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            font-size: 1.4rem;
+            color: var(--text);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-family: inherit;
+        }
+
+        .avatar-sm {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #edf2f7;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: #edf2f7;
+            color: #4a5568;
+        }
+
+        .badge-ok { background: rgba(56, 161, 105, 0.12); color: var(--success); }
+        .badge-wait { background: rgba(79, 142, 247, 0.12); color: var(--primary); }
+
+        /* Owner-only daily active stats */
+        .stats-widget {
+            display: none;
+            margin-bottom: 28px;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 55%, #0f766e 140%);
+            border-radius: 16px;
+            padding: 22px 24px;
+            color: #f8fafc;
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+            position: relative;
+            overflow: hidden;
+        }
+        .stats-widget::after {
+            content: '';
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            right: -40px;
+            top: -60px;
+            background: radial-gradient(circle, rgba(45, 212, 191, 0.35), transparent 70%);
+            pointer-events: none;
+        }
+        .stats-widget.visible { display: block; }
+        .stats-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
+        .stats-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #94a3b8;
+            margin-bottom: 6px;
+        }
+        .stats-today {
+            font-size: 2.6rem;
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: -0.03em;
+        }
+        .stats-sub {
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: #cbd5e1;
+        }
+        .stats-delta {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 10px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: rgba(255,255,255,0.08);
+        }
+        .stats-delta.up { color: #6ee7b7; }
+        .stats-delta.down { color: #fca5a5; }
+        .stats-delta.flat { color: #cbd5e1; }
+        .stats-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            height: 72px;
+            margin-top: 18px;
+            position: relative;
+            z-index: 1;
+        }
+        .stats-bar-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            min-width: 0;
+        }
+        .stats-bar {
+            width: 100%;
+            max-width: 28px;
+            border-radius: 6px 6px 2px 2px;
+            background: linear-gradient(180deg, #5eead4, #0d9488);
+            min-height: 4px;
+            transition: height 0.35s ease;
+        }
+        .stats-bar.today {
+            background: linear-gradient(180deg, #fde68a, #f59e0b);
+        }
+        .stats-bar-label {
+            font-size: 0.65rem;
+            color: #94a3b8;
+            white-space: nowrap;
+        }
+        .stats-bar-count {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-title">⚙️ THKÜ Admin</div>
+        <button class="nav-btn active" onclick="switchTab('users')">👥 Kullanıcı Yönetimi</button>
+        <button class="nav-btn" onclick="switchTab('requests')">📝 Bekleyen Öğretmenler</button>
+        <button class="nav-btn" onclick="switchTab('istekler')">💡 Kullanıcı İstekleri</button>
+        <button class="nav-btn" onclick="switchTab('notes')">📚 Not Onayları</button>
+        <button class="nav-btn" onclick="switchTab('all-notes')">📂 Tüm Notlar</button>
+        <button class="nav-btn" onclick="switchTab('subs')">📧 Abonelikler</button>
+        <button class="nav-btn" onclick="switchTab('katkida')">⭐ Katkıda Bulunanlar</button>
+        <button class="nav-btn" onclick="switchTab('moderatorler')">🛡️ Moderatör Ekibi</button>
+        <div style="margin-top: 40px; border-top: 1px solid var(--border); padding-top: 20px;">
+            <a href="/" style="text-decoration: none; color: var(--text-muted); font-size: 0.9rem;">← Siteye Dön</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div id="statsWidget" class="stats-widget" aria-live="polite">
+            <div class="stats-top">
+                <div>
+                    <div class="stats-label">Günlük aktif kullanıcı</div>
+                    <div class="stats-today" id="statsToday">—</div>
+                    <div class="stats-sub">Bugün · Europe/Istanbul · giriş yapmış unique</div>
+                    <div class="stats-delta flat" id="statsDelta">Düne göre —</div>
+                </div>
+            </div>
+            <div class="stats-bars" id="statsBars"></div>
+        </div>
+
+        <section id="users-panel" class="panel-section active">
+            <div class="header">
+                <h1>Kullanıcılar</h1>
+                <button class="btn btn-primary" onclick="openAddUserModal()">+ Kullanıcı Ekle</button>
+            </div>
+            <input type="text" id="userSearch" class="search-box" placeholder="İsim veya email ara...">
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>İsim Soyisim</th>
+                            <th>Email</th>
+                            <th>Kredi</th>
+                            <th>İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <tr>
+                            <td colspan="5" class="empty-state">Yükleniyor...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="requests-panel" class="panel-section">
+            <div class="header">
+                <h1>Öğretmen Onay İstekleri</h1>
+                <button class="btn btn-primary" onclick="verifyAll()">Tümünü Onayla</button>
+            </div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Öğretmen Adı</th>
+                            <th>Ofis Gün/Saat</th>
+                            <th>İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="requestsTableBody">
+                        <tr>
+                            <td colspan="4" class="empty-state">Yükleniyor...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="notes-panel" class="panel-section">
+            <div class="header">
+                <h1>Ders Notu Onayları</h1>
+            </div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Öğrenci</th>
+                            <th>Ders Adı</th>
+                            <th>Tarih</th>
+                            <th>Dosya</th>
+                            <th>İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="notesTableBody">
+                        <tr>
+                            <td colspan="5" class="empty-state">Yükleniyor...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="all-notes-panel" class="panel-section">
+            <div class="header">
+                <h1>Tüm Yüklenen Notlar</h1>
+            </div>
+            <input type="text" id="notesSearch" class="search-box" placeholder="Öğrenci adı, ders adı veya email ile ara...">
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Ders Adı</th>
+                            <th>Dosya</th>
+                            <th>Tarih</th>
+                            <th>Öğrenci</th>
+                            <th>Email</th>
+                            <th>İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="allNotesTableBody">
+                        <tr>
+                            <td colspan="7" class="empty-state">Yükleniyor...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="istekler-panel" class="panel-section">
+            <div class="header">
+                <h1>Kullanıcı İstek / Şikayetleri</h1>
+            </div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Gönderen</th>
+                            <th>Başlık</th>
+                            <th>Kategori</th>
+                            <th>Durum</th>
+                            <th>Tarih</th>
+                            <th>İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="isteklerTableBody">
+                        <tr>
+                            <td colspan="7" class="empty-state">Yükleniyor...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="subs-panel" class="panel-section">
+            <div class="header">
+                <h1>Abonelikler</h1>
+            </div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Abonelik ID</th>
+                            <th>Kullanıcı ID</th>
+                            <th>Ad Soyad</th>
+                            <th>Email</th>
+                            <th>Kayıt Tarihi</th>
+                            <th>İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="subsTableBody">
+                        <tr>
+                            <td colspan="6" class="empty-state">Yükleniyor...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="katkida-panel" class="panel-section">
+            <div class="header">
+                <h1>Katkıda Bulunanlar</h1>
+                <button class="btn btn-primary" onclick="openKatkidaModal()">+ Kişi Ekle</button>
+            </div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Foto</th>
+                            <th>Ad Soyad</th>
+                            <th>Açıklama</th>
+                            <th>GitHub</th>
+                            <th>Sıra</th>
+                            <th>İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="katkidaTableBody">
+                        <tr>
+                            <td colspan="6" class="empty-state">Yükleniyor...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="moderatorler-panel" class="panel-section">
+            <div class="header">
+                <h1>Moderatör Ekibi</h1>
+                <button class="btn btn-primary" onclick="openModeratorModal()">+ Moderatör Ekle</button>
+            </div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Foto</th>
+                            <th>Ad Soyad</th>
+                            <th>Ünvan</th>
+                            <th>Email</th>
+                            <th>Sıra</th>
+                            <th>İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="moderatorTableBody">
+                        <tr>
+                            <td colspan="6" class="empty-state">Yükleniyor...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <div class="modal-overlay" id="addUserModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Öğrenci Kaydı</h2>
+                <button class="close-btn" onclick="closeAddUserModal()">&times;</button>
+            </div>
+            <form id="addUserForm" onsubmit="submitAddUserForm(event)">
+                <div class="form-group">
+                    <label>Ad Soyad</label>
+                    <input type="text" id="newUserName" required placeholder="Örn: Ali Yılmaz">
+                </div>
+                <div class="form-group">
+                    <label>Email Adresi</label>
+                    <input type="email" id="newUserEmail" required placeholder="sxxxxxxxxx@stu.thk.edu.tr">
+                </div>
+                <div class="form-group">
+                    <label>Geçici Şifre</label>
+                    <input type="text" id="newUserPassword" required placeholder="Öğrencinin ilk şifresi">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;"
+                    id="submitUserBtn">Kaydet</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="editCreditModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Kredi Düzenle</h2>
+                <button class="close-btn" onclick="closeEditCreditModal()">&times;</button>
+            </div>
+            <form id="editCreditForm" onsubmit="submitEditCreditForm(event)">
+                <p id="editCreditUserName" style="margin-bottom: 15px; color: var(--text-muted); font-weight: 500;">
+                </p>
+                <input type="hidden" id="editCreditUserId">
+                <div class="form-group">
+                    <label>Yeni Kredi Miktarı</label>
+                    <input type="number" id="newCreditAmount" required min="0" placeholder="Örn: 5">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;"
+                    id="submitCreditBtn">Krediyi Güncelle</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="katkidaModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="katkidaModalTitle">Katkıda Bulunan Ekle</h2>
+                <button class="close-btn" onclick="closeKatkidaModal()">&times;</button>
+            </div>
+            <form id="katkidaForm" onsubmit="submitKatkidaForm(event)">
+                <input type="hidden" id="katkidaId">
+                <div class="form-group">
+                    <label>Ad</label>
+                    <input type="text" id="katkidaAd" required placeholder="Ad">
+                </div>
+                <div class="form-group">
+                    <label>Soyad</label>
+                    <input type="text" id="katkidaSoyad" required placeholder="Soyad">
+                </div>
+                <div class="form-group">
+                    <label>Açıklama</label>
+                    <input type="text" id="katkidaAciklama" placeholder="Örn: Backend geliştirici">
+                </div>
+                <div class="form-group">
+                    <label>GitHub URL</label>
+                    <input type="url" id="katkidaGithub" placeholder="https://github.com/...">
+                </div>
+                <div class="form-group">
+                    <label>Sıra</label>
+                    <input type="number" id="katkidaSira" value="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Fotoğraf</label>
+                    <input type="file" id="katkidaFotograf" accept="image/*">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;"
+                    id="submitKatkidaBtn">Kaydet</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="moderatorModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="moderatorModalTitle">Moderatör Ekle</h2>
+                <button class="close-btn" onclick="closeModeratorModal()">&times;</button>
+            </div>
+            <form id="moderatorForm" onsubmit="submitModeratorForm(event)">
+                <input type="hidden" id="moderatorId">
+                <div class="form-group">
+                    <label>Ad</label>
+                    <input type="text" id="moderatorAd" required placeholder="Ad">
+                </div>
+                <div class="form-group">
+                    <label>Soyad</label>
+                    <input type="text" id="moderatorSoyad" required placeholder="Soyad">
+                </div>
+                <div class="form-group">
+                    <label>Ünvan</label>
+                    <input type="text" id="moderatorUnvan" placeholder="Örn: İçerik Moderatörü">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="moderatorEmail" placeholder="ornek@thk.edu.tr">
+                </div>
+                <div class="form-group">
+                    <label>Sıra</label>
+                    <input type="number" id="moderatorSira" value="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Fotoğraf</label>
+                    <input type="file" id="moderatorFotograf" accept="image/*">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;"
+                    id="submitModeratorBtn">Kaydet</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="istekDetailModal">
+        <div class="modal-content" style="max-width: 520px;">
+            <div class="modal-header">
+                <h2>İstek Detayı</h2>
+                <button class="close-btn" onclick="closeIstekDetail()">&times;</button>
+            </div>
+            <div id="istekDetailBody" style="line-height: 1.6; color: var(--text);"></div>
+        </div>
+    </div>
+
+    <script>
+        const usersPanel = document.getElementById('users-panel');
+        const requestsPanel = document.getElementById('requests-panel');
+        const isteklerPanel = document.getElementById('istekler-panel');
+        const usersTableBody = document.getElementById('usersTableBody');
+        const requestsTableBody = document.getElementById('requestsTableBody');
+        const isteklerTableBody = document.getElementById('isteklerTableBody');
+        const userSearch = document.getElementById('userSearch');
+        const navBtns = document.querySelectorAll('.nav-btn');
+        const addUserModal = document.getElementById('addUserModal');
+        const editCreditModal = document.getElementById('editCreditModal');
+        const katkidaModal = document.getElementById('katkidaModal');
+        const istekDetailModal = document.getElementById('istekDetailModal');
+        const notesPanel = document.getElementById('notes-panel');
+        const notesTableBody = document.getElementById('notesTableBody');
+        const notesSearch = document.getElementById('notesSearch');
+        const allNotesPanel = document.getElementById('all-notes-panel');
+        const allNotesTableBody = document.getElementById('allNotesTableBody');
+        const subsPanel = document.getElementById('subs-panel');
+        const subsTableBody = document.getElementById('subsTableBody');
+        const katkidaPanel = document.getElementById('katkida-panel');
+        const katkidaTableBody = document.getElementById('katkidaTableBody');
+        const moderatorModal = document.getElementById('moderatorModal');
+        const moderatorlerPanel = document.getElementById('moderatorler-panel');
+        const moderatorTableBody = document.getElementById('moderatorTableBody');
+        let istekCache = [];
+        let katkidaCache = [];
+        let moderatorCache = [];
+
+        const escapeHTML = str => {
+            if (!str) return '';
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' };
+            return String(str).replace(/[&<>'"]/g, tag => map[tag] || tag);
+        };
+
+        const switchTab = (tabName) => {
+            navBtns.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            [usersPanel, requestsPanel, isteklerPanel, notesPanel, allNotesPanel, subsPanel, katkidaPanel, moderatorlerPanel]
+                .forEach(p => p && p.classList.remove('active'));
+
+            if (tabName === 'users') {
+                usersPanel.classList.add('active');
+                loadUsers();
+            } else if (tabName === 'requests') {
+                requestsPanel.classList.add('active');
+                loadPendingRequests();
+            } else if (tabName === 'istekler') {
+                isteklerPanel.classList.add('active');
+                loadIstekler();
+            } else if (tabName === 'notes') {
+                notesPanel.classList.add('active');
+                loadPendingNotes();
+            } else if (tabName === 'all-notes') {
+                allNotesPanel.classList.add('active');
+                loadAllNotes();
+            } else if (tabName === 'subs') {
+                subsPanel.classList.add('active');
+                loadSubscriptions();
+            } else if (tabName === 'katkida') {
+                katkidaPanel.classList.add('active');
+                loadKatkida();
+            } else if (tabName === 'moderatorler') {
+                moderatorlerPanel.classList.add('active');
+                loadModerators();
+            }
+        };
+
+        /* --- KULLANICI YÖNETİMİ --- */
+        const loadUsers = async (query = '') => {
+            try {
+                const res = await fetch(`/api/admin/users?q=${encodeURIComponent(query)}`);
+                const data = await res.json();
+
+                if (data.length === 0) {
+                    usersTableBody.innerHTML = '<tr><td colspan="5" class="empty-state">Kullanıcı bulunamadı.</td></tr>';
+                    return;
+                }
+
+                usersTableBody.innerHTML = data.map(u => `
+                    <tr>
+                        <td>#${u.id}</td>
+                        <td style="font-weight: 500;">${escapeHTML(u.name)}</td>
+                        <td style="color: var(--text-muted);">${escapeHTML(u.email)}</td>
+                        <td><span style="background: #ebf4ff; color: #4f8ef7; padding: 4px 8px; border-radius: 4px; font-weight: 600;">💎 ${u.kredi}</span></td>
+                        <td>
+                            <div class="flex-actions">
+                                <button class="btn btn-primary" style="padding: 6px 10px; font-size: 0.8rem;" onclick="openEditCreditModal(${u.id}, ${u.kredi}, '${escapeHTML(u.name)}')">✏️ Kredi</button>
+                                <button class="btn btn-danger" style="padding: 6px 10px; font-size: 0.8rem;" onclick="deleteUser(${u.id})">Sil</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error(e);
+                usersTableBody.innerHTML = '<tr><td colspan="5" class="empty-state" style="color:red;">Hata oluştu.</td></tr>';
+            }
+        };
+
+        const deleteUser = async (id) => {
+            const isConfirmed = confirm("Bu kullanıcıyı kalıcı olarak silmek istediğinize emin misiniz?\n\nDİKKAT: Kullanıcının sisteme yüklediği veriler varsa silme işlemi başarısız olabilir.");
+            if (!isConfirmed) return;
+
+            try {
+                const res = await fetch(`/api/admin/users/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert(data.message);
+                    loadUsers(userSearch.value);
+                } else {
+                    alert('HATA: ' + data.message);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Silme işlemi sırasında sunucuya ulaşılamadı.');
+            }
+        };
+
+        const openAddUserModal = () => addUserModal.classList.add('active');
+        const closeAddUserModal = () => {
+            addUserModal.classList.remove('active');
+            document.getElementById('addUserForm').reset();
+        };
+        const submitAddUserForm = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitUserBtn');
+            btn.disabled = true;
+            btn.innerText = 'Ekleniyor...';
+
+            const payload = {
+                name: document.getElementById('newUserName').value.trim(),
+                email: document.getElementById('newUserEmail').value.trim(),
+                password: document.getElementById('newUserPassword').value
+            };
+
+            try {
+                const res = await fetch('/api/admin/users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert('Kullanıcı başarıyla eklendi!');
+                    closeAddUserModal();
+                    loadUsers();
+                } else {
+                    alert('HATA: ' + data.message);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Kullanıcı eklenirken bir hata oluştu.');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Kaydet';
+            }
+        };
+
+        /* --- KREDİ DÜZENLEME --- */
+        const openEditCreditModal = (id, currentCredit, userName) => {
+            document.getElementById('editCreditUserId').value = id;
+            document.getElementById('newCreditAmount').value = currentCredit;
+            document.getElementById('editCreditUserName').innerText = `Öğrenci: ${userName}`;
+            editCreditModal.classList.add('active');
+        };
+
+        const closeEditCreditModal = () => {
+            editCreditModal.classList.remove('active');
+            document.getElementById('editCreditForm').reset();
+        };
+
+        const submitEditCreditForm = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitCreditBtn');
+            btn.disabled = true;
+            btn.innerText = 'Güncelleniyor...';
+
+            const id = document.getElementById('editCreditUserId').value;
+            const newCredit = document.getElementById('newCreditAmount').value;
+
+            try {
+                const res = await fetch(`/api/admin/users/${id}/kredi`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ kredi: parseInt(newCredit) })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert('✓ ' + data.message);
+                    closeEditCreditModal();
+                    // Listeyi arka planda sessizce yenile
+                    loadUsers(document.getElementById('userSearch').value);
+                } else {
+                    alert('HATA: ' + data.message);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Sunucu ile iletişim kurulamadı.');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Krediyi Güncelle';
+            }
+        };
+
+        /* --- ÖĞRETMEN ONAY İSTEKLERİ --- */
+        const loadPendingRequests = async () => {
+            try {
+                const res = await fetch('/api/admin/pending-instructors');
+                const data = await res.json();
+
+                if (data.length === 0) {
+                    requestsTableBody.innerHTML = '<tr><td colspan="4" class="empty-state">Bekleyen onay isteği yok. 🎉</td></tr>';
+                    return;
+                }
+                console.log(data);
+
+                requestsTableBody.innerHTML = data.map(p => `
+                    <tr>
+                        <td>#${p.id}</td>
+                        <td style="font-weight: 500;">${escapeHTML(p.name)}</td>
+                        <td>${escapeHTML(p.days.map(d => `${d.gun}: ${d.saatler.join(', ')}`).join(' | '))}</td>
+                        <td class="flex-actions">
+                            <button class="btn btn-success" onclick="verifySingle(${p.id})">Onayla</button>
+                            <button class="btn btn-danger" onclick="rejectSingle(${p.id})">Reddet</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error(e);
+            }
+        };
+
+        const verifySingle = async (id) => {
+            if (!confirm('Bu öğretmeni onaylamak istediğinize emin misiniz?')) return;
+            try {
+                const res = await fetch(`/api/admin/verify-instructor/${id}`, { method: 'POST' });
+                if (res.ok) loadPendingRequests();
+                else alert('Bir hata oluştu!');
+            } catch (e) { console.error(e); }
+        };
+
+        const rejectSingle = async (id) => {
+            if (!confirm('Bu isteği silmek istediğinize emin misiniz?')) return;
+            try {
+                const res = await fetch(`/api/admin/reject-instructor/${id}`, { method: 'DELETE' });
+                if (res.ok) loadPendingRequests();
+                else alert('Bir hata oluştu!');
+            } catch (e) { console.error(e); }
+        };
+
+        const verifyAll = async () => {
+            if (!confirm('Bekleyen tüm öğretmenleri onaylamak istediğinize emin misiniz?')) return;
+            try {
+                const res = await fetch('/api/verify-all', { method: 'POST' });
+                if (res.ok) {
+                    alert('Tümü başarıyla onaylandı!');
+                    loadPendingRequests();
+                } else alert('Bir hata oluştu!');
+            } catch (e) { console.error(e); }
+        };
+
+        /* --- DERS NOTU ONAYLARI --- */
+        const loadPendingNotes = async () => {
+            try {
+                const res = await fetch(`/api/admin/pending-notes`);
+                const data = await res.json();
+
+                if (data.length === 0) {
+                    notesTableBody.innerHTML = '<tr><td colspan="5" class="empty-state">Onay bekleyen not bulunmuyor. 🎉</td></tr>';
+                    return;
+                }
+
+                notesTableBody.innerHTML = data.map(n => `
+                    <tr>
+                        <td>
+                            <div style="font-weight: 500;">${escapeHTML(n.kullanici_ad)}</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(n.kullanici_email)}</div>
+                        </td>
+                        <td style="font-weight: 600;">${escapeHTML(n.ders_adi)}</td>
+                        <td>${n.tarih}</td>
+                        <td><a href="${n.dosya_url}" target="_blank" class="btn" style="background:#edf2f7; color:#2d3748; text-decoration:none;">📄 İncele</a></td>
+                        <td class="flex-actions">
+                            <button class="btn btn-success" onclick="approveNote(${n.id})">Kabul Et</button>
+                            <button class="btn btn-danger" onclick="rejectNote(${n.id})">Reddet</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) { console.error(e); }
+        };
+
+        const approveNote = async (id) => {
+            if (!confirm('Bu notu onaylayıp öğrenciye 2 kredi vermek istiyor musunuz?')) return;
+            try {
+                const res = await fetch(`/api/admin/approve-note/${id}`, { method: 'POST' });
+                if (res.ok) loadPendingNotes();
+                else alert('Hata oluştu!');
+            } catch (e) { console.error(e); }
+        };
+
+        const rejectNote = async (id) => {
+            if (!confirm('Bu notu reddetmek istiyor musunuz? (Öğrenciye bildirim gidecek)')) return;
+            try {
+                const res = await fetch(`/api/admin/reject-note/${id}`, { method: 'POST' });
+                if (res.ok) loadPendingNotes();
+                else alert('Hata oluştu!');
+            } catch (e) { console.error(e); }
+        };
+
+        /* --- TÜM NOTLAR --- */
+        const loadAllNotes = async (query = '') => {
+            try {
+                const res = await fetch(`/api/admin/notlar${query ? `?q=${encodeURIComponent(query)}` : ''}`);
+                const data = await res.json();
+
+                if (data.length === 0) {
+                    allNotesTableBody.innerHTML = '<tr><td colspan="7" class="empty-state">Henüz not yüklenmemiş. 🎉</td></tr>';
+                    return;
+                }
+
+                allNotesTableBody.innerHTML = data.sort((a, b) => new Date(b.tarih) - new Date(a.tarih)).map(n => `
+                    <tr>
+                        <td>#${n.id}</td>
+                        <td style="font-weight: 600;">${escapeHTML(n.ders_adi)}</td>
+                        <td><a href="${n.dosya_url}" target="_blank" class="btn" style="background:#edf2f7; color:#2d3748; text-decoration:none;">📄 İncele</a></td>
+                        <td>${n.tarih}</td>
+                        <td style="font-weight: 500;">${escapeHTML(n.kullanici_ad)}</td>
+                        <td style="color: var(--text-muted); font-size: 0.8rem;">${escapeHTML(n.kullanici_email)}</td>
+                        <td class="flex-actions">
+                            <button class="btn btn-danger" onclick="deleteNote(${n.id})">Sil</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) { console.error(e); }
+        };
+        const deleteNote = async (id) => {
+            if (!confirm('Bu notu kalıcı olarak silmek istediğinize emin misiniz?')) return;
+            try {
+                const res = await fetch(`/api/admin/notlar/${id}`, { method: 'DELETE' });
+                if (res.ok) loadAllNotes();
+                else alert('Hata oluştu!');
+            } catch (e) { console.error(e); }
+        };
+
+        /* --- ABONELİKLER --- */
+        const loadSubscriptions = async () => {
+            try {
+                const res = await fetch('/api/admin/subscriptions');
+                const data = await res.json();
+
+                if (data.length === 0) {
+                    subsTableBody.innerHTML = '<tr><td colspan="6" class="empty-state">Henüz abonelik yok. 🎉</td></tr>';
+                    return;
+                }
+
+                subsTableBody.innerHTML = data.map(s => `
+                    <tr>
+                        <td>#${s.id}</td>
+                        <td>#${s.user_id ?? '-'}</td>
+                        <td style="font-weight: 500;">${escapeHTML(s.kullanici_ad)}</td>
+                        <td style="color: var(--text-muted); font-size: 0.8rem;">${escapeHTML(s.kullanici_email)}</td>
+                        <td>${escapeHTML(String(s.olusturulma_tarihi || '-'))}</td>
+                        <td>
+                            <button class="btn btn-danger" onclick="deleteSubscription(${s.id})">Sil</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) { console.error(e); }
+        };
+
+        const deleteSubscription = async (id) => {
+            if (!confirm('Bu aboneliği veritabanından silmek istediğinize emin misiniz?')) return;
+            try {
+                const res = await fetch(`/api/admin/subscriptions/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(data.message);
+                    loadSubscriptions();
+                } else {
+                    alert('HATA: ' + data.message);
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Silme işlemi sırasında hata oluştu.');
+            }
+        };
+
+        /* --- KULLANICI İSTEKLERİ --- */
+        const loadIstekler = async () => {
+            try {
+                const res = await fetch('/api/admin/istekler');
+                const data = await res.json();
+                istekCache = data;
+
+                if (!data.length) {
+                    isteklerTableBody.innerHTML = '<tr><td colspan="7" class="empty-state">Henüz istek/şikayet yok. 🎉</td></tr>';
+                    return;
+                }
+
+                isteklerTableBody.innerHTML = data.map(i => `
+                    <tr>
+                        <td>#${i.id}</td>
+                        <td>
+                            <div style="font-weight: 500;">${escapeHTML(i.kullanici_ad)}</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(i.kullanici_email)}</div>
+                        </td>
+                        <td style="font-weight: 600; max-width: 220px;">${escapeHTML(i.baslik)}</td>
+                        <td><span class="badge">${escapeHTML(i.kategori || 'Genel')}</span></td>
+                        <td><span class="badge badge-wait">${escapeHTML(i.durum || 'Gönderildi')}</span></td>
+                        <td>${escapeHTML(i.tarih || '-')}</td>
+                        <td class="flex-actions">
+                            <button class="btn btn-primary" style="padding:6px 10px;font-size:0.8rem;" onclick="showIstekDetail(${i.id})">Detay</button>
+                            <button class="btn btn-danger" style="padding:6px 10px;font-size:0.8rem;" onclick="deleteIstek(${i.id})">Sil</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error(e);
+                isteklerTableBody.innerHTML = '<tr><td colspan="7" class="empty-state" style="color:red;">Hata oluştu.</td></tr>';
+            }
+        };
+
+        const showIstekDetail = (id) => {
+            const i = istekCache.find(x => x.id === id);
+            if (!i) return;
+            document.getElementById('istekDetailBody').innerHTML = `
+                <p><strong>Gönderen:</strong> ${escapeHTML(i.kullanici_ad)} (${escapeHTML(i.kullanici_email)})</p>
+                <p style="margin-top:10px;"><strong>Başlık:</strong> ${escapeHTML(i.baslik)}</p>
+                <p style="margin-top:10px;"><strong>Kategori:</strong> ${escapeHTML(i.kategori || 'Genel')}</p>
+                <p style="margin-top:10px;"><strong>Durum:</strong> ${escapeHTML(i.durum || 'Gönderildi')}</p>
+                <p style="margin-top:10px;"><strong>Tarih:</strong> ${escapeHTML(i.tarih || '-')}</p>
+                <p style="margin-top:14px; padding:12px; background:#f7fafc; border-radius:8px; white-space:pre-wrap;">${escapeHTML(i.aciklama || '')}</p>
+            `;
+            istekDetailModal.classList.add('active');
+        };
+        const closeIstekDetail = () => istekDetailModal.classList.remove('active');
+
+        const deleteIstek = async (id) => {
+            if (!confirm('Bu isteği silmek istediğinize emin misiniz?')) return;
+            try {
+                const res = await fetch(`/api/admin/istekler/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (res.ok) {
+                    loadIstekler();
+                } else {
+                    alert('HATA: ' + (data.message || 'Silinemedi'));
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Silme işlemi sırasında hata oluştu.');
+            }
+        };
+
+        /* --- KATKIDA BULUNANLAR --- */
+        const loadKatkida = async () => {
+            try {
+                const res = await fetch('/api/katkida-bulunanlar');
+                const data = await res.json();
+                katkidaCache = data;
+                if (!data.length) {
+                    katkidaTableBody.innerHTML = '<tr><td colspan="6" class="empty-state">Henüz katkıda bulunan eklenmemiş.</td></tr>';
+                    return;
+                }
+                katkidaTableBody.innerHTML = data.map(k => `
+                    <tr>
+                        <td>
+                            ${k.fotograf_url
+                                ? `<img class="avatar-sm" src="${escapeHTML(k.fotograf_url)}" alt="">`
+                                : `<div class="avatar-sm" style="display:flex;align-items:center;justify-content:center;font-size:0.75rem;color:#a0aec0;">Yok</div>`}
+                        </td>
+                        <td style="font-weight:600;">${escapeHTML(k.ad)} ${escapeHTML(k.soyad)}</td>
+                        <td style="color:var(--text-muted);">${escapeHTML(k.aciklama || '-')}</td>
+                        <td>${(k.github_url && /^https?:\/\//i.test(k.github_url)) ? `<a href="${escapeHTML(k.github_url)}" target="_blank" rel="noopener">GitHub</a>` : '-'}</td>
+                        <td>${k.sira ?? 0}</td>
+                        <td class="flex-actions">
+                            <button class="btn btn-primary" style="padding:6px 10px;font-size:0.8rem;" onclick="editKatkida(${k.id})">Düzenle</button>
+                            <button class="btn btn-danger" style="padding:6px 10px;font-size:0.8rem;" onclick="deleteKatkida(${k.id})">Sil</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error(e);
+                katkidaTableBody.innerHTML = '<tr><td colspan="6" class="empty-state" style="color:red;">Hata oluştu.</td></tr>';
+            }
+        };
+
+        const openKatkidaModal = () => {
+            document.getElementById('katkidaForm').reset();
+            document.getElementById('katkidaId').value = '';
+            document.getElementById('katkidaModalTitle').innerText = 'Katkıda Bulunan Ekle';
+            document.getElementById('katkidaSira').value = 0;
+            katkidaModal.classList.add('active');
+        };
+        const closeKatkidaModal = () => {
+            katkidaModal.classList.remove('active');
+            document.getElementById('katkidaForm').reset();
+        };
+        const editKatkida = (id) => {
+            const k = katkidaCache.find(x => x.id === id);
+            if (!k) return;
+            document.getElementById('katkidaId').value = k.id;
+            document.getElementById('katkidaAd').value = k.ad || '';
+            document.getElementById('katkidaSoyad').value = k.soyad || '';
+            document.getElementById('katkidaAciklama').value = k.aciklama || '';
+            document.getElementById('katkidaGithub').value = k.github_url || '';
+            document.getElementById('katkidaSira').value = k.sira ?? 0;
+            document.getElementById('katkidaFotograf').value = '';
+            document.getElementById('katkidaModalTitle').innerText = 'Katkıda Bulunan Düzenle';
+            katkidaModal.classList.add('active');
+        };
+        const submitKatkidaForm = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitKatkidaBtn');
+            btn.disabled = true;
+            btn.innerText = 'Kaydediliyor...';
+            const id = document.getElementById('katkidaId').value;
+            const formData = new FormData();
+            formData.append('ad', document.getElementById('katkidaAd').value.trim());
+            formData.append('soyad', document.getElementById('katkidaSoyad').value.trim());
+            formData.append('aciklama', document.getElementById('katkidaAciklama').value.trim());
+            formData.append('github_url', document.getElementById('katkidaGithub').value.trim());
+            formData.append('sira', document.getElementById('katkidaSira').value || 0);
+            const file = document.getElementById('katkidaFotograf').files[0];
+            if (file) formData.append('fotograf', file);
+
+            try {
+                const res = await fetch(id ? `/api/admin/katkida-bulunanlar/${id}` : '/api/admin/katkida-bulunanlar', {
+                    method: id ? 'PUT' : 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    closeKatkidaModal();
+                    loadKatkida();
+                } else {
+                    alert('HATA: ' + (data.message || 'İşlem başarısız'));
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Kayıt sırasında hata oluştu.');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Kaydet';
+            }
+        };
+        const deleteKatkida = async (id) => {
+            if (!confirm('Bu kişiyi silmek istediğinize emin misiniz?')) return;
+            try {
+                const res = await fetch(`/api/admin/katkida-bulunanlar/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (res.ok) loadKatkida();
+                else alert('HATA: ' + (data.message || 'Silinemedi'));
+            } catch (e) {
+                console.error(e);
+                alert('Silme işlemi sırasında hata oluştu.');
+            }
+        };
+
+        /* --- MODERATÖR EKİBİ --- */
+        const loadModerators = async () => {
+            try {
+                const res = await fetch('/api/moderatorler');
+                const data = await res.json();
+                moderatorCache = data;
+                if (!data.length) {
+                    moderatorTableBody.innerHTML = '<tr><td colspan="6" class="empty-state">Henüz moderatör eklenmemiş.</td></tr>';
+                    return;
+                }
+                moderatorTableBody.innerHTML = data.map(k => `
+                    <tr>
+                        <td>
+                            ${k.fotograf_url
+                                ? `<img class="avatar-sm" src="${escapeHTML(k.fotograf_url)}" alt="">`
+                                : `<div class="avatar-sm" style="display:flex;align-items:center;justify-content:center;font-size:0.75rem;color:#a0aec0;">Yok</div>`}
+                        </td>
+                        <td style="font-weight:600;">${escapeHTML(k.ad)} ${escapeHTML(k.soyad)}</td>
+                        <td style="color:var(--text-muted);">${escapeHTML(k.unvan || '-')}</td>
+                        <td>${k.email ? `<a href="mailto:${escapeHTML(k.email)}">${escapeHTML(k.email)}</a>` : '-'}</td>
+                        <td>${k.sira ?? 0}</td>
+                        <td class="flex-actions">
+                            <button class="btn btn-primary" style="padding:6px 10px;font-size:0.8rem;" onclick="editModerator(${k.id})">Düzenle</button>
+                            <button class="btn btn-danger" style="padding:6px 10px;font-size:0.8rem;" onclick="deleteModerator(${k.id})">Sil</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error(e);
+                moderatorTableBody.innerHTML = '<tr><td colspan="6" class="empty-state" style="color:red;">Hata oluştu.</td></tr>';
+            }
+        };
+
+        const openModeratorModal = () => {
+            document.getElementById('moderatorForm').reset();
+            document.getElementById('moderatorId').value = '';
+            document.getElementById('moderatorModalTitle').innerText = 'Moderatör Ekle';
+            document.getElementById('moderatorSira').value = 0;
+            moderatorModal.classList.add('active');
+        };
+        const closeModeratorModal = () => {
+            moderatorModal.classList.remove('active');
+            document.getElementById('moderatorForm').reset();
+        };
+        const editModerator = (id) => {
+            const k = moderatorCache.find(x => x.id === id);
+            if (!k) return;
+            document.getElementById('moderatorId').value = k.id;
+            document.getElementById('moderatorAd').value = k.ad || '';
+            document.getElementById('moderatorSoyad').value = k.soyad || '';
+            document.getElementById('moderatorUnvan').value = k.unvan || '';
+            document.getElementById('moderatorEmail').value = k.email || '';
+            document.getElementById('moderatorSira').value = k.sira ?? 0;
+            document.getElementById('moderatorFotograf').value = '';
+            document.getElementById('moderatorModalTitle').innerText = 'Moderatör Düzenle';
+            moderatorModal.classList.add('active');
+        };
+        const submitModeratorForm = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitModeratorBtn');
+            btn.disabled = true;
+            btn.innerText = 'Kaydediliyor...';
+            const id = document.getElementById('moderatorId').value;
+            const formData = new FormData();
+            formData.append('ad', document.getElementById('moderatorAd').value.trim());
+            formData.append('soyad', document.getElementById('moderatorSoyad').value.trim());
+            formData.append('unvan', document.getElementById('moderatorUnvan').value.trim());
+            formData.append('email', document.getElementById('moderatorEmail').value.trim());
+            formData.append('sira', document.getElementById('moderatorSira').value || 0);
+            const file = document.getElementById('moderatorFotograf').files[0];
+            if (file) formData.append('fotograf', file);
+
+            try {
+                const res = await fetch(id ? `/api/admin/moderatorler/${id}` : '/api/admin/moderatorler', {
+                    method: id ? 'PUT' : 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    closeModeratorModal();
+                    loadModerators();
+                } else {
+                    alert('HATA: ' + (data.message || 'İşlem başarısız'));
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Kayıt sırasında hata oluştu.');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Kaydet';
+            }
+        };
+        const deleteModerator = async (id) => {
+            if (!confirm('Bu moderatörü silmek istediğinize emin misiniz?')) return;
+            try {
+                const res = await fetch(`/api/admin/moderatorler/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (res.ok) loadModerators();
+                else alert('HATA: ' + (data.message || 'Silinemedi'));
+            } catch (e) {
+                console.error(e);
+                alert('Silme işlemi sırasında hata oluştu.');
+            }
+        };
+
+        // Modal dışına tıklayınca kapatma
+        window.onclick = function (event) {
+            if (event.target == editCreditModal) closeEditCreditModal();
+            if (event.target == addUserModal) closeAddUserModal();
+            if (event.target == katkidaModal) closeKatkidaModal();
+            if (event.target == istekDetailModal) closeIstekDetail();
+            if (event.target == moderatorModal) closeModeratorModal();
+        }
+
+        // Arama (Debounce ile)
+        let timeout_user;
+        userSearch.addEventListener('input', (e) => {
+            clearTimeout(timeout_user);
+            timeout_user = setTimeout(() => loadUsers(e.target.value), 300);
+        });
+
+        let timeout_notes;
+        notesSearch.addEventListener('input', (e) => {
+            clearTimeout(timeout_notes);
+            timeout_notes = setTimeout(() => loadAllNotes(e.target.value), 300);
+        });
+
+        const loadOwnerStats = async () => {
+            const widget = document.getElementById('statsWidget');
+            if (!widget) return;
+            try {
+                const infoRes = await fetch('/api/user-info');
+                if (!infoRes.ok) return;
+                const info = await infoRes.json();
+                if (!info.show_stats) return;
+
+                const res = await fetch('/api/admin/stats/daily-active');
+                if (!res.ok) return;
+                const data = await res.json();
+
+                widget.classList.add('visible');
+                document.getElementById('statsToday').textContent = String(data.today ?? 0);
+
+                const delta = data.delta ?? 0;
+                const deltaEl = document.getElementById('statsDelta');
+                deltaEl.classList.remove('up', 'down', 'flat');
+                if (delta > 0) {
+                    deltaEl.classList.add('up');
+                    deltaEl.textContent = `Düne göre +${delta}`;
+                } else if (delta < 0) {
+                    deltaEl.classList.add('down');
+                    deltaEl.textContent = `Düne göre ${delta}`;
+                } else {
+                    deltaEl.classList.add('flat');
+                    deltaEl.textContent = `Dün ile aynı (${data.yesterday ?? 0})`;
+                }
+
+                const days = data.last_7_days || [];
+                const max = Math.max(1, ...days.map(d => d.count || 0));
+                const bars = document.getElementById('statsBars');
+                bars.innerHTML = days.map((d, i) => {
+                    const h = Math.max(4, Math.round(((d.count || 0) / max) * 56));
+                    const isToday = i === days.length - 1;
+                    return `<div class="stats-bar-col">
+                        <span class="stats-bar-count">${d.count || 0}</span>
+                        <div class="stats-bar ${isToday ? 'today' : ''}" style="height:${h}px"></div>
+                        <span class="stats-bar-label">${escapeHTML(d.label || '')}</span>
+                    </div>`;
+                }).join('');
+            } catch (e) {
+                console.error('Stats yüklenemedi', e);
+            }
+        };
+
+        // Sayfa yüklendiğinde kullanıcıları çek
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUsers();
+            loadOwnerStats();
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Katkıda Bulunanlar - THKÜ Portal</title>
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='kedi.ico') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #050506;
+      --surface: rgba(255,255,255,0.05);
+      --fg: #EDEDEF;
+      --fg-muted: #8A8F98;
+      --accent: #5E6AD2;
+      --border: rgba(255,255,255,0.08);
+    }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: radial-gradient(ellipse at top, #0a0a0f 0%, #050506 55%, #020203 100%);
+      color: var(--fg);
+      min-height: 100vh;
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 40px 20px 80px; }
+    .top {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 16px; margin-bottom: 36px; flex-wrap: wrap;
+    }
+    .back {
+      color: var(--fg-muted); text-decoration: none; font-size: .9rem;
+    }
+    .back:hover { color: var(--fg); }
+    h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; }
+    p.lead { color: var(--fg-muted); margin-top: 8px; max-width: 560px; line-height: 1.6; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 18px;
+      margin-top: 32px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 22px 18px 20px;
+      text-align: center;
+      transition: transform .2s, border-color .2s, background .2s;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(94,106,210,.35);
+      background: rgba(255,255,255,0.07);
+    }
+    .photo {
+      width: 96px; height: 96px; border-radius: 50%;
+      object-fit: cover; margin: 0 auto 14px;
+      border: 2px solid rgba(94,106,210,.4);
+      background: rgba(255,255,255,.06);
+      display: block;
+    }
+    .photo.placeholder {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem; color: var(--fg-muted);
+    }
+    .name { font-size: 1.05rem; font-weight: 600; margin-bottom: 6px; }
+    .desc { font-size: .85rem; color: var(--fg-muted); min-height: 1.2em; margin-bottom: 12px; }
+    .gh {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: #a5b4fc; text-decoration: none; font-size: .85rem; font-weight: 500;
+    }
+    .gh:hover { color: #c7d2fe; }
+    .empty {
+      text-align: center; color: var(--fg-muted); padding: 60px 20px;
+      border: 1px dashed var(--border); border-radius: 16px; margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <a class="back" href="/">← Ana Sayfa</a>
+        <h1 style="margin-top:12px;">Katkıda Bulunanlar</h1>
+        <p class="lead">Bu gayriresmi öğrenci portalına GitHub üzerinden katkı sağlayan kişiler.</p>
+      </div>
+    </div>
+    <div id="grid" class="grid"></div>
+    <div id="empty" class="empty" style="display:none;">Henüz katkıda bulunan eklenmemiş.</div>
+  </div>
+  <script>
+    const escapeHTML = str => {
+      if (!str) return '';
+      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' };
+      return String(str).replace(/[&<>'"]/g, t => map[t] || t);
+    };
+    const safeHttpUrl = (url) => {
+      if (!url) return '';
+      const u = String(url).trim();
+      const lower = u.toLowerCase();
+      if (lower.startsWith('https://') || lower.startsWith('http://')) return u;
+      return '';
+    };
+    const safeAssetUrl = (url) => {
+      if (!url) return '';
+      const u = String(url).trim();
+      if (u.startsWith('/uploads/katkida/')) return u;
+      return '';
+    };
+
+    async function load() {
+      const grid = document.getElementById('grid');
+      const empty = document.getElementById('empty');
+      try {
+        const res = await fetch('/api/katkida-bulunanlar');
+        const data = await res.json();
+        if (!Array.isArray(data) || data.length === 0) {
+          empty.style.display = 'block';
+          return;
+        }
+        grid.innerHTML = data.map(k => {
+          const photo = safeAssetUrl(k.fotograf_url);
+          const gh = safeHttpUrl(k.github_url);
+          return `
+          <article class="card">
+            ${photo
+              ? `<img class="photo" src="${escapeHTML(photo)}" alt="${escapeHTML(k.ad)} ${escapeHTML(k.soyad)}">`
+              : `<div class="photo placeholder">👤</div>`}
+            <div class="name">${escapeHTML(k.ad)} ${escapeHTML(k.soyad)}</div>
+            <div class="desc">${escapeHTML(k.aciklama || '')}</div>
+            ${gh ? `<a class="gh" href="${escapeHTML(gh)}" target="_blank" rel="noopener noreferrer">GitHub profili →</a>` : ''}
+          </article>`;
+        }).join('');
+      } catch (e) {
+        empty.style.display = 'block';
+        empty.textContent = 'Liste yüklenirken bir hata oluştu.';
+      }
+    }
+    load();
+  </script>
+</body>
+</html>

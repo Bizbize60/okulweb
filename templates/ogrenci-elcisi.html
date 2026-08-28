@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Öğrenci Elçisi Ol — THKÜ Portal</title>
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='kedi.ico') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- THKU UI Global -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/ui.css') }}">
+  <style>
+    :root{ --bg:#050506;--card:#0d0d10;--fg:#EDEDEF;--muted:#8A8F98;--acc:#5E6AD2;--acc2:#F59E0B;--bd:rgba(255,255,255,.06);--green:#10B981;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--fg);padding:90px 20px 60px;min-height:100vh;}
+    body::before{content:'';position:fixed;inset:0;z-index:-1;background:radial-gradient(ellipse at top,#0a0a0f 0%,#050506 55%,#020203 100%);}
+    body::after{content:'';position:fixed;inset:0;z-index:-1;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:60px 60px;opacity:.4;}
+    .wrap{max-width:900px;margin:0 auto;}
+    h1{font-size:2.4rem;letter-spacing:-.03em;margin-bottom:12px;
+       background:linear-gradient(135deg,var(--acc) 0%,#A78BFA 50%,var(--acc2) 100%);
+       -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .sub{color:var(--muted);font-size:1.02rem;margin-bottom:40px;line-height:1.55;}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-bottom:42px;}
+    .perk{background:var(--card);border:1px solid var(--bd);padding:22px;border-radius:14px;transition:.2s;}
+    .perk:hover{transform:translateY(-3px);border-color:rgba(94,106,210,.25);}
+    .emoji{font-size:2rem;margin-bottom:10px;}
+    .perk h3{font-size:1rem;margin-bottom:6px;}
+    .perk p{font-size:.82rem;color:var(--muted);line-height:1.5;}
+    .form-card{background:var(--card);border:1px solid var(--bd);padding:32px;border-radius:18px;}
+    h2{font-size:1.3rem;margin-bottom:18px;}
+    label{display:block;margin-bottom:6px;font-size:.82rem;color:var(--muted);font-weight:600;}
+    input,textarea,select{width:100%;padding:11px 14px;background:rgba(255,255,255,.04);border:1px solid var(--bd);border-radius:10px;color:var(--fg);font-family:inherit;font-size:.9rem;margin-bottom:16px;}
+    input:focus,textarea:focus{outline:none;border-color:rgba(94,106,210,.28);background:rgba(94,106,210,.06);}
+    textarea{resize:vertical;min-height:90px;}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .btn{background:linear-gradient(135deg,var(--acc),#7c3aed);border:none;color:#fff;padding:12px 28px;border-radius:10px;font-weight:600;font-size:.92rem;cursor:pointer;transition:.2s;box-shadow:0 6px 24px rgba(94,106,210,.3);}
+    .btn:hover{transform:translateY(-1px);box-shadow:0 10px 28px rgba(94,106,210,.4);}
+    .btn:disabled{opacity:.6;cursor:not-allowed;}
+    .msg{margin-top:16px;padding:12px;border-radius:10px;font-size:.85rem;display:none;}
+    .ok{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);color:#6ee7b7;display:block;}
+    .err{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);color:#fca5a5;display:block;}
+    .back{display:inline-block;margin-bottom:20px;color:var(--muted);text-decoration:none;font-size:.85rem;}
+    .back:hover{color:var(--fg);}
+    .seviyeler{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:40px;}
+    .sev{text-align:center;padding:16px 10px;border-radius:12px;border:1px solid var(--bd);background:var(--card);}
+    .sev .level-name{font-weight:600;font-size:.85rem;}
+    .sev .puan{font-size:.72rem;color:var(--muted);margin-top:4px;}
+    .bronz{color:#CD7F32;}.gumus{color:#C0C0C0;}.altin{color:#FFD700;}.elmas{color:#B9F2FF;}
+  </style>
+</head>
+<body>
+  <!-- REUSABLE NAVBAR -->
+  <div id="navbarRoot"></div>
+  <script src="{{ url_for('static', filename='js/components.js') }}" defer></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', function(){
+      var opts = { is_logged_in: {% if is_logged_in %}true{%else%}false{%endif%}, active: 'ogrenci-elcisi' };
+      if (window.THKU_UI && window.THKU_UI.Navbar) window.THKU_UI.Navbar.render('#navbarRoot', opts);
+      if (window.THKU_UI && window.THKU_UI.Footer)  window.THKU_UI.Footer.render('#footerRoot');
+    });
+  </script>
+<div class="wrap">
+  <a href="/" class="back">← Anasayfaya dön</a>
+  <h1>🌟 Öğrenci Elçisi Ol</h1>
+  <p class="sub">Kampüste öncü ol, arkadaşlarını davet et, <strong>rozetler, özel ayrıcalıklar ve tüm kampüste tanınmışlık</strong> kazan! Tamamen ücretsiz, nakitsiz ödül sistemi ile. Sadece 2 dakikada başvur.</p>
+
+  <div class="seviyeler">
+    <div class="sev"><div class="bronz" style="font-size:1.6rem;">🥉</div><div class="level-name bronz">Bronz Elçi</div><div class="puan">100 puan</div></div>
+    <div class="sev"><div class="gumus" style="font-size:1.6rem;">🥈</div><div class="level-name gumus">Gümüş Elçi</div><div class="puan">500 puan</div></div>
+    <div class="sev"><div class="altin" style="font-size:1.6rem;">🥇</div><div class="level-name altin">Altın Elçi</div><div class="puan">2000 puan</div></div>
+    <div class="sev"><div class="elmas" style="font-size:1.6rem;">💎</div><div class="level-name elmas">Elmas Elçi</div><div class="puan">5000 puan</div></div>
+  </div>
+
+  <div class="grid">
+    <div class="perk"><div class="emoji">🏆</div><h3>Resmi Elçi Rozeti</h3><p>Profilinde Resmi Elçi rozeti görünsün, herkes tanısın.</p></div>
+    <div class="perk"><div class="emoji">🎯</div><h3>Haftanın Elçisi</h3><p>Ana sayfada yayınlanan <strong>Haftanın Elçisi</strong> kutusunda 24 saat boyu adın görünsün.</p></div>
+    <div class="perk"><div class="emoji">📣</div><h3>Duyuru Hakkı</h3><p>Topluluk duyurularında 1 kez kendi paylaşımını yayınlat (onaylı).</p></div>
+    <div class="perk"><div class="emoji">🛒</div><h3>Pazar Öne Çıkartma</h3><p>Bit pazarında ilanlarını 7 gün boyunca ilk sırada göster.</p></div>
+    <div class="perk"><div class="emoji">🎨</div><h3>Özel Renkli Profil</h3><p>Renkli profil kartı + kullanıcı adının yanında seviye rozeti.</p></div>
+    <div class="perk"><div class="emoji">⭐</div><h3>Yönetim Önceliği</h3><p>İstek, şikayet ve soruların 1. sırada değerlendirilsin.</p></div>
+  </div>
+
+  <div class="form-card">
+    <h2>📋 Elçi Başvuru Formu</h2>
+    {% if not is_logged_in %}
+    <div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);padding:12px 14px;border-radius:10px;font-size:.85rem;color:#fca5a5;margin-bottom:18px;">
+      ⚠️ Başvuru yapmak için önce <a href="/login" style="color:#fecaca;font-weight:600;">giriş yapmalısın</a>.
+    </div>
+    {% endif %}
+    <form id="basvuruForm">
+      <div class="row">
+        <div>
+          <label>Bölümün *</label>
+          <select name="bolum" id="bolum" required>
+            <option value="">Seçiniz</option>
+            <option>Makine Mühendisliği</option>
+            <option>Bilgisayar Mühendisliği</option>
+            <option>Elektrik-Elektronik Mühendisliği</option>
+            <option>Endüstri Mühendisliği</option>
+            <option>İnşaat Mühendisliği</option>
+            <option>Uçak Mühendisliği</option>
+            <option>Hukuk</option>
+            <option>İktisat</option>
+            <option>İşletme</option>
+            <option>Psikoloji</option>
+            <option>Siyaset Bilimi</option>
+            <option>Diğer</option>
+          </select>
+        </div>
+        <div>
+          <label>Sınıfın</label>
+          <select name="sinif" id="sinif">
+            <option>Hazırlık</option>
+            <option>1. Sınıf</option>
+            <option>2. Sınıf</option>
+            <option>3. Sınıf</option>
+            <option>4. Sınıf</option>
+            <option>Mezun</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label>Neden Elçi olmak istiyorsun? *</label>
+        <textarea name="neden" id="neden" required maxlength="1000" placeholder="Kampüste neden öncü olmak istiyorsun? Ne gibi katkılar sağlayacağını düşünüyorsun?"></textarea>
+      </div>
+      <div>
+        <label>Instagram/Sosyal Medya (opsiyonel)</label>
+        <input type="text" name="sosyal" id="sosyal" maxlength="255" placeholder="@kullaniciadi veya link">
+      </div>
+      <button type="submit" class="btn" {% if not is_logged_in %}disabled{% endif %}>🚀 Başvuru Gönder</button>
+      <div id="msg" class="msg"></div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.getElementById('basvuruForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const msg = document.getElementById('msg');
+  msg.className = 'msg'; msg.textContent = '';
+  try {
+    const res = await fetch('/api/ambassador/basvuru', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      credentials:'include',
+      body: JSON.stringify({
+        bolum: document.getElementById('bolum').value,
+        sinif: document.getElementById('sinif').value,
+        neden: document.getElementById('neden').value,
+        sosyal: document.getElementById('sosyal').value,
+      })
+    });
+    const data = await res.json();
+    msg.className = 'msg ' + (res.ok ? 'ok' : 'err');
+    msg.textContent = data.message || 'Bir hata oluştu.';
+    if(res.ok){ e.target.reset(); }
+  } catch(err){ msg.className='msg err'; msg.textContent='Bağlantı hatası.'; }
+});
+</script>
+
+  <!-- REUSABLE FOOTER -->
+  <div id="footerRoot"></div>
+</body>
+</html>

@@ -1,0 +1,89 @@
+# =============================================================================
+# THK Üniversite Portal - Örnek Konfigürasyon Dosyası
+# =============================================================================
+# Bu dosyayı config.py olarak kopyalayın ve kendi değerlerinizi girin:
+# cp config.py.example config.py
+# =============================================================================
+
+# =============================================================================
+# Veritabanı Ayarları
+# =============================================================================
+# PostgreSQL bağlantı URI'si
+# Format: postgresql://kullanici:sifre@host:port/veritabani_adi
+DATABASE_URI = "postgresql://kullanici:sifre@localhost/veritabani_adi"
+
+# =============================================================================
+# Güvenlik Ayarları
+# =============================================================================
+# Flask secret key - Güvenli rastgele bir değer kullanın
+# Python ile oluşturabilirsiniz: python -c "import secrets; print(secrets.token_hex(16))"
+SECRET_KEY = "guvenli-rastgele-secret-key-buraya"
+
+# JWT token süresi (saat)
+JWT_EXPIRATION_HOURS = 1
+
+# Admin paneline erişim için izin verilen e-posta adresleri
+ADMIN_EMAILS = [
+    "s123456789@stu.thk.edu.tr", # Genel admin
+    "s210444025@stu.thk.edu.tr", # Stats owner (günlük aktif kullanıcı sayacı)
+    # Diğer admin e-postalarını buraya ekleyebilirsiniz
+]
+
+# Günlük aktif kullanıcı istatistiğini yalnızca bu admin görür
+STATS_OWNER_EMAIL = "s210444025@stu.thk.edu.tr"
+
+# =============================================================================
+# Dosya Yükleme Ayarları
+# =============================================================================
+# İzin verilen dosya uzantıları (ders notları, belgeler vs.)
+ALLOWED_EXTENSIONS = {
+    # Belgeler
+    'pdf', 'docx', 'doc', 'txt', 'rtf', 'odt',
+    # Görseller
+    'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg',
+    # Sıkıştırılmış dosyalar
+    'zip', 'rar', '7z', 'tar', 'gz', 'tar.gz',
+    # Tablolar
+    'xlsx', 'xls', 'csv',
+    # Sunumlar
+    'pptx', 'ppt'
+}
+
+# Sadece görsel uzantıları (kulüp fotoğrafları vs.)
+ALLOWED_IMAGES = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
+# Maksimum dosya boyutu (16 MB)
+MAX_CONTENT_LENGTH = 16 * 1024 * 1024
+
+# =============================================================================
+# Yükleme Klasörleri
+# =============================================================================
+NOTES_UPLOAD_FOLDER = 'uploads/notes'
+PAZAR_UPLOAD_FOLDER = 'uploads/pazar'
+KULUP_UPLOAD_FOLDER = 'uploads/kulup'
+
+# =============================================================================
+# Uygulama Ayarları
+# =============================================================================
+DEBUG = True  # Production'da False yapın!
+HOST = '0.0.0.0'
+PORT = 5000
+
+# =============================================================================
+# E-posta Ayarları (Kullanıcı doğrulama, şifre sıfırlama vs.)
+# =============================================================================
+MAIL_SERVER = 'smtp.gmail.com'
+MAIL_PORT = 587
+MAIL_USE_TLS = True
+MAIL_USERNAME = 'test@gmail.com'
+MAIL_PASSWORD = 'password'
+MAIL_DEFAULT_SENDER = 'test@gmail.com'
+
+# =============================================================================
+# Push Bildirim Ayarları (Web push için VAPID anahtarları)
+# VAPID anahtarları oluşturmak için: https://web-push-codelab.glitch.me/
+# =============================================================================
+VAPID_PRIVATE_KEY = "test_vapid_private_key"
+
+# Yemekhane menüsü PDF duyuru sayfası (THK resmi site)
+YEMEK_DUYURU_URL = "https://www.thk.edu.tr/en/announcements/announcements-3062"

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kampüsten Fotoğraflar</title>
+<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='kedi.ico') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg: #121212;
+            --card: #1e1e1e;
+            --primary: #8b5cf6;
+            --text: #fff;
+        }
+
+        /* Mor tema */
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .title i {
+            color: var(--primary);
+            margin-right: 10px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            background: var(--card);
+            border: 1px solid #333;
+            color: #aaa;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover,
+        button.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .upload-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+
+        /* MASONRY (Pinterest) LAYOUT */
+        .masonry-grid {
+            column-count: 4;
+            /* Masaüstünde 4 sütun */
+            column-gap: 20px;
+        }
+
+        .pin-card {
+            background: var(--card);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            break-inside: avoid;
+            /* Kartın bölünmesini engeller */
+            transition: transform 0.2s;
+            position: relative;
+        }
+
+        .pin-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .pin-image {
+            width: 100%;
+            display: block;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .pin-content {
+            padding: 15px;
+        }
+
+        .pin-text {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            color: #ddd;
+        }
+
+        .pin-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+
+        .user-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+        }
+
+        .like-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        .like-btn.liked {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .like-count {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--card);
+            padding: 30px;
+            border-radius: 12px;
+            width: 400px;
+            text-align: center;
+        }
+
+        .modal input,
+        .modal textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background: #2c2c2c;
+            border: none;
+            color: white;
+            border-radius: 8px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .masonry-grid {
+                column-count: 3;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .masonry-grid {
+                column-count: 2;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .masonry-grid {
+                column-count: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="title">
+            <h2><i class="fa-solid fa-camera-retro"></i> Kampüsten Fotoğraflar</h2>
+
+            <p
+                style="color: #fbbf24; margin-top: 5px; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                <i class="fa-solid fa-trophy"></i>
+                <span>En çok beğenilen fotoğraf 1000 TL ödüle kavuşacak! Son Tarih 7 Mayıs.</span>
+                <span
+                    style="color: #ffffff; background-color: #ef4444; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem;">
+                    <i class="fa-solid fa-triangle-exclamation"></i> En az 10 katılımcı şartı!
+                </span>
+            </p>
+        </div>
+        <div class="controls">
+            <button onclick="loadPosts('populer')" id="btn-populer"><i class="fa-solid fa-fire"></i> En Çok
+                Beğenilen</button>
+            <button onclick="loadPosts('yeni')" id="btn-yeni" class="active"><i class="fa-solid fa-clock"></i> En
+                Yeniler</button>
+            <button class="upload-btn" onclick="openModal()">+ Paylaş</button>
+        </div>
+    </header>
+
+    <div class="masonry-grid" id="feed">
+    </div>
+
+    <div class="modal" id="uploadModal">
+        <div class="modal-content">
+            <h3>Fotoğraf Paylaş</h3>
+            <input type="file" id="fileInput" accept="image/*">
+            <textarea id="descInput" rows="3" placeholder="Bu fotoğraf hakkında bir şeyler yaz..."></textarea>
+            <button class="upload-btn" onclick="uploadPost()" style="width:100%">Paylaş</button>
+            <button onclick="closeModal()" style="background:transparent; margin-top:10px;">İptal</button>
+        </div>
+    </div>
+
+    <script>
+        const feedGrid = document.getElementById('feed');
+        const btnPopuler = document.getElementById('btn-populer');
+        const btnYeni = document.getElementById('btn-yeni');
+        const uploadModal = document.getElementById('uploadModal');
+        const fileInput = document.getElementById('fileInput');
+        const descInput = document.getElementById('descInput');
+        const uploadBtn = document.querySelector('.modal .upload-btn');
+
+        // XSS Koruması
+        const escapeHTML = str => {
+            if (!str) return '';
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' };
+            return String(str).replace(/[&<>'"]/g, tag => map[tag] || tag);
+        };
+
+        const loadPosts = async (sirala) => {
+            // Buton aktiflik durumu
+            document.querySelectorAll('.controls button').forEach(b => b.classList.remove('active'));
+            if (sirala === 'populer' && btnPopuler) btnPopuler.classList.add('active');
+            if (sirala === 'yeni' && btnYeni) btnYeni.classList.add('active');
+
+            if (feedGrid) feedGrid.innerHTML = '<p style="color:#666">Yükleniyor...</p>';
+
+            try {
+                const res = await fetch(`/api/enstantaneler?sirala=${encodeURIComponent(sirala)}`);
+
+                if (!res.ok) {
+                    if (res.status === 401) {
+                        window.location.href = `/login?next=${encodeURIComponent(window.location.pathname)}`;
+                        return;
+                    }
+                    throw new Error('Veriler yüklenemedi.');
+                }
+
+                const data = await res.json();
+
+                if (feedGrid) {
+
+                    if (!data.length) {
+                        feedGrid.innerHTML = '<p style="color:#666">Henüz fotoğraf paylaşılmamış.</p>';
+                        return;
+                    }
+                    
+                    feedGrid.innerHTML = data.map(post => {
+                        const safeImg = escapeHTML(post.foto);
+                        const safeDesc = escapeHTML(post.aciklama);
+                        const safeUser = escapeHTML(post.user_name);
+                        const isLiked = post.liked_by_user ? 'liked' : '';
+
+                        return `
+            <div class="pin-card">
+                <img src="${safeImg}" class="pin-image" loading="lazy" alt="Enstantane">
+                <div class="pin-content">
+                    <p class="pin-text">${safeDesc}</p>
+                    <div class="pin-footer">
+                        <div class="user-info">
+                            <i class="fa-solid fa-user" style="color:#888; margin-right:5px;"></i>
+                            <span>${safeUser}</span>
+                        </div>
+                        <div style="display:flex; align-items:center">
+                            <button class="like-btn ${isLiked}" onclick="toggleLike(${post.id}, this)">
+                                <i class="fa-solid fa-heart"></i>
+                            </button>
+                            <span class="like-count" id="count-${post.id}">${post.begeni_sayisi}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+                    }).join('');
+                }
+            } catch (e) {
+                console.error(e);
+                if (feedGrid) feedGrid.innerHTML = '<p style="color:#dc3545">Veriler yüklenirken bir hata oluştu.</p>';
+            }
+        };
+
+        const toggleLike = async (id, btn) => {
+            const countSpan = document.getElementById(`count-${id}`);
+            if (!countSpan) return;
+
+            let currentCount = parseInt(countSpan.innerText) || 0;
+
+            // Animasyon etkisi için anlık değişim
+            if (btn.classList.contains('liked')) {
+                btn.classList.remove('liked');
+                countSpan.innerText = currentCount - 1;
+            } else {
+                btn.classList.add('liked');
+                countSpan.innerText = currentCount + 1;
+            }
+
+            try {
+                const res = await fetch(`/api/enstantane-begen/${encodeURIComponent(id)}`, { method: 'POST' });
+                if (!res.ok) throw new Error('Beğeni işlemi başarısız.');
+                const data = await res.json();
+                countSpan.innerText = data.count;
+            } catch (e) {
+                console.error("Beğeni hatası:", e);
+            }
+        };
+
+        const uploadPost = async () => {
+            const file = fileInput?.files[0];
+            const desc = descInput?.value.trim();
+
+            if (!file) return alert("Lütfen bir dosya seçin!");
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('aciklama', desc || '');
+
+            if (uploadBtn) {
+                uploadBtn.innerText = "Yükleniyor...";
+                uploadBtn.disabled = true;
+            }
+
+            try {
+                const res = await fetch('/api/enstantane-yukle', { method: 'POST', body: formData });
+                if (res.ok) {
+                    closeModal();
+                    loadPosts('yeni');
+                    if (fileInput) fileInput.value = '';
+                    if (descInput) descInput.value = '';
+                } else {
+                    const errorData = await res.json();
+                    alert("Yükleme başarısız: " + escapeHTML(errorData.message || 'Bilinmeyen hata'));
+                }
+            } catch (e) {
+                console.error("Yükleme hatası:", e);
+                alert("Bir hata oluştu.");
+            } finally {
+                if (uploadBtn) {
+                    uploadBtn.innerText = "Paylaş";
+                    uploadBtn.disabled = false;
+                }
+            }
+        };
+
+        window.openModal = () => { if (uploadModal) uploadModal.style.display = 'flex'; };
+        window.closeModal = () => { if (uploadModal) uploadModal.style.display = 'none'; };
+
+        document.addEventListener('DOMContentLoaded', () => loadPosts('yeni'));
+    </script>
+</body>
+
+</html>

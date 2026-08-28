@@ -1,0 +1,62 @@
+#!/usr/bin/env python3
+"""
+=============================================================================
+Kulüp Seed Script - ÖRNEK ŞABLON
+=============================================================================
+Bu dosya kulüpleri veritabanına eklemek için kullanılır.
+
+Kullanım:
+1. Bu dosyayı seed_kulupler.py olarak kopyalayın:
+   cp seed_kulupler.py.example seed_kulupler.py
+
+2. CLUBS listesini kendi kulüplerinizle doldurun
+
+3. Çalıştırın:
+   python -m database.seed_kulupler
+=============================================================================
+"""
+import os
+import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
+from flask import Flask
+from config import DATABASE_URI, SECRET_KEY
+from database.initdb import db
+from database.kulupler import Kulupler
+
+app = Flask(__name__)
+app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
+app.config["SECRET_KEY"] = SECRET_KEY
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+db.init_app(app)
+
+# =============================================================================
+# BURAYA KENDİ KULÜPLERİNİZİ GİRİN
+# =============================================================================
+CLUBS = [
+    "Örnek Kulüp 1",
+    "Örnek Kulüp 2",
+    "Örnek Kulüp 3",
+    # Daha fazla kulüp ekleyin...
+]
+
+
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+        print('Kulüpler ekleniyor...')
+        
+        for club_name in CLUBS:
+            existing = Kulupler.query.filter_by(kulup_adi=club_name).first()
+            if existing:
+                print(f"⏭️  {club_name} zaten mevcut (ID: {existing.id})")
+                continue
+            
+            club = Kulupler(kulup_adi=club_name)
+            db.session.add(club)
+            db.session.commit()
+            print(f"✓ {club_name} eklendi (ID: {club.id})")
+        
+        print('✅ Kulüp ekleme tamamlandı.')

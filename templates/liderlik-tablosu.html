@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Liderlik Tablosu — THKÜ Portal</title>
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='kedi.ico') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- THKU UI Global -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/ui.css') }}">
+  <style>
+    :root{ --bg:#050506;--card:#0d0d10;--fg:#EDEDEF;--muted:#8A8F98;--acc:#5E6AD2;--bd:rgba(255,255,255,.06);--gold:#F59E0B;--sil:#C0C0C0;--brnz:#CD7F32;--green:#10B981;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--fg);padding:90px 20px 60px;min-height:100vh;}
+    body::before{content:'';position:fixed;inset:0;z-index:-1;background:radial-gradient(ellipse at top,#0a0a0f 0%,#050506 55%,#020203 100%);}
+    body::after{content:'';position:fixed;inset:0;z-index:-1;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:60px 60px;opacity:.4;}
+    .wrap{max-width:900px;margin:0 auto;}
+    h1{font-size:2.2rem;letter-spacing:-.03em;margin-bottom:10px;
+       background:linear-gradient(135deg,var(--gold),#F97316,var(--acc));
+       -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .sub{color:var(--muted);font-size:.95rem;margin-bottom:28px;}
+    .podium{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:14px;margin-bottom:30px;align-items:end;}
+    @media(max-width:640px){.podium{grid-template-columns:1fr;}}
+    .pod{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:22px 16px;text-align:center;position:relative;}
+    .pod-1{order:2;padding-top:30px;border:1px solid rgba(245,158,11,.4);box-shadow:0 0 40px rgba(245,158,11,.15);}
+    .pod-2{order:1;border-color:rgba(192,192,192,.25);}
+    .pod-3{order:3;border-color:rgba(205,127,50,.25);}
+    .rank-big{font-size:2.5rem;margin-bottom:6px;}
+    .p-name{font-weight:700;font-size:1.05rem;margin-bottom:4px;word-break:break-word;}
+    .p-sev{font-size:.78rem;margin-bottom:10px;opacity:.9;}
+    .p-puan{font-size:1.3rem;font-weight:700;color:var(--gold);}
+    .p-sub{font-size:.75rem;color:var(--muted);margin-top:4px;}
+    .pod-1 .rank-big{color:var(--gold);}
+    .pod-2 .rank-big{color:var(--sil);}
+    .pod-3 .rank-big{color:var(--brnz);}
+    .card{background:var(--card);border:1px solid var(--bd);border-radius:16px;overflow:hidden;}
+    .tab{width:100%;border-collapse:collapse;}
+    .tab th{text-align:left;padding:12px 18px;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;background:rgba(255,255,255,.03);border-bottom:1px solid var(--bd);}
+    .tab td{padding:14px 18px;font-size:.88rem;border-bottom:1px solid var(--bd);vertical-align:middle;}
+    .tab tr:last-child td{border-bottom:none;}
+    .tab tr:hover td{background:rgba(94,106,210,.04);}
+    .r-no{font-weight:700;color:var(--muted);width:46px;}
+    .r-user{display:flex;align-items:center;gap:12px;}
+    .r-ava{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--acc),#A78BFA);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:#fff;flex-shrink:0;}
+    .r-name{font-weight:600;}
+    .r-sev{font-size:.72rem;color:var(--muted);margin-top:2px;}
+    .seviye-Uye{color:#818cf8;}
+    .seviye-Bronz{color:#CD7F32;}
+    .seviye-Gumus{color:#C0C0C0;}
+    .seviye-Altın{color:#FFD700;}
+    .seviye-Elmas{color:#B9F2FF;}
+    .r-puan{font-weight:700;color:var(--gold);}
+    .r-davet{font-size:.78rem;color:var(--green);}
+    .me{background:rgba(94,106,210,.08) !important;}
+    .me td:first-child::before{content:'👉';margin-right:4px;}
+    .back{display:inline-block;margin-bottom:20px;color:var(--muted);text-decoration:none;font-size:.85rem;}
+    .back:hover{color:var(--fg);}
+    .hafta-card{background:linear-gradient(135deg,rgba(245,158,11,.1),rgba(239,68,68,.08));border:1px solid rgba(245,158,11,.3);padding:20px;border-radius:14px;margin-bottom:26px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+    .hafta-card .tac{font-size:3rem;}
+    .hafta-card .info{flex:1;min-width:200px;}
+    .hafta-card h3{font-size:.78rem;letter-spacing:.05em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;}
+    .hafta-card .isim{font-size:1.3rem;font-weight:700;}
+    .hafta-card .alt{font-size:.82rem;color:var(--muted);margin-top:4px;}
+    .load{padding:40px;text-align:center;color:var(--muted);}
+  </style>
+</head>
+<body>
+  <!-- REUSABLE NAVBAR -->
+  <div id="navbarRoot"></div>
+  <script src="{{ url_for('static', filename='js/components.js') }}" defer></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', function(){
+      var opts = { is_logged_in: {% if is_logged_in %}true{%else%}false{%endif%}, active: 'liderlik' };
+      if (window.THKU_UI && window.THKU_UI.Navbar) window.THKU_UI.Navbar.render('#navbarRoot', opts);
+      if (window.THKU_UI && window.THKU_UI.Footer)  window.THKU_UI.Footer.render('#footerRoot');
+    });
+  </script>
+<div class="wrap">
+  <a href="/" class="back">← Anasayfaya dön</a>
+  <h1>🏆 Liderlik Tablosu</h1>
+  <p class="sub">En aktif ve en çok davet yapan öğrenci elçileri gör. 🚀 Hafta içi her gün güncellenir!</p>
+
+  <div id="haftaElci" style="display:none;"></div>
+
+  <div id="podium" class="podium"><div class="load">🥇 🥈 🥉 Yükleniyor...</div></div>
+
+  <div class="card">
+    <table class="tab">
+      <thead>
+        <tr><th>#</th><th>Öğrenci</th><th style="text-align:right;">Puan</th><th style="text-align:right;">Bu Hafta</th></tr>
+      </thead>
+      <tbody id="tabBody">
+        <tr><td colspan="4" class="load">Veri yükleniyor...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const sevRenk = {'Üye':'seviye-Uye','Bronz':'seviye-Bronz','Gümüş':'seviye-Gumus','Altın':'seviye-Altın','Elmas':'seviye-Elmas'};
+const sevIkon = {'Üye':'●','Bronz':'🥉','Gümüş':'🥈','Altın':'🥇','Elmas':'💎'};
+let me = null;
+async function yukle(){
+  try{
+    const [lr, hr] = await Promise.all([
+      fetch('/api/ambassador/leaderboard',{credentials:'include'}),
+      fetch('/api/ambassador/haftanin-elcisi',{credentials:'include'}).catch(()=>null)
+    ]);
+    const list = await lr.json();
+    let h = null;
+    if(hr && hr.ok){ try{ h = await hr.json(); }catch(e){} }
+    try{
+      const mr = await fetch('/api/user-info',{credentials:'include'});
+      if(mr.ok){ const md = await mr.json(); me = md.email || null; }
+    }catch(e){}
+    // Haftanın elçisi
+    if(h && h.elci){
+      const hdiv = document.getElementById('haftaElci');
+      hdiv.style.display='flex';
+      hdiv.className = 'hafta-card';
+      hdiv.innerHTML = `<div class="tac">👑</div>
+        <div class="info">
+          <h3>🏆 Bu Haftanın Elçisi</h3>
+          <div class="isim">${h.elci.name||'Bilinmiyor'}</div>
+          <div class="alt">${h.elci.seviye_adi||'Üye'} · ${(h.elci.hafta_davet||0)} davet · ${(h.elci.ambassador_points||0).toLocaleString('tr')} toplam puan</div>
+        </div>`;
+    }
+    // Podyum (ilk 3)
+    const top3 = list.slice(0,3);
+    const p = document.getElementById('podium'); p.innerHTML='';
+    [1,2,0].forEach(idx=>{
+      if(top3[idx]){
+        const div = document.createElement('div');
+        div.className = 'pod pod-'+(idx+1);
+        const ik = sevIkon[top3[idx].seviye_adi]||'●';
+        div.innerHTML = `<div class="rank-big">${idx===1?'🥇':idx===2?'🥈':'🥉'}</div>
+          <div class="p-name">${top3[idx].name||'?'} ${top3[idx].is_ambassador?'<span title="Resmi Elçi" style="color:var(--gold);">⭐</span>':''}</div>
+          <div class="p-sev seviye-${top3[idx].seviye_adi||'Üye'}">${ik} ${top3[idx].seviye_adi||'Üye'}</div>
+          <div class="p-puan">${(top3[idx].ambassador_points||0).toLocaleString('tr')}</div>
+          <div class="p-sub">${(top3[idx].hafta_davet||0)} yeni davet bu hafta</div>`;
+        p.appendChild(div);
+      }
+    });
+    // Tablo
+    const tb = document.getElementById('tabBody'); tb.innerHTML='';
+    list.forEach((u,i)=>{
+      const rnk = i+1;
+      const sevA = u.seviye_adi || 'Üye';
+      const meMi = me && u.email && u.email.toLowerCase() === me.toLowerCase();
+      const tr = document.createElement('tr'); if(meMi) tr.className='me';
+      const ikon = sevIkon[sevA]||'●';
+      tr.innerHTML = `<td class="r-no">${rnk}</td>
+        <td><div class="r-user">
+          <div class="r-ava">${(u.name||'?').trim().charAt(0).toUpperCase()}</div>
+          <div><div class="r-name">${u.name||'?'} ${u.is_ambassador?'<span title="Resmi Elçi" style="color:var(--gold);">⭐</span>':''}</div>
+          <div class="r-sev"><span class="${sevRenk[sevA]||''}">${ikon} ${sevA}</span></div></div>
+        </div></td>
+        <td style="text-align:right;"><span class="r-puan">${(u.ambassador_points||0).toLocaleString('tr')}</span></td>
+        <td style="text-align:right;"><span class="r-davet">+${u.hafta_davet||0} davet</span></td>`;
+      tb.appendChild(tr);
+    });
+    if(!list.length){ tb.innerHTML='<tr><td colspan="4" class="load">Henüz liste boş. İlk elçi sen ol! 🚀</td></tr>'; }
+  }catch(e){ console.error(e); }
+}
+yukle();
+</script>
+
+  <!-- REUSABLE FOOTER -->
+  <div id="footerRoot"></div>
+</body>
+</html>
