@@ -482,8 +482,8 @@ select:focus-visible,
 .w-top5      { border-top: 3px solid rgba(139, 92, 246, .3); }
 
 .widget-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
-.widget a { color: inherit; text-decoration: none; }
-.widget a:hover { text-decoration: none; }
+a.widget, .widget a { color: var(--fg, #EDEDEF) !important; text-decoration: none !important; }
+a.widget:hover, .widget a:hover { text-decoration: none !important; color: var(--fg, #EDEDEF) !important; }
 .widget-list li {
   display: flex;
   justify-content: space-between;
