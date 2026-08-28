@@ -278,7 +278,7 @@
     function doLogout(){
       try { localStorage.removeItem('token'); sessionStorage.clear(); } catch(_){}
       // HttpOnly cookie oldugu icin server'a da bir istek atmak gerekirse auth.py /logout var, kullan
-      fetch('/logout', { method:'GET', credentials:'include' }).finally(()=> { window.location.href='/login'; });
+      fetch('/logout', { method:'POST', credentials:'include' }).finally(()=> { window.location.href='/login'; });
     }
     logoutB1 && logoutB1.addEventListener('click', doLogout);
     logoutB2 && logoutB2.addEventListener('click', doLogout);
