@@ -38,7 +38,6 @@ except ImportError:
     STATS_OWNER_EMAIL = "s210444025@stu.thk.edu.tr"
 from utils import allowed_file, allowed_image, bildirim_gonder_kullaniciya, kayip_upload_path, enstantane_upload_path, scrape_duyurular, scrape_haberler, bildirim_gonder
 from auth import token_required, token_required_api, is_club_admin, is_admin
-from durak import durak_sorgula
 from yemek_menu import get_menu_data, get_today_menu, legacy_days_payload
 from ulasim import ulasim_overview
 from zoneinfo import ZoneInfo
@@ -713,7 +712,7 @@ def api_yemek_bugun():
 
 @api_bp.get('/api/ulasim')
 def api_ulasim():
-    """THK servis + Başkentray sabit saatler (EGO canlı ayrı endpoint)."""
+    """THK servis + Başkentray sabit saatler."""
     try:
         return jsonify(ulasim_overview())
     except Exception as e:
@@ -742,19 +741,7 @@ def api_kampus_ozet():
 
 @api_bp.get('/api/otobus-saatleri')
 def api_otobus_saatleri():
-    duraklar = ["51325", "51165", "51164"]
-    sonuc = {"ego": {}, "ulasim": ulasim_overview()}
-    for durak in duraklar:
-        try:
-            otobus_listesi = durak_sorgula(durak)
-            sonuc["ego"][durak] = otobus_listesi
-            # Eski istemciler için düz anahtarlar
-            sonuc[durak] = otobus_listesi
-        except Exception as e:
-            traceback.print_exc()
-            sonuc["ego"][durak] = []
-            sonuc[durak] = []
-    return jsonify(sonuc)
+    return jsonify({"ulasim": ulasim_overview()})
 
 @api_bp.post('/api/not-ekle')
 @token_required(next_location='/ders-notlari')
