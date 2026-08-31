@@ -260,12 +260,19 @@ with app.app_context():
         print(f"[Elçi Sistemi] Başlangıç seed hatası (yok say): {type(e).__name__}: {str(e)[:200]}")
 
 
+# Werkzeug parent reloader değilsek scheduler'ı başlat
+# (Gunicorn/WSGI, Werkzeug child veya debug=False ile direkt çalıştırma)
+_werkzeug_parent = (
+    __name__ == '__main__'
+    and DEBUG
+    and os.environ.get('WERKZEUG_RUN_MAIN') is None
+)
+if not _werkzeug_parent:
+    try:
+        from push_scheduler import start_push_scheduler
+        start_push_scheduler(app)
+    except Exception as e:
+        print(f"[backend] Push scheduler başlatılamadı: {e}")
+
 if __name__ == '__main__':
-    # Debug reloader çift process başlatmasın diye sadece ana süreçte scheduler
-    if os.environ.get('WERKZEUG_RUN_MAIN') == 'true' or not DEBUG:
-        try:
-            from push_scheduler import start_push_scheduler
-            start_push_scheduler(app)
-        except Exception as e:
-            print(f"[backend] Push scheduler başlatılamadı: {e}")
     app.run(host=HOST, port=PORT, debug=DEBUG)

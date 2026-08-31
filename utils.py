@@ -144,7 +144,7 @@ def bildirim_gonder_herkese(baslik, mesaj, url='/', tag='genel-bildirim'):
             if ex.response and ex.response.status_code == 410:
                 db.session.delete(abonelik)
                 db.session.commit()
-                return
+                continue
             
             print(f"Gönderim hatası (ID: {abonelik.id}): {ex}")
             
