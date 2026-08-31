@@ -7,11 +7,27 @@
     <title>THKÜ Bit Pazarı</title>
 <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='kedi.ico') }}">
     <style>
-        /* Önceki CSS stilinize uyumlu modern tasarım */
+        :root {
+            --bg: #f5f7ff;
+            --panel: rgba(255, 255, 255, 0.9);
+            --panel-strong: #ffffff;
+            --primary: #6d5efc;
+            --primary-2: #8b5cf6;
+            --success: #16a34a;
+            --success-dark: #15803d;
+            --text: #1f2937;
+            --muted: #667085;
+            --line: #e5e7eb;
+            --shadow: 0 18px 45px rgba(109, 94, 252, 0.12);
+        }
+
+        * { box-sizing: border-box; }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background: #f8f9fa;
-            padding: 20px;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: linear-gradient(180deg, #eef2ff 0%, #f9fafb 18%, #f7f8fc 100%);
+            padding: 24px 18px 48px;
+            color: var(--text);
         }
 
         .container {
@@ -20,127 +36,228 @@
         }
 
         .header {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(10px);
+            padding: 22px 24px;
+            border-radius: 22px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 24px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255,255,255,0.7);
+        }
+
+        .header h1 {
+            margin: 0 0 6px;
+            font-size: clamp(1.5rem, 2vw, 2.1rem);
+            letter-spacing: -0.03em;
+        }
+
+        .header p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-actions a {
+            text-decoration: none;
+            border-radius: 12px;
+            transition: 0.2s ease;
+        }
+
+        .header-actions .home-link {
+            color: var(--text);
+            padding: 10px 14px;
+            font-weight: 600;
+            background: #f3f4f6;
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-2) 100%);
+            color: white;
+            padding: 12px 18px;
+            font-weight: 700;
+            box-shadow: 0 12px 24px rgba(109, 94, 252, 0.28);
+        }
+
+        .header-actions a:hover {
+            transform: translateY(-1px);
         }
 
         .filters {
             display: flex;
             gap: 10px;
             overflow-x: auto;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+            padding: 6px 2px 14px;
+            margin-bottom: 22px;
+            scrollbar-width: thin;
         }
 
         .filter-btn {
-            padding: 8px 16px;
-            border-radius: 20px;
-            border: 1px solid #e2e8f0;
-            background: white;
+            padding: 10px 16px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: rgba(255,255,255,0.85);
             cursor: pointer;
-            transition: 0.2s;
+            transition: 0.2s ease;
             white-space: nowrap;
+            font-weight: 600;
+            color: var(--text);
         }
 
         .filter-btn.active {
-            background: #805ad5;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-2) 100%);
             color: white;
-            border-color: #805ad5;
+            border-color: transparent;
+            box-shadow: 0 12px 22px rgba(109, 94, 252, 0.2);
         }
 
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 24px;
+            gap: 26px;
         }
 
         .card {
-            background: white;
-            border-radius: 12px;
+            background: var(--panel-strong);
+            border-radius: 22px;
             overflow: hidden;
-            border: 1px solid #e2e8f0;
-            transition: 0.2s;
+            border: 1px solid rgba(17, 24, 39, 0.05);
+            box-shadow: 0 12px 22px rgba(15, 23, 42, 0.06);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            min-height: 380px;
         }
 
         .card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-4px);
+            box-shadow: 0 18px 30px rgba(15, 23, 42, 0.12);
         }
 
-        .card {
-            display: flex;
-            flex-direction: column;
-            min-height: 360px;
+        .card-media {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #edf2f7 0%, #dfe7f1 100%);
         }
 
         .card-img {
             width: 100%;
             aspect-ratio: 4 / 3;
-            height: auto;
             object-fit: cover;
-            background: linear-gradient(135deg, #edf2f7 0%, #dfe7f1 100%);
             display: block;
-            transform: translateZ(0);
-            will-change: transform;
+            transition: transform 0.35s ease;
+        }
+
+        .card:hover .card-img {
+            transform: scale(1.03);
+        }
+
+        .card-price {
+            position: absolute;
+            right: 12px;
+            bottom: 12px;
+            background: rgba(17, 24, 39, 0.78);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            backdrop-filter: blur(4px);
         }
 
         .card-body {
-            padding: 16px;
+            padding: 16px 16px 18px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
         }
 
-        .price {
-            font-size: 1.25em;
+        .card-topline {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            background: #f1f5f9;
+            color: #475467;
+            border: 1px solid #e2e8f0;
+            border-radius: 999px;
+            padding: 5px 10px;
+            font-size: 0.72rem;
             font-weight: 700;
-            color: #2d3748;
-            margin-bottom: 4px;
+            letter-spacing: 0.01em;
+        }
+
+        .date {
+            color: var(--muted);
+            font-size: 0.72rem;
+            font-weight: 600;
         }
 
         .title {
-            font-size: 1em;
-            font-weight: 600;
-            color: #4a5568;
-            margin-bottom: 8px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            font-size: 1.03rem;
+            font-weight: 700;
+            color: var(--text);
+            margin: 0 0 8px;
+            line-height: 1.45;
+            min-height: 46px;
         }
 
-        .meta {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8em;
-            color: #718096;
-            margin-bottom: 12px;
+        .desc {
+            margin: 0 0 16px;
+            color: #475467;
+            font-size: 0.88rem;
+            line-height: 1.55;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .contact-btn {
-            display: block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             width: 100%;
-            padding: 8px;
-            background: #38a169;
+            margin-top: auto;
+            padding: 12px 14px;
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
             color: white;
             text-align: center;
             text-decoration: none;
-            border-radius: 6px;
-            font-weight: 500;
+            border-radius: 12px;
+            font-weight: 700;
+            box-shadow: 0 12px 22px rgba(22, 163, 74, 0.22);
         }
 
         .contact-btn:hover {
-            background: #2f855a;
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
         }
 
-        .btn-add {
-            background: #805ad5;
-            color: white;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 8px;
+        @media (max-width: 640px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 14px;
+            }
+
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
         }
     </style>
 </head>
@@ -149,11 +266,11 @@
     <div class="container">
         <div class="header">
             <div>
-                <h1 style="font-size: 1.5em; color: #1a202c;">🛍️ Kampüs Pazarı</h1>
-                <p style="color: #718096;">Öğrenciden öğrenciye güvenli alışveriş</p>
+                <h1>🛍️ Kampüs Pazarı</h1>
+                <p>Öğrenciden öğrenciye güvenli alışveriş</p>
             </div>
-            <div style="display: flex; gap: 10px;">
-                <a href="/" style="padding: 10px 20px; text-decoration: none; color: #4a5568;">Ana Sayfa</a>
+            <div class="header-actions">
+                <a href="/" class="home-link">Ana Sayfa</a>
                 <a href="/ilan-ekle" class="btn-add">+ İlan Ver</a>
             </div>
         </div>
@@ -197,25 +314,29 @@
                 const safePrice = escapeHTML(item.fiyat);
                 const safeCategory = escapeHTML(item.kategori);
                 const safeDate = escapeHTML(item.tarih);
+                const safeDesc = escapeHTML(item.aciklama || '');
 
                 // Telefon numarasından sadece son 10 rakamı güvenli şekilde al
                 const safePhone = escapeHTML((item.iletisim || '').replace(/\D/g, '').slice(-10));
 
                 return `
-        <div class="card">
-          <img src="${safeImg}" alt="${safeTitle}" class="card-img" loading="lazy" onerror="this.src='https://via.placeholder.com/300?text=Resim+Yok'">
+        <article class="card">
+          <div class="card-media">
+            <img src="${safeImg}" alt="${safeTitle}" class="card-img" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=900&q=80'">
+            <div class="card-price">${safePrice} ₺</div>
+          </div>
           <div class="card-body">
-            <div class="price">${safePrice} ₺</div>
-            <div class="title" title="${safeTitle}">${safeTitle}</div>
-            <div class="meta">
-              <span>${safeCategory}</span>
-              <span>${safeDate}</span>
+            <div class="card-topline">
+              <span class="chip">${safeCategory}</span>
+              <span class="date">${safeDate}</span>
             </div>
+            <h3 class="title" title="${safeTitle}">${safeTitle}</h3>
+            <p class="desc">${safeDesc}</p>
             <a href="https://wa.me/90${safePhone}" target="_blank" class="contact-btn" rel="noopener noreferrer">
-              📞 Satıcıyla İletişime Geç
+              WhatsApp ile iletişime geç
             </a>
           </div>
-        </div>
+        </article>
       `;
             }).join('');
         };
