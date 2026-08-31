@@ -26,7 +26,13 @@ from database.istek import Istek
 from database.katkida import KatkidaBulunan
 from database.moderator import Moderator
 from database.daily_active import DailyActiveUser
+from database.admin_rbac import Role, Permission, UserRole, RolePermission, ModerationCase, ModerationAction, AdminAuditLog
 
 with app.app_context():
     db.create_all()
+    try:
+        from database.admin_rbac import ensure_default_roles
+        ensure_default_roles()
+    except Exception as exc:
+        print(f"RBAC seed kurulamadı: {exc}")
     print("Tablolar başarıyla oluşturuldu!")

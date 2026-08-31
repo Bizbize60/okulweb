@@ -415,6 +415,7 @@
         <button class="nav-btn" onclick="switchTab('all-notes')">📂 Tüm Notlar</button>
         <button class="nav-btn" onclick="switchTab('subs')">📧 Abonelikler</button>
         <button class="nav-btn" onclick="switchTab('katkida')">⭐ Katkıda Bulunanlar</button>
+        <button class="nav-btn" onclick="switchTab('roles')">🔐 Rol Yönetimi</button>
         <button class="nav-btn" onclick="switchTab('moderatorler')">🛡️ Moderatör Ekibi</button>
         <div style="margin-top: 40px; border-top: 1px solid var(--border); padding-top: 20px;">
             <a href="/" style="text-decoration: none; color: var(--text-muted); font-size: 0.9rem;">← Siteye Dön</a>
@@ -612,6 +613,47 @@
             </div>
         </section>
 
+        <section id="roles-panel" class="panel-section">
+            <div class="header">
+                <h1>Rol Yönetimi</h1>
+            </div>
+            <div style="display:grid; grid-template-columns: 1.2fr 1fr; gap: 20px;">
+                <div>
+                    <h3 style="margin-bottom: 12px;">Rol Listesi</h3>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Rol</th>
+                                    <th>Açıklama</th>
+                                    <th>İzinler</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rolesTableBody">
+                                <tr><td colspan="3" class="empty-state">Yükleniyor...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div>
+                    <h3 style="margin-bottom: 12px;">Kullanıcıya Rol Ata</h3>
+                    <div class="form-group">
+                        <label>Kullanıcı</label>
+                        <select id="roleUserSelect" class="search-box" style="width:100%;"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Rol</label>
+                        <select id="roleSelect" class="search-box" style="width:100%;"></select>
+                    </div>
+                    <button class="btn btn-primary" style="width:100%;" onclick="assignUserRole()">Rolü Ata</button>
+                    <div style="margin-top:20px;">
+                        <h4 style="margin-bottom:12px;">Kullanıcının Aktif Rolleri</h4>
+                        <div id="userRoleList" class="empty-state" style="padding: 20px; text-align:left; border:1px solid var(--border); border-radius:8px;">Seçim yapın.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section id="moderatorler-panel" class="panel-section">
             <div class="header">
                 <h1>Moderatör Ekibi</h1>
@@ -778,8 +820,94 @@
         const requestsTableBody = document.getElementById('requestsTableBody');
         const isteklerTableBody = document.getElementById('isteklerTableBody');
         const userSearch = document.getElementById('userSearch');
+        const roleSelect = document.getElementById('roleSelect');
+        const rolesTableBody = document.getElementById('rolesTableBody');
+        const roleUserSelect = document.getElementById('roleUserSelect');
+        const userRoleList = document.getElementById('userRoleList');
         const navBtns = document.querySelectorAll('.nav-btn');
         const addUserModal = document.getElementById('addUserModal');
+        const panelMap = {
+            users: { key: 'users.view', button: document.querySelector('.nav-btn[onclick="switchTab(\'users\')"]') },
+            requests: { key: 'moderation.view', button: document.querySelector('.nav-btn[onclick="switchTab(\'requests\')"]') },
+            istekler: { key: 'moderation.manage', button: document.querySelector('.nav-btn[onclick="switchTab(\'istekler\')"]') },
+            notes: { key: 'content.approve', button: document.querySelector('.nav-btn[onclick="switchTab(\'notes\')"]') },
+            'all-notes': { key: 'content.reject', button: document.querySelector('.nav-btn[onclick="switchTab(\'all-notes\')"]') },
+            subs: { key: 'system.admin', button: document.querySelector('.nav-btn[onclick="switchTab(\'subs\')"]') },
+            katkida: { key: 'system.admin', button: document.querySelector('.nav-btn[onclick="switchTab(\'katkida\')"]') },
+            roles: { key: 'role.manage', button: document.querySelector('.nav-btn[onclick="switchTab(\'roles\')"]') },
+            moderatorler: { key: 'role.manage', button: document.querySelector('.nav-btn[onclick="switchTab(\'moderatorler\')"]') },
+        };
+        let adminPermissions = new Set();
+        let adminRoles = new Set();
+
+        const can = (...keys) => keys.some(key => adminPermissions.has(key) || adminRoles.has('owner'));
+
+        const applyRolePermissions = () => {
+            Object.entries(panelMap).forEach(([tabName, descriptor]) => {
+                const button = descriptor.button;
+                if (!button) return;
+                if (can(descriptor.key)) {
+                    button.style.display = 'block';
+                } else {
+                    button.style.display = 'none';
+                }
+            });
+
+            const canViewUsers = can('users.view');
+            const canManageRequests = can('moderation.manage', 'moderation.view');
+            const canApproveContent = can('content.approve', 'content.reject');
+            const canManageRoles = can('role.manage');
+            const canUseSystemAdmin = can('system.admin');
+
+            const deleteButtons = document.querySelectorAll('.btn.btn-danger');
+            deleteButtons.forEach(btn => {
+                const shouldHide = (
+                    (btn.textContent.includes('Sil') || btn.textContent.includes('Reddet')) &&
+                    !can('moderation.manage', 'content.reject', 'users.delete', 'moderation.delete')
+                );
+                if (shouldHide) btn.style.display = 'none';
+            });
+
+            if (!canViewUsers) {
+                usersPanel.style.display = 'none';
+            }
+            if (!canManageRequests) {
+                requestsPanel.style.display = 'none';
+                isteklerPanel.style.display = 'none';
+            }
+            if (!canApproveContent) {
+                notesPanel.style.display = 'none';
+                allNotesPanel.style.display = 'none';
+            }
+            if (!canManageRoles) {
+                moderatorlerPanel.style.display = 'none';
+            }
+            if (!canUseSystemAdmin) {
+                subsPanel.style.display = 'none';
+                katkidaPanel.style.display = 'none';
+            }
+        };
+
+        const loadAdminSession = async () => {
+            try {
+                const res = await fetch('/api/admin/session');
+                if (!res.ok) {
+                    window.location.href = '/';
+                    return;
+                }
+                const data = await res.json();
+                adminRoles = new Set(data.roles || []);
+                adminPermissions = new Set(data.permissions || []);
+                applyRolePermissions();
+                if (!can('system.admin', 'users.view', 'moderation.view', 'content.approve', 'content.reject', 'role.manage')) {
+                    document.querySelector('.main-content').innerHTML = '<div style="padding:24px;color:#4a5568;">Bu sayfaya erişim yetkiniz yok.</div>';
+                }
+            } catch (err) {
+                console.error('Admin session yüklenemedi', err);
+                window.location.href = '/';
+            }
+        };
+
         const editCreditModal = document.getElementById('editCreditModal');
         const katkidaModal = document.getElementById('katkidaModal');
         const istekDetailModal = document.getElementById('istekDetailModal');
@@ -807,7 +935,8 @@
 
         const switchTab = (tabName) => {
             navBtns.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            const targetButton = document.querySelector(`.nav-btn[onclick="switchTab('${tabName}')"]`);
+            if (targetButton) targetButton.classList.add('active');
             [usersPanel, requestsPanel, isteklerPanel, notesPanel, allNotesPanel, subsPanel, katkidaPanel, moderatorlerPanel]
                 .forEach(p => p && p.classList.remove('active'));
 
@@ -832,6 +961,10 @@
             } else if (tabName === 'katkida') {
                 katkidaPanel.classList.add('active');
                 loadKatkida();
+            } else if (tabName === 'roles') {
+                document.getElementById('roles-panel').classList.add('active');
+                loadRoleCatalog();
+                loadRoleUsers();
             } else if (tabName === 'moderatorler') {
                 moderatorlerPanel.classList.add('active');
                 loadModerators();
@@ -1332,6 +1465,109 @@
             }
         };
 
+        /* --- ROL YÖNETİMİ --- */
+        const loadRoleCatalog = async () => {
+            try {
+                const res = await fetch('/api/admin/roles');
+                const payload = await res.json();
+                const rows = payload.roles || [];
+                if (!rows.length) {
+                    rolesTableBody.innerHTML = '<tr><td colspan="3" class="empty-state">Rol bulunamadı.</td></tr>';
+                    return;
+                }
+                roleSelect.innerHTML = rows.map(r => `<option value="${escapeHTML(r.name)}">${escapeHTML(r.label || r.name)}</option>`).join('');
+                rolesTableBody.innerHTML = rows.map(r => `
+                    <tr>
+                        <td style="font-weight:600;">${escapeHTML(r.label || r.name)}</td>
+                        <td style="color:var(--text-muted);">${escapeHTML(r.description || '-')}</td>
+                        <td style="font-size:0.8rem; color:var(--text-muted);">${escapeHTML((r.permissions || []).join(', ') || '—')}</td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error(e);
+                rolesTableBody.innerHTML = '<tr><td colspan="3" class="empty-state" style="color:red;">Hata oluştu.</td></tr>';
+            }
+        };
+
+        const loadRoleUsers = async () => {
+            try {
+                const res = await fetch('/api/admin/users');
+                const data = await res.json();
+                const users = data || [];
+                roleUserSelect.innerHTML = users.map(u => `<option value="${u.id}">${escapeHTML(u.name || u.email)} (${escapeHTML(u.email)})</option>`).join('');
+                if (users.length) {
+                    await updateUserRoles(users[0].id);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        };
+
+        const updateUserRoles = async (userId) => {
+            try {
+                const res = await fetch(`/api/admin/users/${userId}/roles`);
+                if (!res.ok) {
+                    userRoleList.innerHTML = 'Bu kullanıcı için rol bilgisi alınamadı.';
+                    return;
+                }
+                const data = await res.json();
+                const roles = data.roles || [];
+                if (!roles.length) {
+                    userRoleList.innerHTML = '<div style="padding: 10px 0; color: var(--text-muted);">Bu kullanıcıya atanmış rol yok.</div>';
+                    return;
+                }
+                userRoleList.innerHTML = roles.map(role => `
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; border:1px solid var(--border); border-radius:8px; padding:8px 10px; margin:6px 0;">
+                        <span>${escapeHTML(role)}</span>
+                        <button class="btn btn-danger" style="padding:6px 10px; font-size:0.75rem;" onclick="removeUserRole(${userId}, '${escapeHTML(role)}')">Kaldır</button>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error(e);
+            }
+        };
+
+        const assignUserRole = async () => {
+            const userId = Number(roleUserSelect.value);
+            const roleName = roleSelect.value;
+            if (!userId || !roleName) return;
+            try {
+                const res = await fetch(`/api/admin/users/${userId}/roles`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ role_name: roleName })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    alert('HATA: ' + (data.message || 'Rol atanamadı'));
+                    return;
+                }
+                alert(data.message || 'Rol atandı.');
+                await updateUserRoles(userId);
+            } catch (e) {
+                console.error(e);
+                alert('Rol atanırken hata oluştu.');
+            }
+        };
+
+        const removeUserRole = async (userId, roleName) => {
+            try {
+                const res = await fetch(`/api/admin/users/${userId}/roles/${encodeURIComponent(roleName)}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (!res.ok) {
+                    alert('HATA: ' + (data.message || 'Rol kaldırılamadı'));
+                    return;
+                }
+                alert(data.message || 'Rol kaldırıldı.');
+                await updateUserRoles(userId);
+            } catch (e) {
+                console.error(e);
+                alert('Rol kaldırılırken hata oluştu.');
+            }
+        };
+
+        roleUserSelect.addEventListener('change', (e) => updateUserRoles(Number(e.target.value)));
+
         /* --- MODERATÖR EKİBİ --- */
         const loadModerators = async () => {
             try {
@@ -1457,6 +1693,20 @@
         notesSearch.addEventListener('input', (e) => {
             clearTimeout(timeout_notes);
             timeout_notes = setTimeout(() => loadAllNotes(e.target.value), 300);
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAdminSession().then(() => {
+                loadOwnerStats();
+                loadUsers();
+                loadPendingRequests();
+                loadPendingNotes();
+                loadAllNotes();
+                loadIstekler();
+                loadSubscriptions();
+                loadKatkida();
+                loadModerators();
+            });
         });
 
         const loadOwnerStats = async () => {

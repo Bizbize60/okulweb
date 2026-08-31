@@ -12,8 +12,10 @@ from config import JWT_EXPIRATION_HOURS, ADMIN_EMAILS
 from database.initdb import db
 from database.user import User, Referral, Badge, UserBadge
 from database.kulupyonetim import KulupYonetim
+from database.admin_rbac import ensure_default_roles
 from extensions import mail
 from utils import send_verification_email
+from admin.permissions import ROLE_DEFINITIONS
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -81,14 +83,41 @@ def token_required_api(f):
 
     return decorated
 
+def user_has_permission(current_user: User, permission_key: str) -> bool:
+    if not current_user:
+        return False
+    if current_user.has_permission(permission_key):
+        return True
+    if current_user.email in ADMIN_EMAILS and current_user.has_role('owner'):
+        return True
+    return False
+
+
+def require_permission(permission_key: str):
+    def decorator(f):
+        @wraps(f)
+        def wrapper(current_user, *args, **kwargs):
+            if not user_has_permission(current_user, permission_key):
+                return jsonify({'message': f"Bu işlem için '{permission_key}' izni gereklidir."}), 403
+            return f(current_user, *args, **kwargs)
+        return wrapper
+    return decorator
+
+
+def require_role(role_name: str):
+    def decorator(f):
+        @wraps(f)
+        def wrapper(current_user, *args, **kwargs):
+            if not current_user or (not current_user.has_role(role_name) and current_user.email not in ADMIN_EMAILS):
+                return jsonify({'message': f"Bu işlem için '{role_name}' rolü gereklidir."}), 403
+            return f(current_user, *args, **kwargs)
+        return wrapper
+    return decorator
+
+
 def is_admin(f):
-    @wraps(f)
-    def wrapper(current_user, *args, **kwargs):
-        if current_user.email not in ADMIN_EMAILS:
-            return jsonify({'message': 'Bu işlem admin yetkisi gerektirir!'}), 403
-        
-        return f(current_user, *args, **kwargs)
-    return wrapper
+    return require_permission('system.admin')(f)
+
 
 def is_club_admin(f):
     @wraps(f)
