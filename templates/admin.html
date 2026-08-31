@@ -416,6 +416,7 @@
         <button class="nav-btn" onclick="switchTab('subs')">📧 Abonelikler</button>
         <button class="nav-btn" onclick="switchTab('katkida')">⭐ Katkıda Bulunanlar</button>
         <button class="nav-btn" onclick="switchTab('moderatorler')">🛡️ Moderatör Ekibi</button>
+        <button class="nav-btn" onclick="switchTab('ambassadors')">🌟 Elçi Başvuruları</button>
         <div style="margin-top: 40px; border-top: 1px solid var(--border); padding-top: 20px;">
             <a href="/" style="text-decoration: none; color: var(--text-muted); font-size: 0.9rem;">← Siteye Dön</a>
         </div>
@@ -637,6 +638,38 @@
                 </table>
             </div>
         </section>
+
+        <section id="ambassadors-panel" class="panel-section">
+            <div class="header">
+                <h1>Elçi Başvuruları</h1>
+                <select id="ambassadorStatusFilter" onchange="loadAmbassadorApplications(this.value)" style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text);">
+                    <option value="PENDING">Bekleyenler</option>
+                    <option value="APPROVED">Onaylananlar</option>
+                    <option value="ALL">Tümü</option>
+                </select>
+            </div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Kullanıcı</th>
+                            <th>Bölüm</th>
+                            <th>Sınıf</th>
+                            <th>Toplam Davet</th>
+                            <th>Durum</th>
+                            <th>Başvuru Nedeni</th>
+                            <th>İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ambassadorTableBody">
+                        <tr>
+                            <td colspan="8" class="empty-state">Yükleniyor...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </main>
 
     <div class="modal-overlay" id="addUserModal">
@@ -795,6 +828,9 @@
         const moderatorModal = document.getElementById('moderatorModal');
         const moderatorlerPanel = document.getElementById('moderatorler-panel');
         const moderatorTableBody = document.getElementById('moderatorTableBody');
+        const ambassadorPanel = document.getElementById('ambassadors-panel');
+        const ambassadorTableBody = document.getElementById('ambassadorTableBody');
+        const ambassadorStatusFilter = document.getElementById('ambassadorStatusFilter');
         let istekCache = [];
         let katkidaCache = [];
         let moderatorCache = [];
@@ -807,8 +843,9 @@
 
         const switchTab = (tabName) => {
             navBtns.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            [usersPanel, requestsPanel, isteklerPanel, notesPanel, allNotesPanel, subsPanel, katkidaPanel, moderatorlerPanel]
+            const activeBtn = Array.from(navBtns).find(btn => btn.getAttribute('onclick')?.includes(`'${tabName}'`));
+            if (activeBtn) activeBtn.classList.add('active');
+            [usersPanel, requestsPanel, isteklerPanel, notesPanel, allNotesPanel, subsPanel, katkidaPanel, moderatorlerPanel, ambassadorPanel]
                 .forEach(p => p && p.classList.remove('active'));
 
             if (tabName === 'users') {
@@ -835,6 +872,9 @@
             } else if (tabName === 'moderatorler') {
                 moderatorlerPanel.classList.add('active');
                 loadModerators();
+            } else if (tabName === 'ambassadors') {
+                ambassadorPanel.classList.add('active');
+                loadAmbassadorApplications(ambassadorStatusFilter.value || 'PENDING');
             }
         };
 
@@ -1162,6 +1202,79 @@
         };
 
         /* --- KULLANICI İSTEKLERİ --- */
+        const loadAmbassadorApplications = async (durum = 'PENDING') => {
+            try {
+                const res = await fetch(`/api/admin/ambassador/basvurular?durum=${encodeURIComponent(durum)}`);
+                const data = await res.json();
+
+                if (!data.length) {
+                    ambassadorTableBody.innerHTML = '<tr><td colspan="8" class="empty-state">Bu durumda başvuru bulunmuyor.</td></tr>';
+                    return;
+                }
+
+                ambassadorTableBody.innerHTML = data.map(item => `
+                    <tr>
+                        <td>#${item.id}</td>
+                        <td>
+                            <div style="font-weight: 600;">${escapeHTML(item.kullanici.ad)}</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(item.kullanici.email)}</div>
+                            <div style="font-size: 0.72rem; color: var(--text-muted);">${item.kullanici.puan || 0} puan</div>
+                        </td>
+                        <td>${escapeHTML(item.bolum || '-')}</td>
+                        <td>${escapeHTML(item.sinif || '-')}</td>
+                        <td>${item.toplam_davet || 0}</td>
+                        <td><span class="badge">${escapeHTML(item.durum || 'PENDING')}</span></td>
+                        <td style="max-width: 260px; color: var(--text-muted);">${escapeHTML(item.neden || 'Açıklama yok.')}</td>
+                        <td class="flex-actions">
+                            ${item.durum === 'PENDING' ? `
+                                <button class="btn btn-success" style="padding:6px 10px;font-size:0.8rem;" onclick="approveAmbassador(${item.id})">Onayla</button>
+                                <button class="btn btn-danger" style="padding:6px 10px;font-size:0.8rem;" onclick="rejectAmbassador(${item.id})">Reddet</button>
+                            ` : `
+                                <span style="color: var(--text-muted); font-size: 0.8rem;">İşlem tamamlandı</span>
+                            `}
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error(e);
+                ambassadorTableBody.innerHTML = '<tr><td colspan="8" class="empty-state" style="color:red;">Hata oluştu.</td></tr>';
+            }
+        };
+
+        const approveAmbassador = async (id) => {
+            if (!confirm('Bu elçi başvurusunu onaylamak istediğinize emin misiniz?')) return;
+            try {
+                const res = await fetch(`/api/admin/ambassador/basvuru/${id}/onayla`, { method: 'POST' });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(data.message || 'Başvuru onaylandı.');
+                    loadAmbassadorApplications(ambassadorStatusFilter.value || 'PENDING');
+                } else {
+                    alert('HATA: ' + (data.message || 'İşlem başarısız oldu.'));
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Onaylama sırasında hata oluştu.');
+            }
+        };
+
+        const rejectAmbassador = async (id) => {
+            if (!confirm('Bu başvuruyu reddetmek istediğinize emin misiniz?')) return;
+            try {
+                const res = await fetch(`/api/admin/ambassador/basvuru/${id}/reddiet`, { method: 'POST' });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(data.message || 'Başvuru reddedildi.');
+                    loadAmbassadorApplications(ambassadorStatusFilter.value || 'PENDING');
+                } else {
+                    alert('HATA: ' + (data.message || 'İşlem başarısız oldu.'));
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Reddetme sırasında hata oluştu.');
+            }
+        };
+
         const loadIstekler = async () => {
             try {
                 const res = await fetch('/api/admin/istekler');
