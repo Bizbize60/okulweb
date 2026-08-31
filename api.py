@@ -31,16 +31,17 @@ from database.katkida import KatkidaBulunan
 from database.moderator import Moderator
 from database.daily_active import DailyActiveUser
 
-from config import VAPID_PRIVATE_KEY
+from config import VAPID_PRIVATE_KEY, ADMIN_EMAILS
 try:
     from config import STATS_OWNER_EMAIL
 except ImportError:
     STATS_OWNER_EMAIL = "s210444025@stu.thk.edu.tr"
 from utils import allowed_file, allowed_image, bildirim_gonder_kullaniciya, kayip_upload_path, enstantane_upload_path, scrape_duyurular, scrape_haberler, bildirim_gonder
-from auth import token_required, token_required_api, is_club_admin, is_admin
+from auth import token_required, token_required_api, is_club_admin, is_admin, user_has_permission
 from yemek_menu import get_menu_data, get_today_menu, legacy_days_payload
 from ulasim import ulasim_overview
 from zoneinfo import ZoneInfo
+from database.admin_rbac import Role, Permission
 
 KATKIDA_UPLOAD_FOLDER = os.path.join('uploads', 'katkida')
 os.makedirs(KATKIDA_UPLOAD_FOLDER, exist_ok=True)
@@ -1045,6 +1046,52 @@ def verify_all(current_user):
     return jsonify({"message": "Tüm Öğretim Görevlileri Onaylandı!"}), 200
 
 # --- ADMIN PANELİ API'LERİ ---
+
+@api_bp.get('/api/admin/session')
+@token_required()
+def api_admin_session(current_user):
+    """Yöneticinin oturum bilgilerini ve erişilebilir izinlerini döndürür."""
+    if not user_has_permission(current_user, 'system.admin'):
+        return jsonify({'message': 'Forbidden'}), 403
+
+    role_names = [role.name for role in (current_user.roles or [])]
+    permission_keys = sorted({
+        permission.key
+        for role in (current_user.roles or [])
+        for permission in (role.permissions or [])
+    })
+    if current_user.email in ADMIN_EMAILS:
+        from admin.permissions import DEFAULT_PERMISSION_KEYS
+        permission_keys = sorted(set(permission_keys) | set(DEFAULT_PERMISSION_KEYS))
+
+    return jsonify({
+        'user_id': current_user.id,
+        'email': current_user.email,
+        'name': current_user.name,
+        'roles': role_names,
+        'permissions': permission_keys,
+        'is_admin': user_has_permission(current_user, 'system.admin')
+    }), 200
+
+
+@api_bp.get('/api/admin/roles')
+@token_required()
+def api_admin_roles(current_user):
+    """Tüm roller ve izin listesi."""
+    if not user_has_permission(current_user, 'role.manage'):
+        return jsonify({'message': 'Bu işlem için role.manage izni gereklidir.'}), 403
+
+    rows = []
+    for role in Role.query.order_by(Role.name.asc()).all():
+        rows.append({
+            'id': role.id,
+            'name': role.name,
+            'label': role.label,
+            'description': role.description,
+            'permissions': [permission.key for permission in (role.permissions or [])],
+        })
+    return jsonify({'roles': rows}), 200
+
 
 @api_bp.get('/api/admin/stats/daily-active')
 @token_required()
