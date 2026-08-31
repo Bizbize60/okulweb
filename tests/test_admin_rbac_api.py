@@ -110,8 +110,11 @@ class AdminRbacApiTests(unittest.TestCase):
     def test_yurt_season_market_has_seed_content(self):
         with self.app.app_context():
             count = PazarIlani.query.count()
+            first = PazarIlani.query.first()
 
         self.assertGreaterEqual(count, 3)
+        self.assertIsNotNone(first)
+        self.assertTrue(first.fotograf_adi.startswith('http'))
 
 
 if __name__ == '__main__':

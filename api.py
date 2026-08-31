@@ -531,7 +531,8 @@ def api_ilanlari_getir():
             "aciklama": ilan.aciklama,
             "fiyat": ilan.fiyat,
             "kategori": ilan.kategori,
-            "resim_url": f"/uploads/pazar/{ilan.fotograf_adi}",
+            "resim": ilan.fotograf_adi if ilan.fotograf_adi.startswith('http') else f"/uploads/pazar/{ilan.fotograf_adi}",
+            "resim_url": ilan.fotograf_adi if ilan.fotograf_adi.startswith('http') else f"/uploads/pazar/{ilan.fotograf_adi}",
             "iletisim": ilan.iletisim_no,
             "tarih": ilan.tarih.strftime("%d.%m.%Y")
         } for ilan in ilanlar

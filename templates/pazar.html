@@ -73,11 +73,21 @@
             box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
         }
 
+        .card {
+            display: flex;
+            flex-direction: column;
+            min-height: 360px;
+        }
+
         .card-img {
             width: 100%;
-            height: 200px;
+            aspect-ratio: 4 / 3;
+            height: auto;
             object-fit: cover;
-            background: #edf2f7;
+            background: linear-gradient(135deg, #edf2f7 0%, #dfe7f1 100%);
+            display: block;
+            transform: translateZ(0);
+            will-change: transform;
         }
 
         .card-body {
@@ -182,7 +192,7 @@
 
             grid.innerHTML = items.map(item => {
                 // Veri sanitizasyonu
-                const safeImg = escapeHTML(item.resim) || 'https://via.placeholder.com/300?text=Resim+Yok';
+                const safeImg = escapeHTML(item.resim || item.resim_url || 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=900&q=80');
                 const safeTitle = escapeHTML(item.baslik);
                 const safePrice = escapeHTML(item.fiyat);
                 const safeCategory = escapeHTML(item.kategori);
