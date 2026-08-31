@@ -301,11 +301,22 @@
             return String(str).replace(/[&<>'"]/g, tag => map[tag] || tag);
         };
 
+        function trackAnalyticsEvent(name, params = {}) {
+            if (window.gtag) {
+                window.gtag('event', name, params);
+            }
+        }
+
         const renderItems = (items) => {
             if (!items?.length) {
                 grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#6c757d;">Bu kategoride henüz ilan bulunmuyor.</div>';
                 return;
             }
+
+            trackAnalyticsEvent('pazar_listing_view', {
+                item_count: items.length,
+                category: 'all'
+            });
 
             grid.innerHTML = items.map(item => {
                 // Veri sanitizasyonu

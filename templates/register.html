@@ -287,12 +287,23 @@
   </div>
 
   <script>
+    function trackAnalyticsEvent(name, params = {}) {
+      if (window.gtag) {
+        window.gtag('event', name, params);
+      }
+    }
+
     document.getElementById('registerForm').addEventListener('submit', function(e) {
       const email = document.getElementById('email').value.trim();
       if (!email.endsWith('@stu.thk.edu.tr')) {
         e.preventDefault();
         alert('Lütfen @stu.thk.edu.tr uzantılı mail kullanın.');
+        return;
       }
+      trackAnalyticsEvent('register_click', {
+        source: 'register_page',
+        email_domain: 'stu.thk.edu.tr'
+      });
     });
   </script>
 </body>

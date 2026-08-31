@@ -116,6 +116,12 @@
 
 <script>
 const $=(s)=>document.querySelector(s);
+function trackAnalyticsEvent(name, params = {}) {
+  if (window.gtag) {
+    window.gtag('event', name, params);
+  }
+}
+
 async function load(){
   try{
     const r=await fetch('/api/ambassador/me',{credentials:'include'});
@@ -143,9 +149,19 @@ async function load(){
   }catch(e){console.error(e);}
 }
 $('#copyBtn').addEventListener('click',()=>{
-  navigator.clipboard.writeText($('#refLink').value);
-  const m=$('#copyMsg'); m.className='msg ok'; m.textContent='✅ Davet linkin panoya kopyalandı!';
-  setTimeout(()=>{m.className='msg';},3000);
+  navigator.clipboard.writeText($('#refLink').value)
+    .then(() => {
+      trackAnalyticsEvent('referral_copy', {
+        source: 'profile_page',
+        link_type: 'referral'
+      });
+      const m=$('#copyMsg'); m.className='msg ok'; m.textContent='✅ Davet linkin panoya kopyalandı!';
+      setTimeout(()=>{m.className='msg';},3000);
+    })
+    .catch(() => {
+      const m=$('#copyMsg'); m.className='msg ok'; m.textContent='❌ Kopyalama başarısız oldu';
+      setTimeout(()=>{m.className='msg';},3000);
+    });
 });
 // --- Sosyal paylasim butonlari (profilim icin sade versiyon) ---
 $('#shWA')?.addEventListener('click', ()=>{
