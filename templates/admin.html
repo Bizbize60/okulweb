@@ -1464,7 +1464,11 @@
         const rejectAmbassador = async (id) => {
             if (!confirm('Bu başvuruyu reddetmek istediğinize emin misiniz?')) return;
             try {
-                const res = await fetch(`/api/admin/ambassador/basvuru/${id}/reddiet`, { method: 'POST' });
+                const res = await fetch(`/api/admin/ambassador/basvuru/${id}/reddiet`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
                 const data = await res.json();
                 if (res.ok) {
                     alert(data.message || 'Başvuru reddedildi.');

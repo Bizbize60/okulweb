@@ -2285,7 +2285,7 @@ def api_admin_ambassador_onayla(current_user, basvuru_id):
 @is_admin
 def api_admin_ambassador_reddet(current_user, basvuru_id):
     b = Ambassador.query.get_or_404(basvuru_id)
-    data = request.get_json() or {}
+    data = request.get_json(silent=True) or {}
     b.durum = 'REJECTED'
     # Not: Reddetme sebebi için ayrı alan eklenebilir
     db.session.commit()
