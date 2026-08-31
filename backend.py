@@ -109,6 +109,79 @@ def before_request_track_active():
     _track_daily_active()
 
 
+def seed_default_market_listings():
+    """Yurt sezonu için başlangıç pazar ilanlarını ekler."""
+    try:
+        from database.pazar import PazarIlani
+        if PazarIlani.query.count() > 0:
+            return
+
+        seed_ilanlar = [
+            {
+                'baslik': 'Yurt temizliği için 2 kişilik çamaşır sepeti',
+                'aciklama': 'Dönem sonu yurt temizliği için kullanılmayan, sağlam ve temiz çamaşır sepeti. Boyut uygun, hafif.',
+                'kategori': 'Yurt Eşyaları',
+                'fiyat': 150,
+                'fotograf_adi': 'yurt-sepeti.jpg',
+                'iletisim_no': '5551234567',
+                'user_id': 1,
+            },
+            {
+                'baslik': 'Koltuk altı depo kutusu',
+                'aciklama': 'Yurt odasında kullanılacak, kapaklı ve dar alanlara uygun depo kutusu. Yeni gibi.',
+                'kategori': 'Yurt Eşyaları',
+                'fiyat': 220,
+                'fotograf_adi': 'depo-kutusu.jpg',
+                'iletisim_no': '5557654321',
+                'user_id': 1,
+            },
+            {
+                'baslik': 'Dönem sonu masa lambası + priz seti',
+                'aciklama': 'Aydınlatma için kullanışlı masa lambası ve uzatma kablosu. Çalışıyor, ekstra led yok.',
+                'kategori': 'Yurt Eşyaları',
+                'fiyat': 180,
+                'fotograf_adi': 'masa-lambasi.jpg',
+                'iletisim_no': '5553344556',
+                'user_id': 1,
+            },
+            {
+                'baslik': 'Fizik dersi not ve soru bankası',
+                'aciklama': 'Dersin en önemli konularını kapsayan notlar ve çözümlü sorular. Dönem sonunda gereksiz kalacak.',
+                'kategori': 'Ders Materyalleri',
+                'fiyat': 90,
+                'fotograf_adi': 'ders-notu.jpg',
+                'iletisim_no': '5559988776',
+                'user_id': 1,
+            },
+            {
+                'baslik': 'Kayıtlı bir öğrenci için kullanılmış su şişesi ve çanta seti',
+                'aciklama': 'Kampüs kullanımına uygun, temiz ve hafif set. Yurt bitişi için uygun fiyat.',
+                'kategori': 'Yurt Eşyaları',
+                'fiyat': 160,
+                'fotograf_adi': 'sise-seti.jpg',
+                'iletisim_no': '5554455667',
+                'user_id': 1,
+            },
+        ]
+
+        for item in seed_ilanlar:
+            db.session.add(PazarIlani(
+                baslik=item['baslik'],
+                aciklama=item['aciklama'],
+                kategori=item['kategori'],
+                fiyat=item['fiyat'],
+                fotograf_adi=item['fotograf_adi'],
+                iletisim_no=item['iletisim_no'],
+                user_id=item['user_id'],
+                tarih=datetime.utcnow(),
+            ))
+        db.session.commit()
+        print("[Bit Pazarı] Yurt sezonu örnek ilanları seed edildi.")
+    except Exception as exc:
+        db.session.rollback()
+        print(f"[Bit Pazarı] Seed atlandı: {type(exc).__name__}: {exc}")
+
+
 # --- DOSYA ERİŞİM ROTALARI ---
 @app.route('/uploads/notes/<path:filename>', methods=['GET', 'POST'])
 @token_required(next_location='/ders-notlari')
@@ -262,6 +335,8 @@ with app.app_context():
             except Exception as et:
                 _db.session.rollback()
                 print(f"[Elçi Sistemi] Rozet kataloğu seed atlandı: {type(et).__name__}")
+
+        seed_default_market_listings()
 
         print("[Elçi Sistemi] Başlangıç denetimi tamamlandı (tablolar hazır).")
     except Exception as e:

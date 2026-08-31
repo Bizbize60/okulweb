@@ -5,11 +5,12 @@ from pathlib import Path
 
 import jwt
 
-from backend import app
+from backend import app, seed_default_market_listings
 from database.initdb import db
 from database.user import User
 from database.admin_rbac import Role, Permission, UserRole
 from api import _aktivite_puan_ver
+from database.pazar import PazarIlani
 
 
 class AdminRbacApiTests(unittest.TestCase):
@@ -30,6 +31,7 @@ class AdminRbacApiTests(unittest.TestCase):
             )
             db.session.add(self.owner)
             db.session.flush()
+            seed_default_market_listings()
 
             permission_admin = Permission(key='system.admin', label='System admin', description='admin')
             permission_role = Permission(key='role.manage', label='Role manage', description='role management')
@@ -104,6 +106,12 @@ class AdminRbacApiTests(unittest.TestCase):
 
         self.assertEqual(user.kredi, 3)
         self.assertGreaterEqual(user.ambassador_points, 40)
+
+    def test_yurt_season_market_has_seed_content(self):
+        with self.app.app_context():
+            count = PazarIlani.query.count()
+
+        self.assertGreaterEqual(count, 3)
 
 
 if __name__ == '__main__':
