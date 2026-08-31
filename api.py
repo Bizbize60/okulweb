@@ -62,6 +62,54 @@ def _safe_http_url(url):
 
 api_bp = Blueprint('api', __name__)
 
+EXAM_WEEK_BLITZ_REWARDS = {
+    'ders_notu': {'credit': 3, 'ambassador_points': 40},
+    'degerlendirme': {'credit': 2, 'ambassador_points': 30},
+    'forum': {'credit': 2, 'ambassador_points': 20},
+}
+
+
+def _is_exam_week_blitz_active():
+    return bool(current_app.config.get('EXAM_WEEK_BLITZ_ENABLED', False))
+
+
+@api_bp.get('/api/admin/exam-blitz')
+@token_required()
+@is_admin
+def api_admin_exam_blitz_status(current_user):
+    """Sınav haftası blitz kampanyasının açık/kapalı durumunu döndürür."""
+    return jsonify({
+        'enabled': _is_exam_week_blitz_active(),
+        'campaign': {
+            'title': 'Sınav Haftası Blitz',
+            'bonus_credit': EXAM_WEEK_BLITZ_REWARDS,
+            'ambassador_levels': {
+                'bronze': 100,
+                'silver': 500,
+                'gold': 2000,
+                'diamond': 5000,
+            }
+        }
+    }), 200
+
+
+@api_bp.post('/api/admin/exam-blitz')
+@token_required()
+@is_admin
+def api_admin_exam_blitz_toggle(current_user):
+    """Yöneticinin sınav haftası blitz kampanyasını açıp kapatması için endpoint."""
+    payload = request.get_json(force=True) or {}
+    enabled = payload.get('enabled')
+    if enabled is None:
+        return jsonify({'message': 'enabled alanı zorunludur.'}), 400
+
+    current_app.config['EXAM_WEEK_BLITZ_ENABLED'] = bool(enabled)
+    return jsonify({
+        'message': 'Sınav haftası blitz ' + ('etkinleştirildi.' if current_app.config['EXAM_WEEK_BLITZ_ENABLED'] else 'kapatıldı.'),
+        'enabled': current_app.config['EXAM_WEEK_BLITZ_ENABLED'],
+    }), 200
+
+
 @api_bp.post('/api/kulupler')
 @token_required(next_location='/Kulup-Yonetimi')
 @is_club_admin
@@ -2269,12 +2317,21 @@ def api_admin_elci_puan_ver(current_user, kullanici_id):
 # ------------ AKTIVITE PUANI (Not/Değerlendirme/Forum) HOOKLARI ------------
 # Mevcut not yükleme / değerlendirme / forum endpointlerine puan kazandırmak için çağrılan ortak fonksiyon
 def _aktivite_puan_ver(current_user: User, puan: int, aktivite_turu: str):
-    """Günlük maksimum 5 aktivite puan sınırı ile puan ver."""
+    """Günlük maksimum 5 aktivite puan sınırı ile puan ver; kampanya açıkken ekstra kredi ve elçi puanı ver."""
     try:
         from datetime import datetime
         from zoneinfo import ZoneInfo
-        # Günlük sınır: aynı günde aynı aktivite türünden 5 kez +10 puan
         _give_ambassador_points_api(current_user, puan)
+
+        if _is_exam_week_blitz_active():
+            kampanya = EXAM_WEEK_BLITZ_REWARDS.get(aktivite_turu, {})
+            bonus_puan = int(kampanya.get('ambassador_points', 0))
+            bonus_kredi = int(kampanya.get('credit', 0))
+            if bonus_puan:
+                _give_ambassador_points_api(current_user, bonus_puan)
+            if bonus_kredi:
+                current_user.kredi = (current_user.kredi or 0) + bonus_kredi
+
         # Aktivite rozetleri
         if aktivite_turu == 'ders_notu':
             _give_badge_api(current_user, 'NOT_1', '📚 İlk Not', 'İlk ders notunu yükledin!', '#2563EB', '📚')
@@ -2282,5 +2339,8 @@ def _aktivite_puan_ver(current_user: User, puan: int, aktivite_turu: str):
             _give_badge_api(current_user, 'DEGER_1', '⭐ İlk Değerlendirme', 'İlk öğretmen değerlendirmesini yaptın!', '#F97316', '⭐')
         if aktivite_turu == 'forum':
             _give_badge_api(current_user, 'FORUM_1', '💬 Sohbetçi', 'İlk forum mesajını attın!', '#059669', '💬')
+
+        db.session.commit()
     except Exception as e:
+        db.session.rollback()
         print(f"[aktivite-puan] hata: {e}")

@@ -9,6 +9,7 @@ from backend import app
 from database.initdb import db
 from database.user import User
 from database.admin_rbac import Role, Permission, UserRole
+from api import _aktivite_puan_ver
 
 
 class AdminRbacApiTests(unittest.TestCase):
@@ -84,6 +85,25 @@ class AdminRbacApiTests(unittest.TestCase):
         self.assertIn("const rolesTableBody = document.getElementById('rolesTableBody');", template)
         self.assertIn("const roleUserSelect = document.getElementById('roleUserSelect');", template)
         self.assertIn("const userRoleList = document.getElementById('userRoleList');", template)
+
+    def test_exam_blitz_toggle_enables_campaign_bonus(self):
+        self._auth_cookie('owner@localhost')
+
+        response = self.client.post('/api/admin/exam-blitz', json={'enabled': True})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(app.config.get('EXAM_WEEK_BLITZ_ENABLED'))
+
+        with self.app.app_context():
+            user = User.query.filter_by(email='owner@localhost').first()
+            user.kredi = 1
+            user.ambassador_points = 0
+            db.session.commit()
+
+            _aktivite_puan_ver(user, 20, 'forum')
+            db.session.refresh(user)
+
+        self.assertEqual(user.kredi, 3)
+        self.assertGreaterEqual(user.ambassador_points, 40)
 
 
 if __name__ == '__main__':

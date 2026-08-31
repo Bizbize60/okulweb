@@ -38,6 +38,7 @@ app.config['MAIL_USE_TLS'] = MAIL_USE_TLS
 app.config['MAIL_USERNAME'] = MAIL_USERNAME
 app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
 app.config['MAIL_DEFAULT_SENDER'] = MAIL_DEFAULT_SENDER
+app.config['EXAM_WEEK_BLITZ_ENABLED'] = False
 
 # Klasörleri oluştur
 os.makedirs(NOTES_UPLOAD_FOLDER, exist_ok=True)
