@@ -162,20 +162,11 @@
       <div class="yukleniyor">Yükleniyor...</div>
     </div>
 
-    <h2 class="section-title">EGO Canlı Duraklar</h2>
-    <div class="grid" id="duraklar-alani">
-      <div class="yukleniyor">Otobüs bilgileri yükleniyor...</div>
-    </div>
+
   </div>
 
   <script>
     const PUBLIC_VAPID_KEY = 'BOMX48RHHNdUMWnA54hy4bH6nxL9l-kPcF5QPIEIfLPtmnM_cPLEb1ikxXGSlZK-whuNOkE9gfnrtHK4jN89h4I';
-    const durakAdlari = {
-      "51325": "Durak 51325",
-      "51165": "Durak 51165",
-      "51164": "Durak 51164"
-    };
-
     const escapeHTML = str => String(str || '').replace(/[&<>"']/g, c => ({
       '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
     }[c]));
@@ -310,51 +301,16 @@
       }).join('');
     }
 
-    function renderEgo(data) {
-      const durakAlani = document.getElementById('duraklar-alani');
-      durakAlani.innerHTML = '';
-      const ego = data.ego || {};
-      const keys = Object.keys(ego).length ? Object.keys(ego) : Object.keys(data).filter(k => /^\d+$/.test(k));
-      if (!keys.length) {
-        durakAlani.innerHTML = '<div class="bos-mesaj">EGO verisi alınamadı.</div>';
-        return;
-      }
-      keys.forEach(durakNo => {
-        const otobusler = ego[durakNo] || data[durakNo] || [];
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `<h3>${escapeHTML(durakAdlari[durakNo] || ('Durak ' + durakNo))}</h3>`;
-        if (!otobusler.length) {
-          card.innerHTML += '<div class="bos-mesaj">Şu anda bu durakta otobüs yok.</div>';
-        } else {
-          card.innerHTML += otobusler.map(o => `
-            <div class="trip-row" style="border-left-color:#3182ce;">
-              <strong>Hat ${escapeHTML(o.hat)}</strong>
-              <span class="badge">${escapeHTML(o.sure)}</span>
-            </div>`).join('');
-        }
-        durakAlani.appendChild(card);
-      });
-    }
-
     async function yenile() {
       document.getElementById('thk-alani').innerHTML = '<div class="yukleniyor">Yükleniyor...</div>';
       document.getElementById('baskentray-alani').innerHTML = '<div class="yukleniyor">Yükleniyor...</div>';
-      document.getElementById('duraklar-alani').innerHTML = '<div class="yukleniyor">Yükleniyor...</div>';
       try {
-        const [ulasimRes, egoRes] = await Promise.all([
-          fetch('/api/ulasim'),
-          fetch('/api/otobus-saatleri')
-        ]);
-        const ulasim = ulasimRes.ok ? await ulasimRes.json() : null;
-        const egoData = egoRes.ok ? await egoRes.json() : {};
-        renderThk(ulasim || egoData.ulasim);
-        renderBaskentray(ulasim || egoData.ulasim);
-        renderEgo(egoData);
+        const res = await fetch('/api/ulasim');
+        const ulasim = res.ok ? await res.json() : null;
+        renderThk(ulasim);
+        renderBaskentray(ulasim);
       } catch (e) {
         console.error(e);
-        document.getElementById('duraklar-alani').innerHTML =
-          '<div class="hata-mesaj">Ulaşım bilgileri yüklenirken hata oluştu.</div>';
       }
     }
 

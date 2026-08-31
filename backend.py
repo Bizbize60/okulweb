@@ -40,6 +40,7 @@ app.config['MAIL_USERNAME'] = MAIL_USERNAME
 app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
 app.config['MAIL_DEFAULT_SENDER'] = MAIL_DEFAULT_SENDER
 app.config['GOOGLE_ANALYTICS_ID'] = GOOGLE_ANALYTICS_ID
+app.config['EXAM_WEEK_BLITZ_ENABLED'] = False
 
 
 def render_analytics_script():
@@ -82,7 +83,6 @@ def inject_analytics_script(response):
     response.set_data(html)
     return response
 
-
 # Klasörleri oluştur
 os.makedirs(NOTES_UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(PAZAR_UPLOAD_FOLDER, exist_ok=True)
@@ -96,6 +96,13 @@ mail.init_app(app)
 app.register_blueprint(pages)
 app.register_blueprint(auth_bp)
 app.register_blueprint(api_bp)
+
+with app.app_context():
+    try:
+        from database.admin_rbac import ensure_default_roles
+        ensure_default_roles()
+    except Exception as e:
+        print(f"[backend] RBAC varsayılan roller yüklenemedi: {e}")
 
 _SKIP_PREFIXES = (
     '/static', '/uploads', '/sw.js', '/favicon.ico',
@@ -143,6 +150,79 @@ def _track_daily_active():
 @app.before_request
 def before_request_track_active():
     _track_daily_active()
+
+
+def seed_default_market_listings():
+    """Yurt sezonu için başlangıç pazar ilanlarını ekler."""
+    try:
+        from database.pazar import PazarIlani
+        if PazarIlani.query.count() > 0:
+            return
+
+        seed_ilanlar = [
+            {
+                'baslik': 'Yurt temizliği için 2 kişilik çamaşır sepeti',
+                'aciklama': 'Dönem sonu yurt temizliği için kullanılmayan, sağlam ve temiz çamaşır sepeti. Boyut uygun, hafif.',
+                'kategori': 'Yurt Eşyaları',
+                'fiyat': 150,
+                'fotograf_adi': 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=900&q=80',
+                'iletisim_no': '5551234567',
+                'user_id': 1,
+            },
+            {
+                'baslik': 'Koltuk altı depo kutusu',
+                'aciklama': 'Yurt odasında kullanılacak, kapaklı ve dar alanlara uygun depo kutusu. Yeni gibi.',
+                'kategori': 'Yurt Eşyaları',
+                'fiyat': 220,
+                'fotograf_adi': 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80',
+                'iletisim_no': '5557654321',
+                'user_id': 1,
+            },
+            {
+                'baslik': 'Dönem sonu masa lambası + priz seti',
+                'aciklama': 'Aydınlatma için kullanışlı masa lambası ve uzatma kablosu. Çalışıyor, ekstra led yok.',
+                'kategori': 'Yurt Eşyaları',
+                'fiyat': 180,
+                'fotograf_adi': 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80',
+                'iletisim_no': '5553344556',
+                'user_id': 1,
+            },
+            {
+                'baslik': 'Fizik dersi not ve soru bankası',
+                'aciklama': 'Dersin en önemli konularını kapsayan notlar ve çözümlü sorular. Dönem sonunda gereksiz kalacak.',
+                'kategori': 'Ders Materyalleri',
+                'fiyat': 90,
+                'fotograf_adi': 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=900&q=80',
+                'iletisim_no': '5559988776',
+                'user_id': 1,
+            },
+            {
+                'baslik': 'Kayıtlı bir öğrenci için kullanılmış su şişesi ve çanta seti',
+                'aciklama': 'Kampüs kullanımına uygun, temiz ve hafif set. Yurt bitişi için uygun fiyat.',
+                'kategori': 'Yurt Eşyaları',
+                'fiyat': 160,
+                'fotograf_adi': 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=80',
+                'iletisim_no': '5554455667',
+                'user_id': 1,
+            },
+        ]
+
+        for item in seed_ilanlar:
+            db.session.add(PazarIlani(
+                baslik=item['baslik'],
+                aciklama=item['aciklama'],
+                kategori=item['kategori'],
+                fiyat=item['fiyat'],
+                fotograf_adi=item['fotograf_adi'],
+                iletisim_no=item['iletisim_no'],
+                user_id=item['user_id'],
+                tarih=datetime.utcnow(),
+            ))
+        db.session.commit()
+        print("[Bit Pazarı] Yurt sezonu örnek ilanları seed edildi.")
+    except Exception as exc:
+        db.session.rollback()
+        print(f"[Bit Pazarı] Seed atlandı: {type(exc).__name__}: {exc}")
 
 
 # --- DOSYA ERİŞİM ROTALARI ---
@@ -299,17 +379,26 @@ with app.app_context():
                 _db.session.rollback()
                 print(f"[Elçi Sistemi] Rozet kataloğu seed atlandı: {type(et).__name__}")
 
+        seed_default_market_listings()
+
         print("[Elçi Sistemi] Başlangıç denetimi tamamlandı (tablolar hazır).")
     except Exception as e:
         print(f"[Elçi Sistemi] Başlangıç seed hatası (yok say): {type(e).__name__}: {str(e)[:200]}")
 
 
+# Werkzeug parent reloader değilsek scheduler'ı başlat
+# (Gunicorn/WSGI, Werkzeug child veya debug=False ile direkt çalıştırma)
+_werkzeug_parent = (
+    __name__ == '__main__'
+    and DEBUG
+    and os.environ.get('WERKZEUG_RUN_MAIN') is None
+)
+if not _werkzeug_parent:
+    try:
+        from push_scheduler import start_push_scheduler
+        start_push_scheduler(app)
+    except Exception as e:
+        print(f"[backend] Push scheduler başlatılamadı: {e}")
+
 if __name__ == '__main__':
-    # Debug reloader çift process başlatmasın diye sadece ana süreçte scheduler
-    if os.environ.get('WERKZEUG_RUN_MAIN') == 'true' or not DEBUG:
-        try:
-            from push_scheduler import start_push_scheduler
-            start_push_scheduler(app)
-        except Exception as e:
-            print(f"[backend] Push scheduler başlatılamadı: {e}")
     app.run(host=HOST, port=PORT, debug=DEBUG)

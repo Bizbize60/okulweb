@@ -31,17 +31,17 @@ from database.katkida import KatkidaBulunan
 from database.moderator import Moderator
 from database.daily_active import DailyActiveUser
 
-from config import VAPID_PRIVATE_KEY
+from config import VAPID_PRIVATE_KEY, ADMIN_EMAILS
 try:
     from config import STATS_OWNER_EMAIL
 except ImportError:
     STATS_OWNER_EMAIL = "s210444025@stu.thk.edu.tr"
 from utils import allowed_file, allowed_image, bildirim_gonder_kullaniciya, kayip_upload_path, enstantane_upload_path, scrape_duyurular, scrape_haberler, bildirim_gonder
-from auth import token_required, token_required_api, is_club_admin, is_admin
-from durak import durak_sorgula
+from auth import token_required, token_required_api, is_club_admin, is_admin, user_has_permission
 from yemek_menu import get_menu_data, get_today_menu, legacy_days_payload
 from ulasim import ulasim_overview
 from zoneinfo import ZoneInfo
+from database.admin_rbac import Role, Permission
 
 KATKIDA_UPLOAD_FOLDER = os.path.join('uploads', 'katkida')
 os.makedirs(KATKIDA_UPLOAD_FOLDER, exist_ok=True)
@@ -61,6 +61,54 @@ def _safe_http_url(url):
     return None
 
 api_bp = Blueprint('api', __name__)
+
+EXAM_WEEK_BLITZ_REWARDS = {
+    'ders_notu': {'credit': 3, 'ambassador_points': 40},
+    'degerlendirme': {'credit': 2, 'ambassador_points': 30},
+    'forum': {'credit': 2, 'ambassador_points': 20},
+}
+
+
+def _is_exam_week_blitz_active():
+    return bool(current_app.config.get('EXAM_WEEK_BLITZ_ENABLED', False))
+
+
+@api_bp.get('/api/admin/exam-blitz')
+@token_required()
+@is_admin
+def api_admin_exam_blitz_status(current_user):
+    """Sınav haftası blitz kampanyasının açık/kapalı durumunu döndürür."""
+    return jsonify({
+        'enabled': _is_exam_week_blitz_active(),
+        'campaign': {
+            'title': 'Sınav Haftası Blitz',
+            'bonus_credit': EXAM_WEEK_BLITZ_REWARDS,
+            'ambassador_levels': {
+                'bronze': 100,
+                'silver': 500,
+                'gold': 2000,
+                'diamond': 5000,
+            }
+        }
+    }), 200
+
+
+@api_bp.post('/api/admin/exam-blitz')
+@token_required()
+@is_admin
+def api_admin_exam_blitz_toggle(current_user):
+    """Yöneticinin sınav haftası blitz kampanyasını açıp kapatması için endpoint."""
+    payload = request.get_json(force=True) or {}
+    enabled = payload.get('enabled')
+    if enabled is None:
+        return jsonify({'message': 'enabled alanı zorunludur.'}), 400
+
+    current_app.config['EXAM_WEEK_BLITZ_ENABLED'] = bool(enabled)
+    return jsonify({
+        'message': 'Sınav haftası blitz ' + ('etkinleştirildi.' if current_app.config['EXAM_WEEK_BLITZ_ENABLED'] else 'kapatıldı.'),
+        'enabled': current_app.config['EXAM_WEEK_BLITZ_ENABLED'],
+    }), 200
+
 
 @api_bp.post('/api/kulupler')
 @token_required(next_location='/Kulup-Yonetimi')
@@ -380,9 +428,14 @@ def api_user_info(current_user):
     return jsonify({
         'name': current_user.name,
         'kredi': current_user.kredi,
-        # E-posta sızdırılmaz; yalnızca stats owner için UI bayrağı
-        'show_stats': current_user.email == STATS_OWNER_EMAIL,
-        # ---- Elçi Sistemi Ekstra Alanları ----
+        # Sadece sahibi/owner yetkisi olan kullanıcılar istatistik görebilir
+        'show_stats': user_has_permission(current_user, 'system.admin') and current_user.has_role('owner'),
+        'roles': [role.name for role in (current_user.roles or [])],
+        'permissions': sorted({
+            permission.key
+            for role in (current_user.roles or [])
+            for permission in (role.permissions or [])
+        }),
         'id': current_user.id,
         'email': current_user.email,
         'is_ambassador': bool(current_user.is_ambassador),
@@ -478,7 +531,8 @@ def api_ilanlari_getir():
             "aciklama": ilan.aciklama,
             "fiyat": ilan.fiyat,
             "kategori": ilan.kategori,
-            "resim_url": f"/uploads/pazar/{ilan.fotograf_adi}",
+            "resim": ilan.fotograf_adi if ilan.fotograf_adi.startswith('http') else f"/uploads/pazar/{ilan.fotograf_adi}",
+            "resim_url": ilan.fotograf_adi if ilan.fotograf_adi.startswith('http') else f"/uploads/pazar/{ilan.fotograf_adi}",
             "iletisim": ilan.iletisim_no,
             "tarih": ilan.tarih.strftime("%d.%m.%Y")
         } for ilan in ilanlar
@@ -713,7 +767,7 @@ def api_yemek_bugun():
 
 @api_bp.get('/api/ulasim')
 def api_ulasim():
-    """THK servis + Başkentray sabit saatler (EGO canlı ayrı endpoint)."""
+    """THK servis + Başkentray sabit saatler."""
     try:
         return jsonify(ulasim_overview())
     except Exception as e:
@@ -742,19 +796,7 @@ def api_kampus_ozet():
 
 @api_bp.get('/api/otobus-saatleri')
 def api_otobus_saatleri():
-    duraklar = ["51325", "51165", "51164"]
-    sonuc = {"ego": {}, "ulasim": ulasim_overview()}
-    for durak in duraklar:
-        try:
-            otobus_listesi = durak_sorgula(durak)
-            sonuc["ego"][durak] = otobus_listesi
-            # Eski istemciler için düz anahtarlar
-            sonuc[durak] = otobus_listesi
-        except Exception as e:
-            traceback.print_exc()
-            sonuc["ego"][durak] = []
-            sonuc[durak] = []
-    return jsonify(sonuc)
+    return jsonify({"ulasim": ulasim_overview()})
 
 @api_bp.post('/api/not-ekle')
 @token_required(next_location='/ders-notlari')
@@ -1058,6 +1100,118 @@ def verify_all(current_user):
     return jsonify({"message": "Tüm Öğretim Görevlileri Onaylandı!"}), 200
 
 # --- ADMIN PANELİ API'LERİ ---
+
+@api_bp.get('/api/admin/session')
+@token_required()
+def api_admin_session(current_user):
+    """Yöneticinin oturum bilgilerini ve erişilebilir izinlerini döndürür."""
+    if not user_has_permission(current_user, 'system.admin'):
+        return jsonify({'message': 'Forbidden'}), 403
+
+    role_names = [role.name for role in (current_user.roles or [])]
+    permission_keys = sorted({
+        permission.key
+        for role in (current_user.roles or [])
+        for permission in (role.permissions or [])
+    })
+    if current_user.email in ADMIN_EMAILS:
+        from admin.permissions import DEFAULT_PERMISSION_KEYS
+        permission_keys = sorted(set(permission_keys) | set(DEFAULT_PERMISSION_KEYS))
+
+    return jsonify({
+        'user_id': current_user.id,
+        'email': current_user.email,
+        'name': current_user.name,
+        'roles': role_names,
+        'permissions': permission_keys,
+        'is_admin': user_has_permission(current_user, 'system.admin')
+    }), 200
+
+
+@api_bp.get('/api/admin/roles')
+@token_required()
+def api_admin_roles(current_user):
+    """Tüm roller ve izin listesi."""
+    if not user_has_permission(current_user, 'role.manage'):
+        return jsonify({'message': 'Bu işlem için role.manage izni gereklidir.'}), 403
+
+    rows = []
+    for role in Role.query.order_by(Role.name.asc()).all():
+        rows.append({
+            'id': role.id,
+            'name': role.name,
+            'label': role.label,
+            'description': role.description,
+            'permissions': [permission.key for permission in (role.permissions or [])],
+        })
+    return jsonify({'roles': rows}), 200
+
+
+@api_bp.get('/api/admin/permissions')
+@token_required()
+def api_admin_permissions(current_user):
+    if not user_has_permission(current_user, 'role.manage'):
+        return jsonify({'message': 'Bu işlem için role.manage izni gereklidir.'}), 403
+
+    permissions = sorted({
+        permission.key
+        for role in Role.query.all()
+        for permission in (role.permissions or [])
+    })
+    return jsonify({'permissions': permissions}), 200
+
+
+@api_bp.get('/api/admin/users/<int:user_id>/roles')
+@token_required()
+def api_user_roles(current_user, user_id):
+    if not user_has_permission(current_user, 'role.manage'):
+        return jsonify({'message': 'Bu işlem için role.manage izni gereklidir.'}), 403
+
+    user = User.query.get_or_404(user_id)
+    return jsonify({
+        'user_id': user.id,
+        'name': user.name,
+        'email': user.email,
+        'roles': [role.name for role in (user.roles or [])],
+    }), 200
+
+
+@api_bp.post('/api/admin/users/<int:user_id>/roles')
+@token_required()
+def api_assign_user_role(current_user, user_id):
+    if not user_has_permission(current_user, 'role.manage'):
+        return jsonify({'message': 'Bu işlem için role.manage izni gereklidir.'}), 403
+
+    data = request.get_json(force=True) or {}
+    role_name = (data.get('role_name') or '').strip()
+    if not role_name:
+        return jsonify({'message': 'Rol adı zorunludur.'}), 400
+
+    if not assign_role_to_user(user_id, role_name):
+        return jsonify({'message': 'Geçersiz rol adı.'}), 400
+
+    user = User.query.get_or_404(user_id)
+    return jsonify({
+        'message': f"'{role_name}' rolü kullanıcıya eklendi.",
+        'roles': [role.name for role in (user.roles or [])],
+    }), 200
+
+
+@api_bp.delete('/api/admin/users/<int:user_id>/roles/<string:role_name>')
+@token_required()
+def api_remove_user_role(current_user, user_id, role_name):
+    if not user_has_permission(current_user, 'role.manage'):
+        return jsonify({'message': 'Bu işlem için role.manage izni gereklidir.'}), 403
+
+    if not remove_role_from_user(user_id, role_name):
+        return jsonify({'message': 'Rol bulunamadı veya kullanıcıya ait değil.'}), 404
+
+    user = User.query.get_or_404(user_id)
+    return jsonify({
+        'message': f"'{role_name}' rolü kullanıcıdan kaldırıldı.",
+        'roles': [role.name for role in (user.roles or [])],
+    }), 200
+
 
 @api_bp.get('/api/admin/stats/daily-active')
 @token_required()
@@ -2164,12 +2318,21 @@ def api_admin_elci_puan_ver(current_user, kullanici_id):
 # ------------ AKTIVITE PUANI (Not/Değerlendirme/Forum) HOOKLARI ------------
 # Mevcut not yükleme / değerlendirme / forum endpointlerine puan kazandırmak için çağrılan ortak fonksiyon
 def _aktivite_puan_ver(current_user: User, puan: int, aktivite_turu: str):
-    """Günlük maksimum 5 aktivite puan sınırı ile puan ver."""
+    """Günlük maksimum 5 aktivite puan sınırı ile puan ver; kampanya açıkken ekstra kredi ve elçi puanı ver."""
     try:
         from datetime import datetime
         from zoneinfo import ZoneInfo
-        # Günlük sınır: aynı günde aynı aktivite türünden 5 kez +10 puan
         _give_ambassador_points_api(current_user, puan)
+
+        if _is_exam_week_blitz_active():
+            kampanya = EXAM_WEEK_BLITZ_REWARDS.get(aktivite_turu, {})
+            bonus_puan = int(kampanya.get('ambassador_points', 0))
+            bonus_kredi = int(kampanya.get('credit', 0))
+            if bonus_puan:
+                _give_ambassador_points_api(current_user, bonus_puan)
+            if bonus_kredi:
+                current_user.kredi = (current_user.kredi or 0) + bonus_kredi
+
         # Aktivite rozetleri
         if aktivite_turu == 'ders_notu':
             _give_badge_api(current_user, 'NOT_1', '📚 İlk Not', 'İlk ders notunu yükledin!', '#2563EB', '📚')
@@ -2177,5 +2340,8 @@ def _aktivite_puan_ver(current_user: User, puan: int, aktivite_turu: str):
             _give_badge_api(current_user, 'DEGER_1', '⭐ İlk Değerlendirme', 'İlk öğretmen değerlendirmesini yaptın!', '#F97316', '⭐')
         if aktivite_turu == 'forum':
             _give_badge_api(current_user, 'FORUM_1', '💬 Sohbetçi', 'İlk forum mesajını attın!', '#059669', '💬')
+
+        db.session.commit()
     except Exception as e:
+        db.session.rollback()
         print(f"[aktivite-puan] hata: {e}")

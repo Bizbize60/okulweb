@@ -27,7 +27,7 @@ def check_thk_push() -> None:
     with _app.app_context():
         today = now_tr().date().isoformat()
         _prune_sent_keys(today)
-        for alert in due_thk_push_alerts(window_minutes=1):
+        for alert in due_thk_push_alerts(window_minutes=2):
             key = alert["key"]
             if key in _sent_keys:
                 continue

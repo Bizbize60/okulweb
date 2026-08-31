@@ -26,6 +26,17 @@ class User(db.Model):
     davet_ettikleri = relationship("Referral", foreign_keys="Referral.davet_eden_id", back_populates="davet_eden", lazy=True)
     kazandigi_oduller = relationship("EarnedReward", back_populates="user", lazy=True)
     rozetleri = relationship("UserBadge", back_populates="user", lazy=True)
+    roles = relationship("Role", secondary="user_roles", back_populates="users", lazy=True)
+
+    def has_role(self, role_name: str) -> bool:
+        return any((role.name == role_name) for role in (self.roles or []))
+
+    def has_permission(self, permission_key: str) -> bool:
+        for role in (self.roles or []):
+            for permission in (role.permissions or []):
+                if permission.key == permission_key:
+                    return True
+        return False
 
     @staticmethod
     def generate_referral_code(name: str) -> str:
