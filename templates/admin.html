@@ -413,6 +413,7 @@
         <button class="nav-btn" onclick="switchTab('istekler')">💡 Kullanıcı İstekleri</button>
         <button class="nav-btn" onclick="switchTab('notes')">📚 Not Onayları</button>
         <button class="nav-btn" onclick="switchTab('all-notes')">📂 Tüm Notlar</button>
+        <button class="nav-btn" onclick="switchTab('exam-blitz')">🧠 Sınav Haftası</button>
         <button class="nav-btn" onclick="switchTab('subs')">📧 Abonelikler</button>
         <button class="nav-btn" onclick="switchTab('katkida')">⭐ Katkıda Bulunanlar</button>
         <button class="nav-btn" onclick="switchTab('roles')">🔐 Rol Yönetimi</button>
@@ -559,6 +560,34 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </section>
+
+        <section id="exam-blitz-panel" class="panel-section">
+            <div class="header">
+                <h1>Sınav Haftası Blitz</h1>
+                <button class="btn btn-primary" id="examBlitzToggleBtn" onclick="toggleExamBlitz()">Etkinleştir</button>
+            </div>
+            <div style="display:grid; gap:16px; grid-template-columns: 1.2fr 0.8fr;">
+                <div style="padding:20px; border:1px solid var(--border); border-radius:12px; background:linear-gradient(135deg, #fef3c7, #fff7ed);">
+                    <div style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.08em; color:#92400e; font-weight:700;">Kampanya Özeti</div>
+                    <div id="examBlitzStatus" style="margin-top:12px; font-size:1.1rem; font-weight:700; color:#78350f;">Durum: Yükleniyor...</div>
+                    <ul style="margin:16px 0 0 18px; line-height:1.9; color:#7c2d12;">
+                        <li>Ders notu onayı: +3 kredi + 40 elçi puanı</li>
+                        <li>Öğretmen değerlendirmesi: +2 kredi + 30 elçi puanı</li>
+                        <li>Forum mesajı: +2 kredi + 20 elçi puanı</li>
+                        <li>Bir arkadaş davet: +150 elçi puanı</li>
+                    </ul>
+                </div>
+                <div style="padding:20px; border:1px solid var(--border); border-radius:12px; background:#f8fafc;">
+                    <div style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-muted); font-weight:700;">Elçi eşikleri</div>
+                    <ul style="margin:16px 0 0 18px; line-height:2; color: var(--text);">
+                        <li>🥉 Bronz: 100</li>
+                        <li>🥈 Gümüş: 500</li>
+                        <li>🥇 Altın: 2000</li>
+                        <li>💎 Elmas: 5000</li>
+                    </ul>
+                </div>
             </div>
         </section>
 
@@ -816,6 +845,7 @@
         const usersPanel = document.getElementById('users-panel');
         const requestsPanel = document.getElementById('requests-panel');
         const isteklerPanel = document.getElementById('istekler-panel');
+        const examBlitzPanel = document.getElementById('exam-blitz-panel');
         const usersTableBody = document.getElementById('usersTableBody');
         const requestsTableBody = document.getElementById('requestsTableBody');
         const isteklerTableBody = document.getElementById('isteklerTableBody');
@@ -832,6 +862,7 @@
             istekler: { key: 'moderation.manage', button: document.querySelector('.nav-btn[onclick="switchTab(\'istekler\')"]') },
             notes: { key: 'content.approve', button: document.querySelector('.nav-btn[onclick="switchTab(\'notes\')"]') },
             'all-notes': { key: 'content.reject', button: document.querySelector('.nav-btn[onclick="switchTab(\'all-notes\')"]') },
+            'exam-blitz': { key: 'system.admin', button: document.querySelector('.nav-btn[onclick="switchTab(\'exam-blitz\')"]') },
             subs: { key: 'system.admin', button: document.querySelector('.nav-btn[onclick="switchTab(\'subs\')"]') },
             katkida: { key: 'system.admin', button: document.querySelector('.nav-btn[onclick="switchTab(\'katkida\')"]') },
             roles: { key: 'role.manage', button: document.querySelector('.nav-btn[onclick="switchTab(\'roles\')"]') },
@@ -937,7 +968,7 @@
             navBtns.forEach(btn => btn.classList.remove('active'));
             const targetButton = document.querySelector(`.nav-btn[onclick="switchTab('${tabName}')"]`);
             if (targetButton) targetButton.classList.add('active');
-            [usersPanel, requestsPanel, isteklerPanel, notesPanel, allNotesPanel, subsPanel, katkidaPanel, moderatorlerPanel]
+            [usersPanel, requestsPanel, isteklerPanel, notesPanel, allNotesPanel, examBlitzPanel, subsPanel, katkidaPanel, moderatorlerPanel]
                 .forEach(p => p && p.classList.remove('active'));
 
             if (tabName === 'users') {
@@ -955,6 +986,9 @@
             } else if (tabName === 'all-notes') {
                 allNotesPanel.classList.add('active');
                 loadAllNotes();
+            } else if (tabName === 'exam-blitz') {
+                examBlitzPanel.classList.add('active');
+                loadExamBlitzStatus();
             } else if (tabName === 'subs') {
                 subsPanel.classList.add('active');
                 loadSubscriptions();
@@ -1019,6 +1053,44 @@
             } catch (error) {
                 console.error(error);
                 alert('Silme işlemi sırasında sunucuya ulaşılamadı.');
+            }
+        };
+
+        const loadExamBlitzStatus = async () => {
+            try {
+                const res = await fetch('/api/admin/exam-blitz');
+                if (!res.ok) return;
+                const data = await res.json();
+                const enabled = !!data.enabled;
+                const toggleBtn = document.getElementById('examBlitzToggleBtn');
+                const statusEl = document.getElementById('examBlitzStatus');
+                if (toggleBtn) {
+                    toggleBtn.textContent = enabled ? 'Kapat' : 'Etkinleştir';
+                    toggleBtn.style.background = enabled ? '#dc2626' : '#4f8ef7';
+                }
+                if (statusEl) {
+                    statusEl.textContent = enabled ? 'Durum: Aktif (Sınav Haftası Blitz açık)' : 'Durum: Kapalı (Normal ödül sistemi çalışıyor)';
+                }
+            } catch (e) { console.error('Exam blitz status could not be loaded', e); }
+        };
+
+        const toggleExamBlitz = async () => {
+            try {
+                const res = await fetch('/api/admin/exam-blitz', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ enabled: !(document.getElementById('examBlitzStatus').textContent.includes('Aktif')) })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(data.message);
+                    loadExamBlitzStatus();
+                } else {
+                    alert('HATA: ' + (data.message || 'İşlem başarısız'));
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Kampanya durumu güncellenemedi.');
             }
         };
 
@@ -1698,6 +1770,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadAdminSession().then(() => {
                 loadOwnerStats();
+                loadExamBlitzStatus();
                 loadUsers();
                 loadPendingRequests();
                 loadPendingNotes();
