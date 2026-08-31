@@ -693,6 +693,12 @@
       }
     }
 
+    function trackAnalyticsEvent(name, params = {}) {
+      if (window.gtag) {
+        window.gtag('event', name, params);
+      }
+    }
+
     async function handleDownload(btnElement, filename) {
       const originalText = btnElement.innerHTML;
       btnElement.innerHTML = '⏳ İşleniyor...';
@@ -719,6 +725,11 @@
 
         window.URL.revokeObjectURL(url);
         anchor.remove();
+
+        trackAnalyticsEvent('note_download', {
+          filename: filename,
+          file_type: filename.split('.').pop() || 'unknown'
+        });
 
         // Krediyi güncelle
         loadUserInfo();
