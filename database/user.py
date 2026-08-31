@@ -32,8 +32,6 @@ class User(db.Model):
         return any((role.name == role_name) for role in (self.roles or []))
 
     def has_permission(self, permission_key: str) -> bool:
-        if self.email in getattr(__import__('config'), 'ADMIN_EMAILS', []):
-            return True
         for role in (self.roles or []):
             for permission in (role.permissions or []):
                 if permission.key == permission_key:

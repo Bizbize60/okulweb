@@ -380,9 +380,14 @@ def api_user_info(current_user):
     return jsonify({
         'name': current_user.name,
         'kredi': current_user.kredi,
-        # E-posta sızdırılmaz; yalnızca stats owner için UI bayrağı
-        'show_stats': current_user.email == STATS_OWNER_EMAIL,
-        # ---- Elçi Sistemi Ekstra Alanları ----
+        # Sadece sahibi/owner yetkisi olan kullanıcılar istatistik görebilir
+        'show_stats': user_has_permission(current_user, 'system.admin') and current_user.has_role('owner'),
+        'roles': [role.name for role in (current_user.roles or [])],
+        'permissions': sorted({
+            permission.key
+            for role in (current_user.roles or [])
+            for permission in (role.permissions or [])
+        }),
         'id': current_user.id,
         'email': current_user.email,
         'is_ambassador': bool(current_user.is_ambassador),

@@ -780,6 +780,88 @@
         const userSearch = document.getElementById('userSearch');
         const navBtns = document.querySelectorAll('.nav-btn');
         const addUserModal = document.getElementById('addUserModal');
+        const panelMap = {
+            users: { key: 'users.view', button: document.querySelector('.nav-btn[onclick="switchTab(\'users\')"]') },
+            requests: { key: 'moderation.view', button: document.querySelector('.nav-btn[onclick="switchTab(\'requests\')"]') },
+            istekler: { key: 'moderation.manage', button: document.querySelector('.nav-btn[onclick="switchTab(\'istekler\')"]') },
+            notes: { key: 'content.approve', button: document.querySelector('.nav-btn[onclick="switchTab(\'notes\')"]') },
+            'all-notes': { key: 'content.reject', button: document.querySelector('.nav-btn[onclick="switchTab(\'all-notes\')"]') },
+            subs: { key: 'system.admin', button: document.querySelector('.nav-btn[onclick="switchTab(\'subs\')"]') },
+            katkida: { key: 'system.admin', button: document.querySelector('.nav-btn[onclick="switchTab(\'katkida\')"]') },
+            moderatorler: { key: 'role.manage', button: document.querySelector('.nav-btn[onclick="switchTab(\'moderatorler\')"]') },
+        };
+        let adminPermissions = new Set();
+        let adminRoles = new Set();
+
+        const can = (...keys) => keys.some(key => adminPermissions.has(key) || adminRoles.has('owner'));
+
+        const applyRolePermissions = () => {
+            Object.entries(panelMap).forEach(([tabName, descriptor]) => {
+                const button = descriptor.button;
+                if (!button) return;
+                if (can(descriptor.key)) {
+                    button.style.display = 'block';
+                } else {
+                    button.style.display = 'none';
+                }
+            });
+
+            const canViewUsers = can('users.view');
+            const canManageRequests = can('moderation.manage', 'moderation.view');
+            const canApproveContent = can('content.approve', 'content.reject');
+            const canManageRoles = can('role.manage');
+            const canUseSystemAdmin = can('system.admin');
+
+            const deleteButtons = document.querySelectorAll('.btn.btn-danger');
+            deleteButtons.forEach(btn => {
+                const shouldHide = (
+                    (btn.textContent.includes('Sil') || btn.textContent.includes('Reddet')) &&
+                    !can('moderation.manage', 'content.reject', 'users.delete', 'moderation.delete')
+                );
+                if (shouldHide) btn.style.display = 'none';
+            });
+
+            if (!canViewUsers) {
+                usersPanel.style.display = 'none';
+            }
+            if (!canManageRequests) {
+                requestsPanel.style.display = 'none';
+                isteklerPanel.style.display = 'none';
+            }
+            if (!canApproveContent) {
+                notesPanel.style.display = 'none';
+                allNotesPanel.style.display = 'none';
+            }
+            if (!canManageRoles) {
+                moderatorlerPanel.style.display = 'none';
+            }
+            if (!canUseSystemAdmin) {
+                subsPanel.style.display = 'none';
+                katkidaPanel.style.display = 'none';
+            }
+        };
+
+        const loadAdminSession = async () => {
+            try {
+                const res = await fetch('/api/admin/session');
+                if (!res.ok) {
+                    window.location.href = '/';
+                    return;
+                }
+                const data = await res.json();
+                adminRoles = new Set(data.roles || []);
+                adminPermissions = new Set(data.permissions || []);
+                applyRolePermissions();
+                if (!can('system.admin', 'users.view', 'moderation.view', 'content.approve', 'content.reject', 'role.manage')) {
+                    document.querySelector('.main-content').innerHTML = '<div style="padding:24px;color:#4a5568;">Bu sayfaya erişim yetkiniz yok.</div>';
+                }
+            } catch (err) {
+                console.error('Admin session yüklenemedi', err);
+                window.location.href = '/';
+            }
+        };
+
+        const userSearch = document.getElementById('userSearch');
         const editCreditModal = document.getElementById('editCreditModal');
         const katkidaModal = document.getElementById('katkidaModal');
         const istekDetailModal = document.getElementById('istekDetailModal');
@@ -1457,6 +1539,20 @@
         notesSearch.addEventListener('input', (e) => {
             clearTimeout(timeout_notes);
             timeout_notes = setTimeout(() => loadAllNotes(e.target.value), 300);
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAdminSession().then(() => {
+                loadOwnerStats();
+                loadUsers();
+                loadPendingRequests();
+                loadPendingNotes();
+                loadAllNotes();
+                loadIstekler();
+                loadSubscriptions();
+                loadKatkida();
+                loadModerators();
+            });
         });
 
         const loadOwnerStats = async () => {

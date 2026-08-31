@@ -86,9 +86,11 @@ def token_required_api(f):
 def user_has_permission(current_user: User, permission_key: str) -> bool:
     if not current_user:
         return False
-    if current_user.email in ADMIN_EMAILS:
+    if current_user.has_permission(permission_key):
         return True
-    return current_user.has_permission(permission_key)
+    if current_user.email in ADMIN_EMAILS and current_user.has_role('owner'):
+        return True
+    return False
 
 
 def require_permission(permission_key: str):
