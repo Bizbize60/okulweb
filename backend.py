@@ -53,6 +53,13 @@ app.register_blueprint(pages)
 app.register_blueprint(auth_bp)
 app.register_blueprint(api_bp)
 
+with app.app_context():
+    try:
+        from database.admin_rbac import ensure_default_roles
+        ensure_default_roles()
+    except Exception as e:
+        print(f"[backend] RBAC varsayılan roller yüklenemedi: {e}")
+
 _SKIP_PREFIXES = (
     '/static', '/uploads', '/sw.js', '/favicon.ico',
 )
