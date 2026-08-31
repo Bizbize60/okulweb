@@ -188,6 +188,35 @@ def assign_role_to_user(user_id: int, role_name: str) -> bool:
     return True
 
 
+def remove_role_from_user(user_id: int, role_name: str) -> bool:
+    role = Role.query.filter_by(name=role_name).first()
+    if not role:
+        return False
+
+    from database.user import User
+    user = User.query.get(user_id)
+    if not user:
+        return False
+
+    if role in user.roles:
+        user.roles.remove(role)
+        db.session.commit()
+    return True
+
+
+def list_role_catalog():
+    roles = []
+    for role in Role.query.order_by(Role.name.asc()).all():
+        roles.append({
+            'id': role.id,
+            'name': role.name,
+            'label': role.label,
+            'description': role.description,
+            'permissions': [p.key for p in (role.permissions or [])],
+        })
+    return roles
+
+
 def user_has_role(user, role_name: str) -> bool:
     if not user:
         return False

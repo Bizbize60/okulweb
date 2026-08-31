@@ -1,5 +1,7 @@
+import re
 import unittest
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 import jwt
 
@@ -72,6 +74,16 @@ class AdminRbacApiTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         payload = response.get_json()
         self.assertTrue(payload['roles'])
+
+    def test_admin_template_has_valid_role_management_bindings(self):
+        template_path = Path(__file__).resolve().parents[1] / 'templates' / 'admin.html'
+        template = template_path.read_text(encoding='utf-8')
+
+        self.assertEqual(template.count("const userSearch = document.getElementById('userSearch');"), 1)
+        self.assertIn("const roleSelect = document.getElementById('roleSelect');", template)
+        self.assertIn("const rolesTableBody = document.getElementById('rolesTableBody');", template)
+        self.assertIn("const roleUserSelect = document.getElementById('roleUserSelect');", template)
+        self.assertIn("const userRoleList = document.getElementById('userRoleList');", template)
 
 
 if __name__ == '__main__':

@@ -1098,6 +1098,72 @@ def api_admin_roles(current_user):
     return jsonify({'roles': rows}), 200
 
 
+@api_bp.get('/api/admin/permissions')
+@token_required()
+def api_admin_permissions(current_user):
+    if not user_has_permission(current_user, 'role.manage'):
+        return jsonify({'message': 'Bu işlem için role.manage izni gereklidir.'}), 403
+
+    permissions = sorted({
+        permission.key
+        for role in Role.query.all()
+        for permission in (role.permissions or [])
+    })
+    return jsonify({'permissions': permissions}), 200
+
+
+@api_bp.get('/api/admin/users/<int:user_id>/roles')
+@token_required()
+def api_user_roles(current_user, user_id):
+    if not user_has_permission(current_user, 'role.manage'):
+        return jsonify({'message': 'Bu işlem için role.manage izni gereklidir.'}), 403
+
+    user = User.query.get_or_404(user_id)
+    return jsonify({
+        'user_id': user.id,
+        'name': user.name,
+        'email': user.email,
+        'roles': [role.name for role in (user.roles or [])],
+    }), 200
+
+
+@api_bp.post('/api/admin/users/<int:user_id>/roles')
+@token_required()
+def api_assign_user_role(current_user, user_id):
+    if not user_has_permission(current_user, 'role.manage'):
+        return jsonify({'message': 'Bu işlem için role.manage izni gereklidir.'}), 403
+
+    data = request.get_json(force=True) or {}
+    role_name = (data.get('role_name') or '').strip()
+    if not role_name:
+        return jsonify({'message': 'Rol adı zorunludur.'}), 400
+
+    if not assign_role_to_user(user_id, role_name):
+        return jsonify({'message': 'Geçersiz rol adı.'}), 400
+
+    user = User.query.get_or_404(user_id)
+    return jsonify({
+        'message': f"'{role_name}' rolü kullanıcıya eklendi.",
+        'roles': [role.name for role in (user.roles or [])],
+    }), 200
+
+
+@api_bp.delete('/api/admin/users/<int:user_id>/roles/<string:role_name>')
+@token_required()
+def api_remove_user_role(current_user, user_id, role_name):
+    if not user_has_permission(current_user, 'role.manage'):
+        return jsonify({'message': 'Bu işlem için role.manage izni gereklidir.'}), 403
+
+    if not remove_role_from_user(user_id, role_name):
+        return jsonify({'message': 'Rol bulunamadı veya kullanıcıya ait değil.'}), 404
+
+    user = User.query.get_or_404(user_id)
+    return jsonify({
+        'message': f"'{role_name}' rolü kullanıcıdan kaldırıldı.",
+        'roles': [role.name for role in (user.roles or [])],
+    }), 200
+
+
 @api_bp.get('/api/admin/stats/daily-active')
 @token_required()
 @is_admin
