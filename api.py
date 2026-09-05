@@ -2,9 +2,11 @@ from flask import Blueprint, request, jsonify, current_app
 import os
 import uuid
 import json
+import re
 from datetime import datetime, timedelta, timezone
 from werkzeug.utils import secure_filename
 import openpyxl
+import requests
 from pywebpush import webpush
 from sqlalchemy import func
 from datetime import datetime
@@ -90,9 +92,42 @@ def _forum_validate_gif_url(raw_url):
         return False, None
 
     lowered = safe_url.lower()
-    host_hints = ('giphy.com', 'tenor.com', 'media.tenor.com', 'giphyusercontent.com')
-    if lowered.endswith('.gif') or any(hint in lowered for hint in host_hints):
+    if ('media.tenor.com' in lowered or 'giphyusercontent.com' in lowered or lowered.endswith('.gif')):
         return True, safe_url
+
+    if 'tenor.com' in lowered or 'giphy.com' in lowered:
+        try:
+            response = requests.get(
+                safe_url,
+                timeout=7,
+                allow_redirects=True,
+                headers={
+                    'User-Agent': 'Mozilla/5.0 (ForumBot) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36'
+                }
+            )
+        except requests.RequestException:
+            return False, None
+
+        final_url = (response.url or '').strip()
+        content_type = (response.headers.get('Content-Type') or '').lower()
+        if final_url and _safe_http_url(final_url):
+            final_lower = final_url.lower()
+            if final_lower.endswith('.gif') or final_lower.endswith('.webp'):
+                return True, final_url
+            if content_type.startswith('image/') and (
+                'media.tenor.com' in final_lower or 'giphyusercontent.com' in final_lower
+            ):
+                return True, final_url
+
+        if 'text/html' in content_type:
+            html = response.text or ''
+            match = re.search(
+                r'https?://(?:media\.tenor\.com|i\.giphy\.com|media\d?\.giphy\.com|giphyusercontent\.com)[^"\'\s>]+\.(?:gif|webp)',
+                html,
+                re.IGNORECASE,
+            )
+            if match:
+                return True, match.group(0)
 
     return False, None
 
