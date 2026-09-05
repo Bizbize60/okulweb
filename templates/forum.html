@@ -1,533 +1,729 @@
 <!DOCTYPE html>
 <html lang="tr">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forum - Kampüs Platformu</title>
-<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='kedi.ico') }}">
+    <title>Kampus Forumu</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='kedi.ico') }}">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg-1: #eef6ff;
+            --bg-2: #fffaf0;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --brand: #0f766e;
+            --brand-dark: #115e59;
+            --card: #ffffff;
+            --line: #dbe4ef;
+            --danger: #b91c1c;
+            --danger-bg: #fee2e2;
+            --ok: #065f46;
+            --ok-bg: #d1fae5;
+            --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
         }
+
+        * { box-sizing: border-box; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            background: #f5f5f5;
+            margin: 0;
             min-height: 100vh;
-            color-scheme: light;
-            color: #333;
+            color: var(--text);
+            font-family: "Space Grotesk", "Segoe UI", sans-serif;
+            background:
+                radial-gradient(circle at 10% 5%, #dbeafe 0, #dbeafe 20%, transparent 45%),
+                radial-gradient(circle at 90% 20%, #fde68a 0, #fde68a 14%, transparent 35%),
+                linear-gradient(160deg, var(--bg-1), var(--bg-2));
+            animation: fade-in 380ms ease;
         }
 
-        .sidebar {
-            width: 250px;
-            background: #fff;
-            height: 100vh;
-            position: fixed;
-            left: 0;
-            top: 0;
-            border-right: 1px solid #e0e0e0;
-            padding: 20px;
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .sidebar h2 {
-            font-size: 20px;
-            color: #333;
-            margin-bottom: 30px;
-            font-weight: 600;
+        .page {
+            max-width: 1024px;
+            margin: 28px auto;
+            padding: 0 16px 40px;
         }
 
-        .sidebar nav {
+        .hero {
             display: flex;
-            flex-direction: column;
-            gap: 10px;
+            justify-content: space-between;
+            gap: 14px;
+            align-items: center;
+            margin-bottom: 16px;
         }
 
-        .sidebar a {
-            color: #666;
+        .hero h1 {
+            margin: 0;
+            font-size: clamp(1.5rem, 3vw, 2.2rem);
+            letter-spacing: -0.02em;
+        }
+
+        .hero p {
+            margin: 6px 0 0;
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .back-link {
             text-decoration: none;
-            padding: 12px 15px;
-            border-radius: 8px;
-            transition: all 0.2s;
-            font-size: 14px;
-        }
-
-        .sidebar a:hover {
-            background: #f5f5f5;
-            color: #333;
-        }
-
-        .sidebar a.active {
-            background: #333;
             color: white;
-        }
-
-        .container {
-            margin-left: 250px;
-            padding: 40px 60px;
-            max-width: 1400px;
-            margin-right: auto;
-        }
-
-        header {
-            background: transparent;
-            padding: 0 0 30px 0;
-            margin-bottom: 30px;
-            border-bottom: 1px solid #e0e0e0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        header h1 {
-            color: #333;
-            font-size: 28px;
+            background: var(--brand);
+            padding: 10px 14px;
+            border-radius: 12px;
             font-weight: 600;
         }
 
-        .back-btn {
-            display: none;
+        .back-link:hover { background: var(--brand-dark); }
+
+        .panel {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
         }
 
-        .new-message-card {
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            border: 1px solid #e0e0e0;
-            margin-bottom: 30px;
+        .composer {
+            padding: 18px;
+            margin-bottom: 18px;
         }
 
-        .new-message-card h2 {
-            color: #333;
-            margin-bottom: 25px;
-            font-size: 20px;
-            font-weight: 600;
+        .composer h2 {
+            margin: 0 0 12px;
+            font-size: 1.1rem;
         }
 
-        .form-group {
-            margin-bottom: 25px;
-        }
+        .field { margin-bottom: 12px; }
 
-        .form-group label {
+        .field label {
             display: block;
-            color: #666;
-            margin-bottom: 10px;
-            font-weight: 500;
-            font-size: 15px;
+            margin-bottom: 6px;
+            color: #334155;
+            font-size: 0.92rem;
+            font-weight: 600;
         }
 
-        .form-group input,
-        .form-group textarea {
+        input, textarea {
             width: 100%;
-            padding: 14px 16px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 15px;
-            transition: all 0.2s;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 11px 12px;
             font-family: inherit;
+            font-size: 0.95rem;
+            color: var(--text);
+            background: #f8fafc;
         }
 
-        .form-group input:focus,
-        .form-group textarea:focus {
+        input:focus, textarea:focus {
+            border-color: var(--brand);
             outline: none;
-            border-color: #333;
+            background: white;
         }
 
-        .form-group textarea {
+        textarea {
+            min-height: 92px;
             resize: vertical;
-            min-height: 100px;
         }
 
-        .submit-btn {
-            background: #333;
-            color: white;
-            padding: 14px 28px;
+        .row {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #334155;
+            font-size: 0.92rem;
+        }
+
+        .btn {
             border: none;
-            border-radius: 6px;
+            border-radius: 11px;
+            padding: 10px 16px;
+            font-weight: 700;
             cursor: pointer;
-            font-size: 15px;
-            font-weight: 500;
-            transition: all 0.2s;
+            font-family: inherit;
+            transition: transform 0.2s ease, opacity 0.2s ease;
         }
 
-        .submit-btn:hover {
-            background: #000;
+        .btn:hover { transform: translateY(-1px); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .btn-primary { background: var(--brand); color: white; }
+        .btn-primary:hover { background: var(--brand-dark); }
+
+        .btn-soft {
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            color: #334155;
+            padding: 8px 12px;
+            font-size: 0.86rem;
         }
 
-        .messages-section h2 {
-            color: #333;
-            margin-bottom: 25px;
-            font-size: 20px;
-            font-weight: 600;
-        }
-
-        .message-card {
-            background: white;
-            padding: 25px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px solid #e0e0e0;
-            transition: all 0.2s;
-        }
-
-        .message-card:hover {
-            border-color: #ccc;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-
-        .message-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .message-topic {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .message-date {
-            color: #999;
-            font-size: 13px;
-        }
-
-        .message-content {
-            color: #666;
-            line-height: 1.7;
-            margin-bottom: 20px;
-            font-size: 15px;
-        }
-
-        .message-footer {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .like-btn,
-        .dislike-btn {
-            background: #f5f5f5;
-            border: 1px solid #e0e0e0;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            color: #666;
-        }
-
-        .like-btn:hover {
-            background: #333;
+        .btn-soft.active {
             color: white;
-            border-color: #333;
+            background: #1e293b;
+            border-color: #1e293b;
         }
 
-        .dislike-btn:hover {
-            background: #333;
-            color: white;
-            border-color: #333;
+        .btn-danger {
+            background: #fff;
+            color: var(--danger);
+            border: 1px solid #fecaca;
+            padding: 7px 10px;
+            font-size: 0.82rem;
         }
 
-        .like-btn.active {
-            background: #333;
-            color: white;
-            border-color: #333;
-            font-weight: 600;
-        }
-
-        .dislike-btn.active {
-            background: #333;
-            color: white;
-            border-color: #333;
-            font-weight: 600;
-        }
-
-        .like-count {
-            background: #f5f5f5;
-            color: #333;
-            padding: 8px 16px;
-            border-radius: 4px;
-            font-weight: 600;
-            font-size: 14px;
-            border: 1px solid #e0e0e0;
-        }
-
-        .empty-state {
-            background: white;
-            padding: 60px 30px;
-            border-radius: 8px;
-            text-align: center;
-            color: #999;
-            font-size: 14px;
-            border: 1px solid #e0e0e0;
+        #alertContainer {
+            margin-bottom: 12px;
         }
 
         .alert {
-            padding: 12px 16px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            font-size: 14px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
         }
 
         .alert-success {
-            background: #f0f9ff;
-            color: #0369a1;
-            border: 1px solid #bae6fd;
+            color: var(--ok);
+            background: var(--ok-bg);
+            border: 1px solid #6ee7b7;
         }
 
         .alert-error {
-            background: #fef2f2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
+            color: var(--danger);
+            background: var(--danger-bg);
+            border: 1px solid #fca5a5;
+        }
+
+        .post-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .post {
+            padding: 16px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: white;
+        }
+
+        .post-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .post-topic {
+            margin: 0;
+            font-size: 1.05rem;
+        }
+
+        .meta {
+            color: var(--muted);
+            font-size: 0.84rem;
+        }
+
+        .pill {
+            background: #ecfeff;
+            color: #0e7490;
+            border: 1px solid #bae6fd;
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .post-content {
+            white-space: pre-wrap;
+            line-height: 1.55;
+            margin-bottom: 10px;
+        }
+
+        .gif-wrap {
+            margin-bottom: 10px;
+        }
+
+        .gif-wrap img {
+            width: 100%;
+            max-height: 280px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid #dbeafe;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .score {
+            font-weight: 700;
+            color: #0f172a;
+            padding: 7px 12px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 9px;
+        }
+
+        .comment-zone {
+            border-top: 1px solid #edf2f7;
+            padding-top: 10px;
+        }
+
+        .comment-title {
+            margin: 0 0 8px;
+            color: #334155;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .comment {
+            border-left: 2px solid #dbeafe;
+            margin: 8px 0;
+            padding: 8px 10px;
+            background: #f8fafc;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .comment.deleted {
+            opacity: 0.75;
+        }
+
+        .comment-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+            color: #64748b;
+            font-size: 0.76rem;
+        }
+
+        .comment-body {
+            margin: 0 0 6px;
+            white-space: pre-wrap;
+            font-size: 0.9rem;
+            color: #334155;
+        }
+
+        .comment-tools {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .reply-box {
+            margin-top: 8px;
+            display: none;
+        }
+
+        .reply-box.visible { display: block; }
+
+        .empty {
+            color: #64748b;
+            text-align: center;
+            padding: 24px;
+            border: 1px dashed #cbd5e1;
+            border-radius: 12px;
+            background: #f8fafc;
+        }
+
+        .pager {
+            margin-top: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .pager-status {
+            color: #475569;
+            font-size: 0.88rem;
+            font-weight: 600;
+            margin-right: 6px;
+        }
+
+        .shimmer {
+            opacity: 0;
+            animation: in 300ms ease forwards;
+        }
+
+        @keyframes in {
+            to { opacity: 1; }
         }
 
         @media (max-width: 768px) {
-            .sidebar {
-                display: none;
+            .hero {
+                flex-direction: column;
+                align-items: flex-start;
             }
 
-            .container {
-                margin-left: 0;
-                padding: 20px;
-            }
-
-            .back-btn {
-                display: inline-block;
-                background: #333;
-                color: white;
-                padding: 8px 16px;
-                border-radius: 6px;
-                text-decoration: none;
-                font-size: 13px;
-            }
-
-            header {
-                border-bottom: 1px solid #e0e0e0;
-                padding-bottom: 20px;
+            .back-link {
+                width: 100%;
+                text-align: center;
             }
         }
     </style>
 </head>
-
 <body>
-    <div class="sidebar">
-        <h2>Kampüs</h2>
-        <nav>
-            <a href="/">Ana Sayfa</a>
-            <a href="/forum" class="active">Forum</a>
-            <a href="/ders-notlari">Ders Notları</a>
-            <a href="/ogretmen-listesi">Öğretmenler</a>
-            <a href="/otobus-saatleri">Otobüs Saatleri</a>
-            <a href="/yemekhane">Yemekhane</a>
-        </nav>
-    </div>
-
-    <div class="container">
-        <header>
-            <h1>Forum</h1>
-            <a href="/" class="back-btn">← Geri</a>
-        </header>
+    <main class="page">
+        <section class="hero">
+            <div>
+                <h1>Ogrenci Forumu</h1>
+                <p>Dersler, kampus hayati ve tavsiyeler icin modern tartisma alani.</p>
+            </div>
+            <a href="/" class="back-link">Ana Sayfaya Don</a>
+        </section>
 
         <div id="alertContainer"></div>
 
-        <div class="new-message-card">
-            <h2>Yeni Mesaj</h2>
-            <form id="newMessageForm">
-                <div class="form-group">
+        <section class="panel composer">
+            <h2>Yeni Gonderi</h2>
+            <form id="postForm">
+                <div class="field">
                     <label for="konu">Konu</label>
-                    <input type="text" id="konu" name="konu" placeholder="Mesaj konusunu giriniz..." required>
+                    <input id="konu" maxlength="200" required placeholder="Orn: Calculus vizesine nasil hazirlaniyorsunuz?">
                 </div>
-                <div class="form-group">
-                    <label for="mesaj_icerigi">Mesaj İçeriği</label>
-                    <textarea id="mesaj_icerigi" name="mesaj_icerigi" placeholder="Mesajınızı buraya yazın..."
-                        required></textarea>
+                <div class="field">
+                    <label for="mesaj_icerigi">Mesaj</label>
+                    <textarea id="mesaj_icerigi" maxlength="2000" placeholder="Sorunu veya gorusunu yaz..."></textarea>
                 </div>
-                <button type="submit" class="submit-btn">Gönder</button>
+                <div class="field">
+                    <label for="gif_url">GIF URL (istege bagli)</label>
+                    <input id="gif_url" placeholder="https://media.tenor.com/...">
+                </div>
+                <div class="row">
+                    <label class="toggle">
+                        <input id="isim_gorunsun" type="checkbox" checked>
+                        Adim gorunsun
+                    </label>
+                    <button class="btn btn-primary" type="submit" id="postSubmitBtn">Gonder</button>
+                </div>
             </form>
-        </div>
+        </section>
 
-        <div class="messages-section">
-            <h2>Mesajlar</h2>
-            <div id="messagesContainer">
-                <div class="empty-state">Yükleniyor...</div>
+        <section class="panel" style="padding:16px;">
+            <div id="postList" class="post-list">
+                <div class="empty">Yukleniyor...</div>
             </div>
-        </div>
-    </div>
+            <div class="pager">
+                <span id="pagerStatus" class="pager-status">Sayfa 1 / 1</span>
+                <button id="prevPageBtn" class="btn btn-soft" type="button">Onceki</button>
+                <button id="nextPageBtn" class="btn btn-soft" type="button">Sonraki</button>
+            </div>
+        </section>
+    </main>
 
     <script>
-        const messagesContainer = document.getElementById('messagesContainer');
-        const newMessageForm = document.getElementById('newMessageForm');
-        const inputKonu = document.getElementById('konu');
-        const inputMesaj = document.getElementById('mesaj_icerigi');
+        const postList = document.getElementById('postList');
+        const postForm = document.getElementById('postForm');
+        const postSubmitBtn = document.getElementById('postSubmitBtn');
         const alertContainer = document.getElementById('alertContainer');
+        const prevPageBtn = document.getElementById('prevPageBtn');
+        const nextPageBtn = document.getElementById('nextPageBtn');
+        const pagerStatus = document.getElementById('pagerStatus');
 
-        // XSS Koruması
-        const escapeHTML = str => {
-            if (!str) return '';
-            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' };
-            return String(str).replace(/[&<>'"]/g, tag => map[tag] || tag);
+        let posts = [];
+        let currentPage = 1;
+        const pageSize = 8;
+        let pagination = {
+            page: 1,
+            total_pages: 1,
+            total_items: 0,
+            has_prev: false,
+            has_next: false,
         };
 
-        const formatDate = (dateString) => {
-            const date = new Date(dateString);
-            const diff = Math.floor((new Date() - date) / 1000);
-
-            if (diff < 60) return 'Az önce';
-            if (diff < 3600) return `${Math.floor(diff / 60)} dakika önce`;
-            if (diff < 86400) return `${Math.floor(diff / 3600)} saat önce`;
-            return `${Math.floor(diff / 86400)} gün önce`;
+        const escapeHTML = (str) => {
+            if (str == null) return '';
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+            return String(str).replace(/[&<>"']/g, (ch) => map[ch]);
         };
 
-        const showAlert = (message, type) => {
-            if (!alertContainer) return;
-            const alertEl = document.createElement('div');
-            alertEl.className = `alert alert-${type}`;
-            alertEl.textContent = message;
-            alertContainer.appendChild(alertEl);
-            setTimeout(() => alertEl.remove(), 3000);
+        const asSafeHttpUrl = (value) => {
+            if (!value) return null;
+            const raw = String(value).trim();
+            if (!raw) return null;
+            const lower = raw.toLowerCase();
+            if (lower.startsWith('http://') || lower.startsWith('https://')) {
+                return raw;
+            }
+            return null;
         };
 
-        const displayMessages = (messages) => {
-            if (!messagesContainer) return;
+        const timeAgo = (iso) => {
+            const date = new Date(iso);
+            const diff = Math.floor((Date.now() - date.getTime()) / 1000);
+            if (Number.isNaN(diff)) return '';
+            if (diff < 60) return 'Az once';
+            if (diff < 3600) return `${Math.floor(diff / 60)} dk once`;
+            if (diff < 86400) return `${Math.floor(diff / 3600)} saat once`;
+            return `${Math.floor(diff / 86400)} gun once`;
+        };
 
-            if (!messages?.length) {
-                messagesContainer.innerHTML = '<div class="empty-state">Henüz hiç mesaj yok. İlk mesajı siz gönderin!</div>';
+        const countComments = (comments) => {
+            let total = 0;
+            const walk = (nodes) => {
+                for (const node of nodes || []) {
+                    total += 1;
+                    walk(node.children || []);
+                }
+            };
+            walk(comments || []);
+            return total;
+        };
+
+        const showAlert = (message, type = 'success') => {
+            const el = document.createElement('div');
+            el.className = `alert alert-${type}`;
+            el.textContent = message;
+            alertContainer.appendChild(el);
+            setTimeout(() => el.remove(), 3200);
+        };
+
+        const apiRequest = async (url, options = {}) => {
+            const res = await fetch(url, {
+                headers: { 'Content-Type': 'application/json' },
+                ...options,
+            });
+
+            const payload = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                if (res.status === 401) {
+                    window.location.href = `/login?next=${encodeURIComponent(window.location.pathname)}`;
+                    return null;
+                }
+                throw new Error(payload.message || 'Bir islem hatasi olustu.');
+            }
+            return payload;
+        };
+
+        const renderReplyBox = (postId, parentId) => `
+            <div class="reply-box" id="reply-box-${parentId}">
+                <textarea id="reply-text-${parentId}" maxlength="1200" placeholder="Yaniti yaz..."></textarea>
+                <div class="row" style="margin-top:8px;">
+                    <label class="toggle">
+                        <input type="checkbox" id="reply-visible-${parentId}" checked>
+                        Adim gorunsun
+                    </label>
+                    <button class="btn btn-primary" onclick="submitComment(${postId}, ${parentId})">Yaniti Gonder</button>
+                </div>
+            </div>
+        `;
+
+        const renderComment = (postId, comment, depth = 0) => {
+            const left = Math.min(depth * 18, 72);
+            const deletedClass = comment.is_deleted ? 'deleted' : '';
+            const body = escapeHTML(comment.yorum_icerigi || '');
+            const meta = `${escapeHTML(comment.display_name)} · ${timeAgo(comment.gonderilme_tarihi)}`;
+
+            return `
+                <div class="comment ${deletedClass}" style="margin-left:${left}px;">
+                    <div class="comment-meta">${meta}</div>
+                    <p class="comment-body">${body}</p>
+                    <div class="comment-tools">
+                        ${comment.is_deleted ? '' : `<button class="btn btn-soft" onclick="toggleReply(${comment.id})">Yanıtla</button>`}
+                        ${comment.can_delete ? `<button class="btn btn-danger" onclick="deleteComment(${comment.id})">Yorumu Sil</button>` : ''}
+                    </div>
+                    ${comment.is_deleted ? '' : renderReplyBox(postId, comment.id)}
+                    ${(comment.children || []).map((child) => renderComment(postId, child, depth + 1)).join('')}
+                </div>
+            `;
+        };
+
+        const renderPosts = () => {
+            if (!posts.length) {
+                postList.innerHTML = '<div class="empty">Henuz gonderi yok. Ilk basligi sen acabilirsin.</div>';
                 return;
             }
 
-            messagesContainer.innerHTML = messages.map(message => {
-                const safeKonu = escapeHTML(message.konu);
-                const safeIcerik = escapeHTML(message.mesaj_icerigi);
-                const dateStr = formatDate(message.gonderilme_tarihi);
-
-                const likeActive = message.user_action === 'like' ? 'active' : '';
-                const dislikeActive = message.user_action === 'dislike' ? 'active' : '';
+            postList.innerHTML = posts.map((post) => {
+                const topic = escapeHTML(post.konu || '');
+                const content = escapeHTML(post.mesaj_icerigi || '');
+                const author = escapeHTML(post.display_name || 'Anonim');
+                const dateStr = timeAgo(post.gonderilme_tarihi);
+                const likeActive = post.user_action === 'like' ? 'active' : '';
+                const dislikeActive = post.user_action === 'dislike' ? 'active' : '';
+                const gifUrl = asSafeHttpUrl(post.gif_url);
+                const totalCommentCount = countComments(post.comments || []);
 
                 return `
-        <div class="message-card">
-            <div class="message-header">
-                <div class="message-topic">${safeKonu}</div>
-                <div class="message-date">${dateStr}</div>
-            </div>
-            <div class="message-content">${safeIcerik}</div>
-            <div class="message-footer">
-                <button class="like-btn ${likeActive}" onclick="updateLike(${message.id}, 'like', this)">
-                    ▲ Beğen
-                </button>
-                <button class="dislike-btn ${dislikeActive}" onclick="updateLike(${message.id}, 'dislike', this)">
-                    ▼ Beğenme
-                </button>
-                <div class="like-count" id="like-count-${message.id}">
-                    ${message.begeni_sayisi}
-                </div>
-            </div>
-        </div>`;
+                    <article class="post shimmer">
+                        <div class="post-head">
+                            <div>
+                                <h3 class="post-topic">${topic}</h3>
+                                <div class="meta">${author} · ${dateStr}</div>
+                            </div>
+                            <span class="pill">${totalCommentCount} yorum</span>
+                        </div>
+
+                        ${content ? `<div class="post-content">${content}</div>` : ''}
+                        ${gifUrl ? `<div class="gif-wrap"><img src="${escapeHTML(gifUrl)}" loading="lazy" alt="Forum gifi"></div>` : ''}
+
+                        <div class="post-actions">
+                            <button class="btn btn-soft ${likeActive}" onclick="reactPost(${post.id}, 'like')">▲ Begen</button>
+                            <button class="btn btn-soft ${dislikeActive}" onclick="reactPost(${post.id}, 'dislike')">▼ Begenme</button>
+                            <span class="score">Skor: ${post.begeni_sayisi}</span>
+                            ${post.can_delete ? `<button class="btn btn-danger" onclick="deletePost(${post.id})">Gonderiyi Sil</button>` : ''}
+                        </div>
+
+                        <div class="comment-zone">
+                            <p class="comment-title">Yorumlar</p>
+                            ${(post.comments || []).map((c) => renderComment(post.id, c)).join('') || '<div class="meta">Ilk yorumu sen yaz.</div>'}
+
+                            <div class="reply-box visible">
+                                <textarea id="comment-text-${post.id}" maxlength="1200" placeholder="Bu gonderi hakkinda ne dusunuyorsun?"></textarea>
+                                <div class="row" style="margin-top:8px;">
+                                    <label class="toggle">
+                                        <input type="checkbox" id="comment-visible-${post.id}" checked>
+                                        Adim gorunsun
+                                    </label>
+                                    <button class="btn btn-primary" onclick="submitComment(${post.id}, null)">Yorum Yap</button>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                `;
             }).join('');
+
+            pagerStatus.textContent = `Sayfa ${pagination.page} / ${pagination.total_pages} - ${pagination.total_items} gonderi`;
+            prevPageBtn.disabled = !pagination.has_prev;
+            nextPageBtn.disabled = !pagination.has_next;
         };
 
-        const loadMessages = async () => {
+        const loadPosts = async (targetPage = currentPage) => {
             try {
-                const res = await fetch('/api/forum-mesajlari');
-                if (!res.ok) {
-                    if (res.status === 401) {
-                        window.location.href = `/login?next=${encodeURIComponent(window.location.pathname)}`;
-                        return;
-                    }
-                    throw new Error('Mesajlar yüklenemedi');
-                }
-                const messages = await res.json();
-                displayMessages(messages);
-            } catch (error) {
-                console.error('Hata:', error);
-                if (messagesContainer) {
-                    messagesContainer.innerHTML = '<div class="empty-state" style="color:var(--danger);">Mesajlar yüklenirken bir hata oluştu.</div>';
-                }
+                const data = await apiRequest(`/api/forum/posts?page=${encodeURIComponent(targetPage)}&page_size=${encodeURIComponent(pageSize)}`);
+                if (!data) return;
+
+                posts = data.items || [];
+                pagination = data.pagination || pagination;
+                currentPage = pagination.page || 1;
+                renderPosts();
+            } catch (err) {
+                console.error(err);
+                postList.innerHTML = '<div class="empty">Gonderiler yuklenemedi.</div>';
+                showAlert(err.message, 'error');
             }
         };
 
-        window.updateLike = async (messageId, action, btnElement) => {
+        window.reactPost = async (postId, action) => {
             try {
-                const res = await fetch(`/api/like-dislike-message/${encodeURIComponent(messageId)}`, {
+                await apiRequest(`/api/forum/posts/${encodeURIComponent(postId)}/reactions`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action })
+                    body: JSON.stringify({ action }),
                 });
-
-                const data = await res.json();
-
-                if (res.ok) {
-                    const countEl = document.getElementById(`like-count-${messageId}`);
-                    if (countEl) countEl.innerHTML = data.begeni_sayisi;
-
-                    const messageCard = btnElement.closest('.message-card');
-                    if (messageCard) {
-                        const likeBtn = messageCard.querySelector('.like-btn');
-                        const dislikeBtn = messageCard.querySelector('.dislike-btn');
-
-                        if (likeBtn) likeBtn.classList.toggle('active', data.user_action === 'like');
-                        if (dislikeBtn) dislikeBtn.classList.toggle('active', data.user_action === 'dislike');
-                    }
-                } else {
-                    showAlert(data.message || 'İşlem gerçekleştirilemedi.', 'error');
-                }
-            } catch (error) {
-                console.error('Beğeni hatası:', error);
-                showAlert('Bir hata oluştu.', 'error');
+                await loadPosts(currentPage);
+            } catch (err) {
+                showAlert(err.message, 'error');
             }
         };
 
-        if (newMessageForm) {
-            newMessageForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
+        window.toggleReply = (commentId) => {
+            const box = document.getElementById(`reply-box-${commentId}`);
+            if (!box) return;
+            box.classList.toggle('visible');
+        };
 
-                const submitBtn = newMessageForm.querySelector('button[type="submit"]');
-                if (submitBtn) {
-                    submitBtn.disabled = true;
-                    submitBtn.innerText = 'Gönderiliyor...';
-                }
+        window.submitComment = async (postId, parentId) => {
+            const textEl = document.getElementById(parentId ? `reply-text-${parentId}` : `comment-text-${postId}`);
+            const visibleEl = document.getElementById(parentId ? `reply-visible-${parentId}` : `comment-visible-${postId}`);
 
-                const konu = inputKonu?.value.trim();
-                const mesaj_icerigi = inputMesaj?.value.trim();
+            const yorum_icerigi = textEl?.value?.trim() || '';
+            if (!yorum_icerigi) {
+                showAlert('Yorum bos olamaz.', 'error');
+                return;
+            }
 
-                try {
-                    const res = await fetch('/api/forum-mesajlari', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ konu, mesaj_icerigi })
-                    });
+            try {
+                await apiRequest(`/api/forum/posts/${encodeURIComponent(postId)}/comments`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        yorum_icerigi,
+                        parent_comment_id: parentId,
+                        isim_gorunsun: !!visibleEl?.checked,
+                    }),
+                });
+                showAlert('Yorum eklendi.', 'success');
+                if (textEl) textEl.value = '';
+                await loadPosts(currentPage);
+            } catch (err) {
+                showAlert(err.message, 'error');
+            }
+        };
 
-                    const data = await res.json();
+        window.deletePost = async (postId) => {
+            if (!window.confirm('Bu gonderi silinsin mi?')) return;
+            try {
+                await apiRequest(`/api/forum/posts/${encodeURIComponent(postId)}`, { method: 'DELETE' });
+                showAlert('Gonderi silindi.', 'success');
+                await loadPosts(currentPage);
+            } catch (err) {
+                showAlert(err.message, 'error');
+            }
+        };
 
-                    if (res.ok) {
-                        showAlert('Mesajınız başarıyla gönderildi!', 'success');
-                        newMessageForm.reset();
-                        loadMessages();
-                    } else {
-                        showAlert(data.message || 'Mesaj gönderilemedi.', 'error');
-                    }
-                } catch (error) {
-                    console.error('Gönderme hatası:', error);
-                    showAlert('Bir hata oluştu. Lütfen tekrar deneyin.', 'error');
-                } finally {
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.innerText = 'Gönder';
-                    }
-                }
-            });
-        }
+        window.deleteComment = async (commentId) => {
+            if (!window.confirm('Bu yorum silinsin mi?')) return;
+            try {
+                await apiRequest(`/api/forum/comments/${encodeURIComponent(commentId)}`, { method: 'DELETE' });
+                showAlert('Yorum silindi.', 'success');
+                await loadPosts(currentPage);
+            } catch (err) {
+                showAlert(err.message, 'error');
+            }
+        };
 
-        document.addEventListener('DOMContentLoaded', loadMessages);
+        postForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            postSubmitBtn.disabled = true;
+            postSubmitBtn.textContent = 'Gonderiliyor...';
+
+            const konu = document.getElementById('konu').value.trim();
+            const mesaj_icerigi = document.getElementById('mesaj_icerigi').value.trim();
+            const gif_url = document.getElementById('gif_url').value.trim();
+            const isim_gorunsun = document.getElementById('isim_gorunsun').checked;
+
+            try {
+                await apiRequest('/api/forum/posts', {
+                    method: 'POST',
+                    body: JSON.stringify({ konu, mesaj_icerigi, gif_url, isim_gorunsun }),
+                });
+                showAlert('Gonderi paylasildi.', 'success');
+                postForm.reset();
+                document.getElementById('isim_gorunsun').checked = true;
+                await loadPosts(1);
+            } catch (err) {
+                showAlert(err.message, 'error');
+            } finally {
+                postSubmitBtn.disabled = false;
+                postSubmitBtn.textContent = 'Gonder';
+            }
+        });
+
+        prevPageBtn.addEventListener('click', () => {
+            if (!pagination.has_prev) return;
+            loadPosts(currentPage - 1);
+        });
+
+        nextPageBtn.addEventListener('click', () => {
+            if (!pagination.has_next) return;
+            loadPosts(currentPage + 1);
+        });
+
+        document.addEventListener('DOMContentLoaded', loadPosts);
     </script>
 </body>
-
 </html>

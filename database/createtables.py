@@ -15,6 +15,7 @@ from database.kampusten import Enstantane, EnstantaneLike
 from database.pazar import PazarIlani
 from database.degerlendirme import OgretmenDegerlendirme
 from database.forum_like import ForumLike
+from database.forum_comment import ForumComment
 from database.forum_message import ForumMessage
 from database.kayip_esya import KayipEsya
 from database.kulupicerik import Kulupicerik

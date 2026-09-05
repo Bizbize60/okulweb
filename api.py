@@ -18,6 +18,7 @@ from database.user import (
 )
 from database.forum_message import ForumMessage
 from database.forum_like import ForumLike
+from database.forum_comment import ForumComment
 from database.kayip_esya import KayipEsya
 from database.kampusten import Enstantane, EnstantaneLike
 from database.subscription import WebPushSubscription
@@ -59,6 +60,119 @@ def _safe_http_url(url):
     if lower.startswith('https://') or lower.startswith('http://'):
         return url
     return None
+
+
+def _forum_parse_bool(value, default=True):
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return default
+    if isinstance(value, (int, float)):
+        return bool(value)
+    normalized = str(value).strip().lower()
+    if normalized in {'1', 'true', 'yes', 'on', 'evet'}:
+        return True
+    if normalized in {'0', 'false', 'no', 'off', 'hayir', 'hayır'}:
+        return False
+    return default
+
+
+def _forum_validate_gif_url(raw_url):
+    if raw_url is None:
+        return True, None
+
+    candidate = str(raw_url).strip()
+    if not candidate:
+        return True, None
+
+    safe_url = _safe_http_url(candidate)
+    if not safe_url:
+        return False, None
+
+    lowered = safe_url.lower()
+    host_hints = ('giphy.com', 'tenor.com', 'media.tenor.com', 'giphyusercontent.com')
+    if lowered.endswith('.gif') or any(hint in lowered for hint in host_hints):
+        return True, safe_url
+
+    return False, None
+
+
+def _forum_is_admin_or_moderator(user):
+    if not user:
+        return False
+    if user_has_permission(user, 'system.admin'):
+        return True
+    if user.has_role('moderator'):
+        return True
+    return user.email in ADMIN_EMAILS and user.has_role('owner')
+
+
+def _forum_can_delete(current_user, owner_id):
+    if not current_user:
+        return False
+    if current_user.id == owner_id:
+        return True
+    return _forum_is_admin_or_moderator(current_user)
+
+
+def _forum_display_name(user, isim_gorunsun):
+    if not isim_gorunsun:
+        return 'Anonim'
+    if user and user.name:
+        return user.name
+    return 'Anonim'
+
+
+def _serialize_forum_comment(comment, current_user):
+    deleted = bool(comment.silindi)
+    content = 'Bu yorum silindi.' if deleted else (comment.yorum_icerigi or '')
+
+    return {
+        'id': comment.id,
+        'message_id': comment.message_id,
+        'parent_comment_id': comment.parent_comment_id,
+        'yorum_icerigi': content,
+        'display_name': _forum_display_name(comment.user, comment.isim_gorunsun) if not deleted else 'Anonim',
+        'is_deleted': deleted,
+        'gonderilme_tarihi': comment.gonderilme_tarihi.isoformat() if comment.gonderilme_tarihi else None,
+        'can_delete': _forum_can_delete(current_user, comment.user_id),
+        'children': []
+    }
+
+
+def _build_forum_comment_tree(comments, current_user):
+    by_parent = {}
+    for comment in comments:
+        by_parent.setdefault(comment.parent_comment_id, []).append(comment)
+
+    def build(parent_id, depth=0):
+        if depth > 12:
+            return []
+        nodes = []
+        for comment in by_parent.get(parent_id, []):
+            serialized = _serialize_forum_comment(comment, current_user)
+            serialized['children'] = build(comment.id, depth + 1)
+            nodes.append(serialized)
+        return nodes
+
+    return build(None)
+
+
+def _serialize_forum_post(post, current_user, user_action=None, comment_tree=None):
+    comments = comment_tree or []
+    return {
+        'id': post.id,
+        'konu': post.konu,
+        'mesaj_icerigi': post.mesaj_icerigi or '',
+        'gif_url': post.gif_url,
+        'display_name': _forum_display_name(post.user, post.isim_gorunsun),
+        'gonderilme_tarihi': post.gonderilme_tarihi.isoformat() if post.gonderilme_tarihi else None,
+        'begeni_sayisi': post.begeni_sayisi,
+        'user_action': user_action,
+        'can_delete': _forum_can_delete(current_user, post.user_id),
+        'comment_count': len(comments),
+        'comments': comments
+    }
 
 api_bp = Blueprint('api', __name__)
 
@@ -161,49 +275,256 @@ def api_haberler():
     articles = scrape_haberler()
     return jsonify({"articles": articles})
 
-@api_bp.route('/api/forum-mesajlari', methods=['GET', 'POST'])
+@api_bp.get('/api/forum/posts')
 @token_required(next_location='/forum')
-def api_forum_mesajlari(current_user):
-    if request.method == 'POST':
-        konu = request.json.get('konu')
-        mesaj_icerigi = request.json.get('mesaj_icerigi')
+def api_forum_posts(current_user):
+    try:
+        page = int(request.args.get('page', 1))
+    except (TypeError, ValueError):
+        page = 1
+    try:
+        page_size = int(request.args.get('page_size', 8))
+    except (TypeError, ValueError):
+        page_size = 8
 
-        if not konu or not mesaj_icerigi:
-            return jsonify({'message': 'Konu ve mesaj içeriği gereklidir!'}), 400
+    page = max(page, 1)
+    page_size = max(1, min(page_size, 20))
 
-        yeni_mesaj = ForumMessage(
-            konu=konu,
-            mesaj_icerigi=mesaj_icerigi,
-            user_id=current_user.id
-        )
-        db.session.add(yeni_mesaj)
+    base_query = ForumMessage.query.filter_by(silindi=False).order_by(ForumMessage.gonderilme_tarihi.desc())
+    total_items = base_query.count()
+    total_pages = max(1, (total_items + page_size - 1) // page_size)
+    if page > total_pages:
+        page = total_pages
+
+    posts = base_query.offset((page - 1) * page_size).limit(page_size).all()
+    post_ids = [post.id for post in posts]
+
+    user_like_map = {}
+    if post_ids:
+        likes = ForumLike.query.filter(
+            ForumLike.user_id == current_user.id,
+            ForumLike.message_id.in_(post_ids)
+        ).all()
+        user_like_map = {like.message_id: like.like_type for like in likes}
+
+    comments_by_post = {}
+    if post_ids:
+        comments = ForumComment.query.filter(
+            ForumComment.message_id.in_(post_ids)
+        ).order_by(ForumComment.gonderilme_tarihi.asc()).all()
+        for comment in comments:
+            comments_by_post.setdefault(comment.message_id, []).append(comment)
+
+    result = []
+    for post in posts:
+        comment_tree = _build_forum_comment_tree(comments_by_post.get(post.id, []), current_user)
+        result.append(_serialize_forum_post(post, current_user, user_like_map.get(post.id), comment_tree))
+
+    return jsonify({
+        'items': result,
+        'pagination': {
+            'page': page,
+            'page_size': page_size,
+            'total_items': total_items,
+            'total_pages': total_pages,
+            'has_next': page < total_pages,
+            'has_prev': page > 1,
+        }
+    }), 200
+
+
+@api_bp.post('/api/forum/posts')
+@token_required(next_location='/forum')
+def api_forum_create_post(current_user):
+    payload = request.get_json(silent=True) or {}
+
+    konu = (payload.get('konu') or '').strip()
+    mesaj_icerigi = (payload.get('mesaj_icerigi') or '').strip()
+    isim_gorunsun = _forum_parse_bool(payload.get('isim_gorunsun'), default=True)
+
+    gif_valid, gif_url = _forum_validate_gif_url(payload.get('gif_url'))
+    if not gif_valid:
+        return jsonify({'message': 'GIF URL sadece gecerli http/https gif baglantisi olabilir.'}), 400
+
+    if not konu:
+        return jsonify({'message': 'Konu zorunludur.'}), 400
+    if len(konu) > 200:
+        return jsonify({'message': 'Konu en fazla 200 karakter olabilir.'}), 400
+    if len(mesaj_icerigi) > 2000:
+        return jsonify({'message': 'Mesaj icerigi en fazla 2000 karakter olabilir.'}), 400
+    if not mesaj_icerigi and not gif_url:
+        return jsonify({'message': 'Mesaj icerigi veya GIF URL alanlarindan biri gereklidir.'}), 400
+
+    post = ForumMessage(
+        konu=konu,
+        mesaj_icerigi=mesaj_icerigi,
+        user_id=current_user.id,
+        isim_gorunsun=isim_gorunsun,
+        gif_url=gif_url,
+    )
+    db.session.add(post)
+    db.session.commit()
+
+    _aktivite_puan_ver(current_user, 20, 'forum')
+
+    return jsonify({
+        'message': 'Mesaj basariyla eklendi!',
+        'post': _serialize_forum_post(post, current_user, user_action=None, comment_tree=[])
+    }), 201
+
+
+@api_bp.get('/api/forum/posts/<int:post_id>')
+@token_required(next_location='/forum')
+def api_forum_post_detail(current_user, post_id):
+    post = ForumMessage.query.filter_by(id=post_id, silindi=False).first()
+    if not post:
+        return jsonify({'message': 'Mesaj bulunamadi.'}), 404
+
+    user_like = ForumLike.query.filter_by(user_id=current_user.id, message_id=post.id).first()
+    comments = ForumComment.query.filter_by(message_id=post.id).order_by(ForumComment.gonderilme_tarihi.asc()).all()
+    comment_tree = _build_forum_comment_tree(comments, current_user)
+
+    return jsonify(_serialize_forum_post(post, current_user, user_like.like_type if user_like else None, comment_tree)), 200
+
+
+@api_bp.post('/api/forum/posts/<int:post_id>/reactions')
+@token_required(next_location='/forum')
+def api_forum_react_post(current_user, post_id):
+    post = db.session.get(ForumMessage, post_id)
+    if not post or post.silindi:
+        return jsonify({'message': 'Mesaj bulunamadi!'}), 404
+
+    payload = request.get_json(silent=True) or {}
+    action = payload.get('action')
+    if action not in ['like', 'dislike']:
+        return jsonify({'message': 'Gecersiz islem!'}), 400
+
+    existing_like = ForumLike.query.filter_by(user_id=current_user.id, message_id=post_id).first()
+
+    if existing_like:
+        if existing_like.like_type == action:
+            if action == 'like':
+                post.begeni_sayisi -= 1
+            else:
+                post.begeni_sayisi += 1
+
+            db.session.delete(existing_like)
+            db.session.commit()
+            return jsonify({
+                'message': 'Islem geri alindi!',
+                'begeni_sayisi': post.begeni_sayisi,
+                'user_action': None
+            }), 200
+
+        if existing_like.like_type == 'like' and action == 'dislike':
+            post.begeni_sayisi -= 2
+        elif existing_like.like_type == 'dislike' and action == 'like':
+            post.begeni_sayisi += 2
+
+        existing_like.like_type = action
         db.session.commit()
+        return jsonify({
+            'message': 'Islem guncellendi!',
+            'begeni_sayisi': post.begeni_sayisi,
+            'user_action': action
+        }), 200
 
-        # --- Aktivite Puanı: Forum mesajı 20 puan ---
-        _aktivite_puan_ver(current_user, 20, 'forum')
-
-        return jsonify({'message': 'Mesaj başarıyla eklendi!'}), 201
-
-    # GET isteği
+    new_like = ForumLike(user_id=current_user.id, message_id=post_id, like_type=action)
+    if action == 'like':
+        post.begeni_sayisi += 1
     else:
-        mesajlar = ForumMessage.query.order_by(ForumMessage.gonderilme_tarihi.desc()).all()
-        result = []
-        for mesaj in mesajlar:
-            
-            user_like = ForumLike.query.filter_by(
-                user_id=current_user.id,
-                message_id=mesaj.id
-            ).first()
-            
-            result.append({
-                'id': mesaj.id,
-                'konu': mesaj.konu,
-                'mesaj_icerigi': mesaj.mesaj_icerigi,
-                'gonderilme_tarihi': mesaj.gonderilme_tarihi.isoformat(),
-                'begeni_sayisi': mesaj.begeni_sayisi,
-                'user_action': user_like.like_type if user_like else None
-            })
-        return jsonify(result)
+        post.begeni_sayisi -= 1
+
+    db.session.add(new_like)
+    db.session.commit()
+
+    return jsonify({
+        'message': 'Islem basariyla gerceklestirildi!',
+        'begeni_sayisi': post.begeni_sayisi,
+        'user_action': action
+    }), 200
+
+
+@api_bp.post('/api/forum/posts/<int:post_id>/comments')
+@token_required(next_location='/forum')
+def api_forum_add_comment(current_user, post_id):
+    post = ForumMessage.query.filter_by(id=post_id, silindi=False).first()
+    if not post:
+        return jsonify({'message': 'Mesaj bulunamadi.'}), 404
+
+    payload = request.get_json(silent=True) or {}
+    yorum_icerigi = (payload.get('yorum_icerigi') or '').strip()
+    isim_gorunsun = _forum_parse_bool(payload.get('isim_gorunsun'), default=True)
+    parent_comment_id = payload.get('parent_comment_id')
+
+    if not yorum_icerigi:
+        return jsonify({'message': 'Yorum icerigi zorunludur.'}), 400
+    if len(yorum_icerigi) > 1200:
+        return jsonify({'message': 'Yorum en fazla 1200 karakter olabilir.'}), 400
+
+    parent_comment = None
+    if parent_comment_id is not None:
+        try:
+            parent_comment_id = int(parent_comment_id)
+        except (TypeError, ValueError):
+            return jsonify({'message': 'Gecersiz parent_comment_id.'}), 400
+
+        parent_comment = db.session.get(ForumComment, parent_comment_id)
+        if not parent_comment or parent_comment.message_id != post_id:
+            return jsonify({'message': 'Ust yorum bulunamadi.'}), 400
+        if parent_comment.silindi:
+            return jsonify({'message': 'Silinmis yoruma cevap verilemez.'}), 400
+
+    comment = ForumComment(
+        message_id=post_id,
+        parent_comment_id=parent_comment_id,
+        user_id=current_user.id,
+        yorum_icerigi=yorum_icerigi,
+        isim_gorunsun=isim_gorunsun,
+    )
+    db.session.add(comment)
+    db.session.commit()
+
+    return jsonify({
+        'message': 'Yorum basariyla eklendi.',
+        'comment': _serialize_forum_comment(comment, current_user)
+    }), 201
+
+
+@api_bp.delete('/api/forum/posts/<int:post_id>')
+@token_required(next_location='/forum')
+def api_forum_delete_post(current_user, post_id):
+    post = ForumMessage.query.filter_by(id=post_id, silindi=False).first()
+    if not post:
+        return jsonify({'message': 'Mesaj bulunamadi.'}), 404
+
+    if not _forum_can_delete(current_user, post.user_id):
+        return jsonify({'message': 'Bu mesaji silme yetkiniz yok.'}), 403
+
+    db.session.delete(post)
+    db.session.commit()
+    return jsonify({'message': 'Mesaj silindi.'}), 200
+
+
+@api_bp.delete('/api/forum/comments/<int:comment_id>')
+@token_required(next_location='/forum')
+def api_forum_delete_comment(current_user, comment_id):
+    comment = db.session.get(ForumComment, comment_id)
+    if not comment:
+        return jsonify({'message': 'Yorum bulunamadi.'}), 404
+
+    if not _forum_can_delete(current_user, comment.user_id):
+        return jsonify({'message': 'Bu yorumu silme yetkiniz yok.'}), 403
+
+    comment.silindi = True
+    comment.yorum_icerigi = ''
+    comment.isim_gorunsun = False
+    db.session.commit()
+
+    return jsonify({
+        'message': 'Yorum silindi.',
+        'comment': _serialize_forum_comment(comment, current_user)
+    }), 200
 
 @api_bp.route('/api/kayip-ekle', methods=['POST'])
 @token_required(next_location='/ilan-ekle')
@@ -906,75 +1227,6 @@ def api_degerlendirme_ekle(current_user):
         return jsonify({'message': 'Değerlendirme başarıyla eklendi!'}), 201
     except Exception as e:
         return jsonify({'message': f'Hata: {str(e)}'}), 500
-
-@api_bp.post('/api/like-dislike-message/<int:message_id>')
-@token_required(next_location='/forum')
-def like_dislike_message(current_user, message_id):
-    mesaj = db.session.get(ForumMessage, message_id)
-    if not mesaj:
-        return jsonify({'message': 'Mesaj bulunamadı!'}), 404
-
-    action = request.json.get('action')
-    if action not in ['like', 'dislike']:
-        return jsonify({'message': 'Geçersiz işlem!'}), 400
-
-
-    existing_like = ForumLike.query.filter_by(
-        user_id=current_user.id,
-        message_id=message_id
-    ).first()
-
-    if existing_like:
-
-        if existing_like.like_type == action:
-            if action == 'like':
-                mesaj.begeni_sayisi -= 1  
-            elif action == 'dislike':
-                mesaj.begeni_sayisi += 1 
-                
-            db.session.delete(existing_like)
-            db.session.commit()
-            
-            return jsonify({
-                'message': 'İşlem geri alındı!',
-                'begeni_sayisi': mesaj.begeni_sayisi,
-                'user_action': None
-            }), 200
-        else:
-           
-            if existing_like.like_type == 'like' and action == 'dislike':
-                mesaj.begeni_sayisi -= 2  
-            elif existing_like.like_type == 'dislike' and action == 'like':
-                mesaj.begeni_sayisi += 2 
-            
-            existing_like.like_type = action
-            db.session.commit()
-            
-            return jsonify({
-                'message': 'İşlem güncellendi!',
-                'begeni_sayisi': mesaj.begeni_sayisi,
-                'user_action': action
-            }), 200
-    else:
-        new_like = ForumLike(
-            user_id=current_user.id,
-            message_id=message_id,
-            like_type=action
-        )
-        
-        if action == 'like':
-            mesaj.begeni_sayisi += 1  
-        elif action == 'dislike':
-            mesaj.begeni_sayisi -= 1  
-        
-        db.session.add(new_like)
-        db.session.commit()
-        
-        return jsonify({
-            'message': 'İşlem başarıyla gerçekleştirildi!',
-            'begeni_sayisi': mesaj.begeni_sayisi,
-            'user_action': action
-        }), 200
 
 @api_bp.post('/api/ilan-ekle')
 @token_required(next_location='/ilan-ekle')
