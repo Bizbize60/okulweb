@@ -252,12 +252,17 @@
             margin-bottom: 10px;
         }
 
-        .gif-wrap img {
-            width: 100%;
-            max-height: 280px;
-            object-fit: cover;
+        .gif-wrap img,
+        .gif-wrap video {
+            display: block;
+            width: auto;
+            max-width: 100%;
+            height: auto;
+            max-height: 420px;
+            object-fit: contain;
             border-radius: 12px;
             border: 1px solid #dbeafe;
+            background: #0f172a0d;
         }
 
         .post-actions {
@@ -578,7 +583,7 @@
 
                         ${content ? `<div class="post-content">${content}</div>` : ''}
                         ${gifUrl ? `<div class="gif-wrap">${isVideo
-                            ? `<video src="${escapeHTML(gifUrl)}" muted autoplay loop playsinline controls preload="metadata" style="width:100%;max-height:280px;border-radius:12px;border:1px solid #dbeafe;object-fit:cover;"></video>`
+                            ? `<video src="${escapeHTML(gifUrl)}" muted autoplay loop playsinline controls preload="metadata"></video>`
                             : `<img src="${escapeHTML(gifUrl)}" loading="lazy" alt="Forum gifi">`
                         }</div>` : ''}
 
