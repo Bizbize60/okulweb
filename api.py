@@ -92,9 +92,15 @@ def _forum_validate_gif_url(raw_url):
         return False, None
 
     lowered = safe_url.lower()
-    if ('media.tenor.com' in lowered or 'giphyusercontent.com' in lowered or lowered.endswith('.gif')):
+
+    # Bu domainler zaten dogrudan medya sunar (yonlendirme/HTML sayfasi degil).
+    direct_media_hosts = ('media.tenor.com', 'giphyusercontent.com')
+    if any(host in lowered for host in direct_media_hosts):
         return True, safe_url
 
+    # tenor.com/giphy.com "paylasim" linkleri .gif ile bitse bile aslinda HTML
+    # sayfasi dondurur (gercek medya mp4/gif olabilir); bu yuzden uzantiya
+    # guvenmeden her zaman gercek medya URL'sini cozumlemeye calisiyoruz.
     if 'tenor.com' in lowered or 'giphy.com' in lowered:
         try:
             response = requests.get(
@@ -110,24 +116,31 @@ def _forum_validate_gif_url(raw_url):
 
         final_url = (response.url or '').strip()
         content_type = (response.headers.get('Content-Type') or '').lower()
+        media_extensions = ('.gif', '.webp', '.mp4', '.webm')
         if final_url and _safe_http_url(final_url):
             final_lower = final_url.lower()
-            if final_lower.endswith('.gif') or final_lower.endswith('.webp'):
+            if final_lower.endswith(media_extensions):
                 return True, final_url
-            if content_type.startswith('image/') and (
-                'media.tenor.com' in final_lower or 'giphyusercontent.com' in final_lower
+            if content_type.startswith(('image/', 'video/')) and any(
+                host in final_lower for host in direct_media_hosts
             ):
                 return True, final_url
 
         if 'text/html' in content_type:
             html = response.text or ''
             match = re.search(
-                r'https?://(?:media\.tenor\.com|i\.giphy\.com|media\d?\.giphy\.com|giphyusercontent\.com)[^"\'\s>]+\.(?:gif|webp)',
+                r'https?://(?:media\.tenor\.com|i\.giphy\.com|media\d?\.giphy\.com|giphyusercontent\.com)[^"\'\s>]+\.(?:gif|webp|mp4|webm)',
                 html,
                 re.IGNORECASE,
             )
             if match:
                 return True, match.group(0)
+
+        return False, None
+
+    # tenor.com/giphy.com disindaki genel URL'ler icin uzanti kontrolu yeterli.
+    if lowered.endswith(('.gif', '.webp', '.mp4', '.webm')):
+        return True, safe_url
 
     return False, None
 
