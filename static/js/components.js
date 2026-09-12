@@ -157,7 +157,8 @@
     let navLinksHtml = '';
     NAV_DESKTOP_LINKS.forEach(l => {
       const a = (l.active===active) ? ' active' : '';
-      navLinksHtml += `<a href="${esc(l.href)}" class="nav-link${a}"${linkColor(l.color)}>${esc(l.label)}</a>\n`;
+      navLinksHtml += `<a href="${esc(l.href)}" class="nav-link${a}"${linkColor(l.color)}>${esc(l.label)}</a>
+`;
     });
     // Logged in ise SADECE 2 kritik ekstra: Forum + Ders Notları
     if(isLoggedIn){
@@ -166,7 +167,8 @@
         { href:'/ders-notlari', label:'Ders Notları', icon:'📚', active:'notlar' }
       ].forEach(l => {
         const a = (l.active===active) ? ' active' : '';
-        navLinksHtml += `<a href="${esc(l.href)}" class="nav-link${a}">${esc(l.label)}</a>\n`;
+        navLinksHtml += `<a href="${esc(l.href)}" class="nav-link${a}">${esc(l.label)}</a>
+`;
       });
     }
     // Dropdowns: Elcilik + Kulupler
@@ -196,11 +198,14 @@
       const idAttr = loggedIn ? ' id="mobileLoggedInLinks" style="display:none;"' : '';
       mobileSectionsHtml += `
     <nav class="mobile-nav-section" aria-label="${esc(sec.title)}"${idAttr}>
-      <div class="mobile-nav-title"${sec.titleColor?` style="color:${esc(sec.titleColor)};"`:''}>${esc(sec.icon)} ${esc(sec.title)}</div>\n`;
+      <div class="mobile-nav-title"${sec.titleColor?` style="color:${esc(sec.titleColor)};"`:''}>${esc(sec.icon)} ${esc(sec.title)}</div>
+`;
       sec.items.forEach(it => {
-        mobileSectionsHtml += `      <a class="mobile-nav-link" href="${esc(it.href)}"><span class="icon" aria-hidden="true">${esc(it.icon)}</span>${esc(it.label)}</a>\n`;
+        mobileSectionsHtml += `      <a class="mobile-nav-link" href="${esc(it.href)}"><span class="icon" aria-hidden="true">${esc(it.icon)}</span>${esc(it.label)}</a>
+`;
       });
-      mobileSectionsHtml += `    </nav>\n`;
+      mobileSectionsHtml += `    </nav>
+`;
     });
 
     const tmpl = `
@@ -267,7 +272,8 @@
     let inner = '';
     items.forEach(it => {
       if (it.loginOnly && !isLoggedIn) return;
-      inner += `<a class="dropdown-item" href="${esc(it.href)}" role="menuitem"><span class="dropdown-item-text">${it.label}</span></a>\n`;
+      inner += `<a class="dropdown-item" href="${esc(it.href)}" role="menuitem"><span class="dropdown-item-text">${it.label}</span></a>
+`;
     });
     return `
 <div class="dropdown">
@@ -421,7 +427,7 @@
     }
   };
 
-// Public API
+  // Public API
   window.THKU_UI = {
     Navbar: { render: renderNavbar },
     Footer: { render: renderFooter },
@@ -455,4 +461,4 @@
     lastScrollY = currentScrollY;
   });
 
-})(); // <-- BÜTÜN DOSYANIN EN SONUNDA SADECE BU KALMALI
+})();
