@@ -53,13 +53,14 @@ select:focus-visible,
   position: relative;
 }
 .site-header {
-  position: sticky;
+  position: relative;
   top: 0;
   z-index: 200;
   background: rgba(5, 5, 6, 0.82);
   backdrop-filter: saturate(180%) blur(18px);
   -webkit-backdrop-filter: saturate(180%) blur(18px);
   border-bottom: 1px solid var(--border, rgba(255,255,255,.08));
+  animation: headerSlideDown .5s cubic-bezier(.16,1,.3,1);
 }
 .nav-inner {
   display: flex;
@@ -81,6 +82,7 @@ select:focus-visible,
   min-height: 44px;
   min-width: 44px;
   flex-shrink: 0;
+  animation: headerItemSlide .5s cubic-bezier(.16,1,.3,1) .05s both;
 }
 .brand-mark {
   display: inline-flex;
@@ -105,6 +107,7 @@ select:focus-visible,
   flex: 1 1 auto;
   flex-wrap: nowrap;
   overflow: visible;
+  animation: headerItemSlide .5s cubic-bezier(.16,1,.3,1) .1s both;
 }
 .nav-link {
   position: relative;
@@ -203,6 +206,7 @@ select:focus-visible,
   align-items: center;
   gap: 10px;
   margin-left: auto;
+  animation: headerItemSlide .5s cubic-bezier(.16,1,.3,1) .15s both;
 }
 @media (max-width: 1199px) { .nav-auth .btn-secondary { display:none; } }
 
@@ -224,6 +228,7 @@ select:focus-visible,
   cursor: pointer;
   color: inherit;
   margin-left: auto;
+  animation: headerItemSlide .5s cubic-bezier(.16,1,.3,1) .15s both;
 }
 .hamburger span {
   display: block;
@@ -655,6 +660,16 @@ a.widget:hover, .widget a:hover { text-decoration: none !important; color: var(-
   .footer-legal { text-align: left; }
   .nav-inner { height: 64px; }
   .brand-sub { display: none; }
+}
+
+/* --------------- ANIMATIONS --------------- */
+@keyframes headerSlideDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes headerItemSlide {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* --------------- REDUCED MOTION (WCAG) */
