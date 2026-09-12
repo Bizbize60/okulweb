@@ -776,7 +776,7 @@
   <main id="main-content" role="main" style="padding-top: 28px;">
     <div class="container">
       <!-- 1) EN UST: 3'lu WIDGET (Yemekhane + Otobüs + HElçi + Top5)  -->
-      <section aria-label="Kampüs Vitrini" style="margin-top:-34px; position:relative; z-index:3;">
+      <section aria-label="Kampüs Vitrini" class="reveal-on-scroll" style="margin-top:-34px; position:relative; z-index:3;">
         <div class="home-widgets w-3col" style="display:grid;">
           <!-- WIDGET 1: Yemekhane (bugun) — GERCEK DATA JS ile doldurulur -->
           <a href="/yemekhane" class="widget w-yemekhane" aria-label="Yemekhane menüsü">
@@ -833,7 +833,7 @@
       </section>
 
       <!-- 2) HIZLI ERISIM KARTLARI (8 adet) - Kullanıcılar 1 tikla erisin -->
-      <section aria-label="Hızlı Erişim" style="margin-top:48px;">
+      <section aria-label="Hızlı Erişim" class="reveal-on-scroll" style="margin-top:48px;">
         <div class="section-title">
           <div>
             <h2>⚡ Hızlı Erişim</h2>
@@ -886,7 +886,7 @@
 
       <!-- 3) TOP 5 ELCI SIRALAMASI (eger varsa, widget 2. satir) -->
       {% if top_elciler and top_elciler|length > 0 %}
-      <section aria-label="En aktif 5 öğrenci" style="margin-top:48px;">
+      <section aria-label="En aktif 5 öğrenci" class="reveal-on-scroll" style="margin-top:48px;">
         <div class="section-title">
           <div>
             <h2>🏆 Top 5 Öğrenci Elçisi</h2>
@@ -919,34 +919,34 @@
   </main>
 
   <!-- KULÜPLER -->
-  <section class="clubs-section">
+  <section class="clubs-section reveal-on-scroll">
     <div class="features-header">
       <span class="section-tag">Öğrenci Kulüpleri</span>
       <h2 class="section-title">Kulüpleri keşfet</h2>
       <p class="section-subtitle">THKÜ'nün aktif öğrenci kulüplerine göz atın ve etkinliklerden haberdar olun.</p>
     </div>
     <div class="clubs-grid">
-      <a href="/kulupler/kanatlibulten" class="club-card">
+      <a href="/kulupler/kanatlibulten" class="club-card reveal-on-scroll" data-reveal-delay="1">
         <div class="club-avatar kanatli">📰</div>
         <div class="club-info"><div class="club-name">Kanatlı Bülten</div><div class="club-desc">Üniversite haber ve dergi kulübü</div></div>
         <svg class="club-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
       </a>
-      <a href="/kulupler/utaa-music-club" class="club-card">
+      <a href="/kulupler/utaa-music-club" class="club-card reveal-on-scroll" data-reveal-delay="2">
         <div class="club-avatar utaa">🎵</div>
         <div class="club-info"><div class="club-name">UTAA Music Club</div><div class="club-desc">Müzik ve performans kulübü</div></div>
         <svg class="club-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
       </a>
-      <a href="/kulupler/fsource" class="club-card">
+      <a href="/kulupler/fsource" class="club-card reveal-on-scroll" data-reveal-delay="3">
         <div class="club-avatar fsource">💻</div>
         <div class="club-info"><div class="club-name">FSource</div><div class="club-desc">Yazılım ve teknoloji kulübü</div></div>
         <svg class="club-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
       </a>
-      <a href="/kulupler/makine-muhendisligi" class="club-card">
+      <a href="/kulupler/makine-muhendisligi" class="club-card reveal-on-scroll" data-reveal-delay="4">
         <div class="club-avatar makine">⚙️</div>
         <div class="club-info"><div class="club-name">Makine Mühendisliği</div><div class="club-desc">Mühendislik ve inovasyon kulübü</div></div>
         <svg class="club-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
       </a>
-      <a href="/kulupler/turk-tarih-toplulugu" class="club-card">
+      <a href="/kulupler/turk-tarih-toplulugu" class="club-card reveal-on-scroll" data-reveal-delay="5">
         <div class="club-avatar tarih">📜</div>
         <div class="club-info"><div class="club-name">Türk Tarih Topluluğu</div><div class="club-desc">Tarih ve kültür araştırma kulübü</div></div>
         <svg class="club-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
@@ -1287,7 +1287,31 @@
       checkLoginStatus();
       fetchAndRenderNews();
       loadDailyGlance();
+      initScrollReveal();
     });
+
+    // ── SCROLL REVEAL: bölümler görünüme girdikçe yumuşak animasyonla belirir ──
+    function initScrollReveal() {
+      const targets = document.querySelectorAll('.reveal-on-scroll');
+      if (!targets.length) return;
+
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (prefersReducedMotion || !('IntersectionObserver' in window)) {
+        targets.forEach(el => el.classList.add('is-revealed'));
+        return;
+      }
+
+      const observer = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-revealed');
+            obs.unobserve(entry.target);
+          }
+        });
+      }, { root: null, rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+
+      targets.forEach(el => observer.observe(el));
+    }
   </script>
 <!-- Floating İstek/Öneri Butonu -->
 <a href="/istekler" class="floating-feedback-btn" title="İstek veya Öneri Bildir">
