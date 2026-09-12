@@ -672,6 +672,26 @@ a.widget:hover, .widget a:hover { text-decoration: none !important; color: var(-
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* --------------- SCROLL REVEAL (IntersectionObserver destekli) --------------- */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1);
+  will-change: opacity, transform;
+}
+.reveal-on-scroll.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* Kart gruplarinda hafif kademeli (staggered) gecis */
+.reveal-on-scroll[data-reveal-delay="1"] { transition-delay: .08s; }
+.reveal-on-scroll[data-reveal-delay="2"] { transition-delay: .16s; }
+.reveal-on-scroll[data-reveal-delay="3"] { transition-delay: .24s; }
+.reveal-on-scroll[data-reveal-delay="4"] { transition-delay: .32s; }
+.reveal-on-scroll[data-reveal-delay="5"] { transition-delay: .4s; }
+.reveal-on-scroll[data-reveal-delay="6"] { transition-delay: .48s; }
+.reveal-on-scroll[data-reveal-delay="7"] { transition-delay: .56s; }
+
 /* --------------- REDUCED MOTION (WCAG) */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
