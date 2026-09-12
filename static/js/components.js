@@ -13,7 +13,11 @@
   // body opacity/translate ile "siteye giris" animasyonu; JS calismazsa/gec
   // yuklenirse kullanicinin sayfayi gormesini engellememek icin guvenlik agi var.
   function markPageReady(){
-    document.body && document.body.classList.add('thku-page-ready');
+    if (document.body) {
+      document.body.classList.add('thku-page-ready');
+      // Kedi animasyonunu (loader) gizleyen sınıfı da ekliyoruz
+      document.body.classList.add('loaded');
+    }
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', markPageReady);
@@ -417,10 +421,38 @@
     }
   };
 
-  // Public API
+// Public API
   window.THKU_UI = {
     Navbar: { render: renderNavbar },
     Footer: { render: renderFooter },
     Card
   };
-})();
+
+  /* ---------------- AKILLI SCROLL NAVBAR (Smart Sticky) ---------------- */
+  let lastScrollY = window.scrollY;
+  const scrollThreshold = 10; // Titremeleri önlemek için tolerans
+
+  window.addEventListener('scroll', () => {
+    const currentScrollY = window.scrollY;
+    const body = document.body;
+    
+    // Navbar arkaplanını sayfa başından ayrılınca koyulaştır (Cam efekti)
+    if (currentScrollY > 20) {
+      body.classList.add('nav-scrolled');
+    } else {
+      body.classList.remove('nav-scrolled');
+    }
+
+    // Aşağı kaydırma (Navbarı Gizle)
+    if (currentScrollY > lastScrollY && currentScrollY > 150) {
+      body.classList.add('nav-hidden');
+    } 
+    // Yukarı kaydırma (Navbarı Göster)
+    else if (currentScrollY < lastScrollY - scrollThreshold || currentScrollY <= 0) {
+      body.classList.remove('nav-hidden');
+    }
+
+    lastScrollY = currentScrollY;
+  });
+
+})(); // <-- BÜTÜN DOSYANIN EN SONUNDA SADECE BU KALMALI
