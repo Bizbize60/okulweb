@@ -690,11 +690,170 @@
     .amb-rname{flex:1;font-size:.85rem;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
     .amb-rpuan{font-size:.78rem;font-weight:700;color:var(--warn);}
     .amb-empty{color:var(--fg-muted);font-size:.85rem;padding:8px 0;text-align:center;}
+    /* =========================================
+   KEDİ LOADER ANİMASYONU
+========================================= */
+#cat-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: var(--bg-base);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s;
+}
+
+.cat-spinner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cat-spinner img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  /* Zıplama animasyonu */
+  animation: catBounce 0.6s cubic-bezier(0.28, 0.84, 0.42, 1) infinite alternate;
+  filter: drop-shadow(0 10px 15px rgba(94, 106, 210, 0.4));
+}
+
+.cat-shadow {
+  width: 50px;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 50%;
+  margin-top: 15px;
+  filter: blur(4px);
+  /* Gölge küçülüp büyüme animasyonu */
+  animation: shadowScale 0.6s cubic-bezier(0.28, 0.84, 0.42, 1) infinite alternate;
+}
+
+.loader-text {
+  margin-top: 25px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #fff, var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: pulseText 1.5s ease-in-out infinite;
+  letter-spacing: -0.02em;
+}
+
+@keyframes catBounce {
+  0% { transform: translateY(0) scaleY(0.9); }
+  100% { transform: translateY(-40px) scaleY(1.05); }
+}
+
+@keyframes shadowScale {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(0.4); opacity: 0.2; }
+}
+
+@keyframes pulseText {
+  0%, 100% { opacity: 0.6; transform: scale(0.98); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+/* Yükleme bittiğinde loader gizlenir */
+body.loaded #cat-loader {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* =========================================
+   SCROLL NAVBAR (SMART STICKY)
+========================================= */
+.unofficial-bar {
+  position: fixed; /* Orijinal yapıyı fixed yapıyoruz */
+  top: 0; left: 0; right: 0;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#navbarRoot {
+  position: fixed;
+  top: 36px; /* Unofficial bar'ın yüksekliği kadar aşağıda */
+  left: 0; right: 0;
+  z-index: 1000;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s, box-shadow 0.3s;
+}
+
+/* Sayfa aşağı kaydıkça body padding ekleyerek içeriğin navbar altında kalmasını önlüyoruz */
+body {
+  padding-top: 100px; 
+}
+
+/* Navbar aşağı kaydırıldığında gizlenir */
+body.nav-hidden .unofficial-bar {
+  transform: translateY(-100%);
+}
+body.nav-hidden #navbarRoot {
+  transform: translateY(-150%);
+}
+
+/* Navbar scroll edildiğinde arka planı daha belirginleştir (Cam efekti) */
+body.nav-scrolled #navbarRoot {
+  background: rgba(5, 5, 6, 0.95);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(24px);
+}
+
+/* =========================================
+   MODERN HOVER & ETKİLEŞİM ANİMASYONLARI
+========================================= */
+/* Bütün butonlar için yaylanma (spring) efekti */
+.btn {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s, background 0.3s !important;
+}
+.btn:hover {
+  transform: translateY(-4px) scale(1.03) !important;
+  box-shadow: 0 12px 25px rgba(94, 106, 210, 0.35) !important;
+}
+.btn:active {
+  transform: translateY(1px) scale(0.97) !important;
+}
+
+/* Kartlar için Auto-Layout tarzı pürüzsüz büyüme efekti */
+.quick-card, .widget, .bento-card, .club-card, .amb-card, .glance-card {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s !important;
+}
+
+.quick-card:hover, .widget:hover, .bento-card:hover, .club-card:hover, .glance-card:hover {
+  transform: translateY(-6px) scale(1.015) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--accent) !important;
+  z-index: 10;
+}
+
+/* Kart içindeki ikonların hover'da dönmesi/büyümesi */
+.quick-card:hover .quick-icon, .bento-card:hover .card-icon {
+  transform: scale(1.15) rotate(5deg);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Yüzen rozet animasyonu */
+.hero-badge {
+  animation: floatBadge 4s ease-in-out infinite;
+}
+@keyframes floatBadge {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
   </style>
 </head>
 
 <body>
   <!-- BACKGROUND -->
+  <div id="cat-loader">
+  <div class="cat-spinner">
+    <img src="{{ url_for('static', filename='kedi.ico') }}" alt="Portal Yükleniyor..." />
+    <div class="cat-shadow"></div>
+  </div>
+  <h2 class="loader-text">THKÜ Öğrenci Portalı</h2>
+</div>
   <div class="bg">
     <div class="bg-grid"></div>
     <div class="blob blob-1"></div>
