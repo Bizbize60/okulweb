@@ -13,7 +13,11 @@
   // body opacity/translate ile "siteye giris" animasyonu; JS calismazsa/gec
   // yuklenirse kullanicinin sayfayi gormesini engellememek icin guvenlik agi var.
   function markPageReady(){
-    document.body && document.body.classList.add('thku-page-ready');
+    if (document.body) {
+      document.body.classList.add('thku-page-ready');
+      // Kedi animasyonunu (loader) gizleyen sınıfı da ekliyoruz
+      document.body.classList.add('loaded');
+    }
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', markPageReady);
