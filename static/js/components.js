@@ -9,6 +9,62 @@
 (function () {
   'use strict';
 
+  /* ---------------- SAYFA GIRIS ANIMASYONU (page entrance) ---------------- */
+  // body opacity/translate ile "siteye giris" animasyonu; JS calismazsa/gec
+  // yuklenirse kullanicinin sayfayi gormesini engellememek icin guvenlik agi var.
+  function markPageReady(){
+    document.body && document.body.classList.add('thku-page-ready');
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', markPageReady);
+  } else {
+    markPageReady();
+  }
+  window.addEventListener('load', markPageReady);
+  setTimeout(markPageReady, 1200); // guvenlik agi: her ihtimalde gorunur yap
+
+  /* ---------------- GAYRIRESMI BANT YUKSEKLIGI (sticky header offset) ---------------- */
+  // .unofficial-bar + .site-header ust uste sticky durabilsin diye bar
+  // yuksekligini CSS degiskenine yazar (mobilde bant 2-3 satira sarabildigi icin sabit deger kullanilamaz).
+  function syncBarHeight(){
+    var bar = document.querySelector('.unofficial-bar');
+    var h = bar ? bar.offsetHeight : 0;
+    document.documentElement.style.setProperty('--bar-h', h + 'px');
+  }
+  window.addEventListener('DOMContentLoaded', syncBarHeight);
+  window.addEventListener('load', syncBarHeight);
+  window.addEventListener('resize', syncBarHeight);
+
+  /* ---------------- SCROLL REVEAL (IntersectionObserver, tum sayfalarda ortak) ---------------- */
+  // ".reveal-on-scroll" class'i verilmis herhangi bir eleman, gorunume girdikce
+  // yumusak animasyonla belirir. Sayfalar bunu tekrar tekrar yazmak zorunda kalmaz.
+  function initScrollReveal(){
+    var targets = document.querySelectorAll('.reveal-on-scroll');
+    if (!targets.length) return;
+
+    var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion || !('IntersectionObserver' in window)) {
+      targets.forEach(function(el){ el.classList.add('is-revealed'); });
+      return;
+    }
+
+    var observer = new IntersectionObserver(function(entries, obs){
+      entries.forEach(function(entry){
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-revealed');
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { root: null, rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+
+    targets.forEach(function(el){ observer.observe(el); });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initScrollReveal);
+  } else {
+    initScrollReveal();
+  }
+
   const NAV_DESKTOP_LINKS = [
     { href: '/',                    label: 'Ana Sayfa',     icon: '🏠', active: 'home' },
     { href: '/yemekhane',           label: 'Yemekhane',    icon: '🍽️', active: 'yemekhane' },

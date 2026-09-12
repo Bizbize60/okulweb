@@ -49,12 +49,13 @@ select:focus-visible,
 /* ================================================================== -------------- HEADER / NAVBAR
 ================================================== */
 .unofficial-bar {
-  z-index: 150;
-  position: relative;
+  z-index: 201;
+  position: sticky;
+  top: 0;
 }
 .site-header {
-  position: relative;
-  top: 0;
+  position: sticky;
+  top: var(--bar-h, 0px);
   z-index: 200;
   background: rgba(5, 5, 6, 0.82);
   backdrop-filter: saturate(180%) blur(18px);
@@ -670,6 +671,17 @@ a.widget:hover, .widget a:hover { text-decoration: none !important; color: var(-
 @keyframes headerItemSlide {
   from { opacity: 0; transform: translateY(-8px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* --------------- SAYFA GIRIS ANIMASYONU (page entrance) --------------- */
+body {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity .45s cubic-bezier(.16,1,.3,1), transform .45s cubic-bezier(.16,1,.3,1);
+}
+body.thku-page-ready {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* --------------- SCROLL REVEAL (IntersectionObserver destekli) --------------- */
