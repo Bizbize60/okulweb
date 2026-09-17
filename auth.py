@@ -231,7 +231,7 @@ def _give_badge_if_not_exists(user: User, kod: str, ad: str, aciklama: str = "",
 
 @auth_bp.route('/signup', methods=['GET', 'POST'])
 def register():
-    # ---- Davet kodunu URL'den session'a al (verify aşamasında kullanmak üzere) ----
+    # ---- Davet kodunu URL'den session'a al ----
     ref_code = request.args.get('ref', '') or request.form.get('ref', '')
     if ref_code:
         ref_code = ref_code.strip().upper()
@@ -241,20 +241,25 @@ def register():
             session['davet_kodu'] = ref_code
 
     if request.method == 'POST':
-        email = request.form['email']
+        email = request.form['email'].strip().lower() # Küçük harfe çevir ve boşlukları sil
 
         if User.query.filter_by(email=email).first():
             return "Bu email zaten kayıtlı!", 400
+            
         if not re.match(r'^s\d{9,10}@stu\.thk\.edu\.tr$', email):
             return 'E-Mailinin başında "s" harfi eksik ya da okul numaranı yanlış girdin', 400
+
+        # Kullanıcı verilerini session'a kaydet
         session['temp_user'] = {
             'name': request.form['name'],
             'email': email,
             'password': generate_password_hash(request.form['password'])
         }
 
+        # 1. ÖNLEM: Kodun hangi e-posta için üretildiğini session'a kilitle
         v_code = secrets.token_hex(3).upper()
         session['verification_code'] = v_code
+        session['verification_target_email'] = email 
 
         send_verification_email(mail, email, v_code)
 
@@ -266,43 +271,48 @@ def register():
 @auth_bp.route('/verify', methods=['GET', 'POST'])
 def verify_email():
     temp_user_data = session.get('temp_user')
+    # Eğer session'da geçici kullanıcı yoksa register'a at
     if not temp_user_data:
         return redirect(url_for('auth.register'))
 
-    if not re.match(r'^s\d{9,10}@stu\.thk\.edu\.tr$', temp_user_data.get('email', '')):
+    # Email format kontrolü
+    email = temp_user_data.get('email', '')
+    if not re.match(r'^s\d{9,10}@stu\.thk\.edu\.tr$', email):
         return "Geçersiz email formatı! Lütfen THKÜ öğrenci emailinizi kullanın.", 400
 
     if request.method == 'POST':
-        user_code = request.form['code']
-        if user_code == session.get('verification_code'):
-            user_data = session['temp_user']
+        user_code = request.form['code'].strip().upper() # Boşlukları temizle ve büyük harf yap
+        
+        # 2. ÖNLEM: Hem kodu hem de kodun ait olduğu e-postayı eş zamanlı doğrula
+        saved_code = session.get('verification_code')
+        target_email = session.get('verification_target_email')
 
+        if saved_code and target_email and user_code == saved_code and email == target_email:
             # ---- Kişisel davet kodunu otomatik üret ----
             try:
-                ref_kodu = User.generate_referral_code(user_data['name'])
+                ref_kodu = User.generate_referral_code(temp_user_data['name'])
             except Exception:
                 ref_kodu = uuid.uuid4().hex[:10].upper()
 
             new_user = User(
                 public_id=str(uuid.uuid4()),
-                name=user_data['name'],
-                email=user_data['email'],
-                password=user_data['password'],
-                kredi=3,  # Yeni gelenlere 3 kredi bonusu (not indirme için)
+                name=temp_user_data['name'],
+                email=temp_user_data['email'],
+                password=temp_user_data['password'],
+                kredi=3,  # Yeni gelenlere 3 kredi bonusu
                 referral_code=ref_kodu,
                 streak_gun=1,
                 son_giris_tarihi=datetime.now(ZoneInfo('Europe/Istanbul')).date(),
             )
             db.session.add(new_user)
-            db.session.flush()  # new_user.id almak için
+            db.session.flush()  # ID alabilmek için
 
-            # ---- Davet eden varsa puan ver ve kayıt aç ----
+            # ---- Davet eden varsa işlemleri yap ----
             davet_eden_id = session.get('davet_eden_id')
             davet_kodu = session.get('davet_kodu')
             if davet_eden_id:
                 davet_eden = User.query.get(davet_eden_id)
                 if davet_eden and davet_eden.id != new_user.id:
-                    # Referral kaydı
                     kayit = Referral(
                         davet_eden_id=davet_eden.id,
                         davet_edilen_id=new_user.id,
@@ -311,10 +321,8 @@ def verify_email():
                         puan_verildi_mi=False
                     )
                     db.session.add(kayit)
-                    # Davet edene 150 puan ver + kredi bonusu
                     _give_ambassador_points(davet_eden, 150, f"{new_user.name} kullanıcısını davet ettiği için")
                     davet_eden.kredi = (davet_eden.kredi or 0) + 2
-                    # Yeni gelen arkadaşına da 2 ekstra kredi + hoş geldin rozeti
                     new_user.kredi += 2
                     _give_badge_if_not_exists(new_user, "DAVET_ILE_GELDIN", "🎁 Davetli Üye",
                                              "Arkadaşının davetiyle katıldın!", "#10B981", "🎁")
@@ -327,15 +335,22 @@ def verify_email():
 
             db.session.commit()
 
+            # Tüm session'ları güvenle temizle
             session.pop('temp_user', None)
             session.pop('verification_code', None)
+            session.pop('verification_target_email', None)
             session.pop('davet_eden_id', None)
             session.pop('davet_kodu', None)
+            
             return redirect(url_for('auth.login'))
         else:
-            return "Kod yanlış!", 400
+            # 3. ÖNLEM: Kod yanlışsa brute-force'u önlemek için session'ı patlat ve sıfırla
+            session.pop('temp_user', None)
+            session.pop('verification_code', None)
+            session.pop('verification_target_email', None)
+            return "Kod yanlış veya oturum geçersiz! Güvenlik nedeniyle kaydınız iptal edildi. Lütfen tekrar üye olun.", 400
 
-    return render_template('verify.html', email=session['temp_user']['email'])
+    return render_template('verify.html', email=email)
 
 
 @auth_bp.route('/logout', methods=['POST'])
