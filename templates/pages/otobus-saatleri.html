@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ulaşım & Sefer Saatleri — THKÜ</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/ui.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/portal.css') }}">
+  <style>
+    .page-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .page-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: var(--fg);
+    }
+    .page-sub {
+      color: var(--fg-muted);
+      font-size: 0.92rem;
+      margin-top: 4px;
+    }
+
+    .notify-cockpit-banner {
+      background: var(--night-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+    }
+    .notify-info h3 {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--fg);
+      margin-bottom: 6px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    .notify-info p {
+      color: var(--fg-muted);
+      font-size: 0.88rem;
+      line-height: 1.5;
+      max-width: 60ch;
+    }
+
+    .section-board-title {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      margin: 36px 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--fg);
+    }
+
+    .board-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .chips-stream {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .chip-time {
+      font-family: var(--font-mono);
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      background: var(--night-deep);
+      border: 1px solid var(--border);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--fg);
+    }
+    .chip-time.next {
+      background: var(--sky-wash);
+      border-color: var(--sky);
+      color: var(--sky);
+    }
+    .chip-time.past {
+      opacity: 0.35;
+    }
+
+    .yukleniyor, .bos-mesaj {
+      padding: 40px;
+      text-align: center;
+      color: var(--fg-muted);
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- REUSABLE NAVBAR -->
+  <div id="navbarRoot"></div>
+  <script src="{{ url_for('static', filename='js/components.js') }}" defer></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', function(){
+      var opts = { is_logged_in: 'auto', active: 'otobus' };
+      if (window.THKU_UI && window.THKU_UI.Navbar) window.THKU_UI.Navbar.render('#navbarRoot', opts);
+      if (window.THKU_UI && window.THKU_UI.Footer)  window.THKU_UI.Footer.render('#footerRoot');
+    });
+  </script>
+
+  <div class="container" style="padding-top: 30px;">
+    <div class="page-head reveal-on-scroll">
+      <div>
+        <div class="hud-tag hud-tag-cyan" style="margin-bottom:8px;">FLIGHT & TRANSIT BOARD</div>
+        <h1 class="page-title">Kampüs Ulaşım & Ring Seferleri</h1>
+        <p class="page-sub">THKÜ servis ringleri ve Başkentray bağlantı kalkış saatleri (Canlı Takip).</p>
+      </div>
+      <div style="display: flex; gap: 12px;">
+        <button class="btn btn-secondary" onclick="yenile()" id="yenileBtn">🔄 Seferleri Yenile</button>
+        <a href="/" class="btn btn-outline">← Ana Sayfa</a>
+      </div>
+    </div>
+
+    <!-- Bildirim Aboneliği Panosu -->
+    <div class="notify-cockpit-banner reveal-on-scroll" id="notifyBanner">
+      <div class="notify-info">
+        <h3>🔔 Akıllı Ring Bildirimleri</h3>
+        <p>THK Üniversitesi ring kalkışına <strong>15 dakika</strong> kala bildirim alarak durağa vaktinde yetişin.</p>
+      </div>
+      <button class="btn btn-primary" id="notifyBtn" onclick="bildirimlereAboneOl()">Bildirimleri Aç <span class="btn-icon-bubble">⚡</span></button>
+    </div>
+
+    <h2 class="section-board-title reveal-on-scroll">
+      <span>🛫</span> THK Üniversitesi Servis Ringi (Ümitköy Metro)
+    </h2>
+    <div class="flight-board reveal-on-scroll" id="thk-alani">
+      <div class="yukleniyor">Ulaşım saatleri çekiliyor...</div>
+    </div>
+
+    <h2 class="section-board-title reveal-on-scroll">
+      <span>🚆</span> Başkentray Seferleri
+    </h2>
+    <div class="board-grid reveal-on-scroll" id="baskentray-alani">
+      <div class="yukleniyor">Başkentray verisi yükleniyor...</div>
+    </div>
+  </div>
+
+  <!-- REUSABLE FOOTER -->
+  <div id="footerRoot"></div>
+
+  <script>
+    const PUBLIC_VAPID_KEY = 'BOMX48RHHNdUMWnA54hy4bH6nxL9l-kPcF5QPIEIfLPtmnM_cPLEb1ikxXGSlZK-whuNOkE9gfnrtHK4jN89h4I';
+    const escapeHTML = str => String(str || '').replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+
+    const urlBase64ToUint8Array = (base64String) => {
+      const padding = '='.repeat((4 - base64String.length % 4) % 4);
+      const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+      const rawData = window.atob(base64);
+      const outputArray = new Uint8Array(rawData.length);
+      for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+      return outputArray;
+    };
+
+    const setSubscribedUI = () => {
+      const btn = document.getElementById('notifyBtn');
+      if (btn) {
+        btn.textContent = 'Bildirimler açık ✓';
+        btn.classList.add('subscribed');
+      }
+    };
+
+    async function setupServiceWorker() {
+      if (!('serviceWorker' in navigator)) return;
+      try { await navigator.serviceWorker.register('/sw.js'); } catch (e) { console.error(e); }
+    }
+
+    async function checkAbonelik() {
+      if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+      try {
+        const reg = await navigator.serviceWorker.ready;
+        const sub = await reg.pushManager.getSubscription();
+        if (sub) setSubscribedUI();
+      } catch (e) { console.error(e); }
+    }
+
+    window.bildirimlereAboneOl = async () => {
+      const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+      const isStandalone = window.navigator.standalone === true;
+      if (isIOS && !isStandalone) {
+        alert('iOS’ta bildirim için Ana Ekrana Ekle ile uygulamayı açmanız gerekir (Kayıp Eşya sayfasındaki gibi).');
+        return;
+      }
+      if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        alert('Tarayıcınız bildirimleri desteklemiyor.');
+        return;
+      }
+      try {
+        const readyRegistration = await navigator.serviceWorker.ready;
+        const existingSub = await readyRegistration.pushManager.getSubscription();
+        if (existingSub) {
+          setSubscribedUI();
+          alert('Zaten bildirimlere abonesiniz!');
+          return;
+        }
+        const subscription = await readyRegistration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(PUBLIC_VAPID_KEY)
+        });
+        const res = await fetch('/api/abonelik-kaydet', {
+          method: 'POST',
+          body: JSON.stringify(subscription),
+          headers: { 'Content-Type': 'application/json' }
+        });
+        if (res.ok || res.status === 200) {
+          setSubscribedUI();
+          alert('Bildirimler açıldı! THK servisine 15 dk kala haberiniz olacak.');
+        } else {
+          const data = await res.json().catch(() => ({}));
+          if ((data.message || '').includes('zaten')) {
+            setSubscribedUI();
+          } else {
+            throw new Error(data.message || 'Kayıt başarısız — giriş yapmış olmalısınız.');
+          }
+        }
+      } catch (err) {
+        console.error(err);
+        alert(err.message || 'Bildirim aboneliği başarısız.');
+      }
+    };
+
+    function renderThk(ulasim) {
+      const el = document.getElementById('thk-alani');
+      const trips = (ulasim && ulasim.thk_servis) || [];
+      if (!trips.length) {
+        el.innerHTML = '<div class="bos-mesaj">Servis saati yok.</div>';
+        return;
+      }
+      el.innerHTML = `<div class="card" style="grid-column:1/-1;">
+        <h3>T.H.K Üniversitesi → Ümitköy Metro</h3>
+        ${trips.map(t => {
+          const past = t.kalkti;
+          const soon = !past && t.dakika_kaldi != null && t.dakika_kaldi <= 20;
+          const badge = past
+            ? '<span class="badge">Kalktı</span>'
+            : `<span class="badge ${soon ? 'warn' : ''}">${t.dakika_kaldi} dk</span>`;
+          return `<div class="trip-row ${past ? 'past' : ''} ${soon ? 'soon' : ''}">
+            <div>
+              <strong>${escapeHTML(t.kalkis)}</strong> kalkış
+              <div class="trip-meta">Varış ~${escapeHTML(t.varis)} · ${escapeHTML(t.varis_yeri)}</div>
+            </div>
+            ${badge}
+          </div>`;
+        }).join('')}
+      </div>`;
+    }
+
+    function renderBaskentray(ulasim) {
+      const el = document.getElementById('baskentray-alani');
+      const data = (ulasim && ulasim.baskentray) || {};
+      const keys = Object.keys(data);
+      if (!keys.length) {
+        el.innerHTML = '<div class="bos-mesaj">Başkentray verisi yok.</div>';
+        return;
+      }
+      const nextSet = new Set();
+      keys.forEach(k => (data[k].sonraki || []).forEach(s => nextSet.add(k + ':' + s.saat)));
+
+      el.innerHTML = keys.map(k => {
+        const meta = data[k];
+        const nowParts = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Europe/Istanbul' });
+        return `<div class="card">
+          <h3>${escapeHTML(meta.label)}</h3>
+          <p style="font-size:0.85rem;color:#718096;margin-bottom:12px;">${escapeHTML(meta.durak_notu || '')}</p>
+          <div class="chips">
+            ${(meta.saatler || []).map(s => {
+              const isNext = nextSet.has(k + ':' + s);
+              const past = s < nowParts && !isNext;
+              return `<span class="chip ${isNext ? 'next' : ''} ${past ? 'past' : ''}">${escapeHTML(s)}</span>`;
+            }).join('')}
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    async function yenile() {
+      document.getElementById('thk-alani').innerHTML = '<div class="yukleniyor">Yükleniyor...</div>';
+      document.getElementById('baskentray-alani').innerHTML = '<div class="yukleniyor">Yükleniyor...</div>';
+      try {
+        const res = await fetch('/api/ulasim');
+        const ulasim = res.ok ? await res.json() : null;
+        renderThk(ulasim);
+        renderBaskentray(ulasim);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      await setupServiceWorker();
+      await checkAbonelik();
+      yenile();
+    });
+  </script>
+</body>
+
+</html>

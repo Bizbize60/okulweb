@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Günün Tabildotu & Yemekhane — THKÜ</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/ui.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/portal.css') }}">
+  <style>
+    .page-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .page-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: var(--fg);
+    }
+    .page-sub {
+      color: var(--fg-muted);
+      font-size: 0.92rem;
+      margin-top: 4px;
+    }
+
+    .today-cockpit-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--gold);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      margin-bottom: 36px;
+      position: relative;
+    }
+
+    .today-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .today-header h2 {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--fg);
+      margin: 0;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    .today-meta {
+      color: var(--gold);
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .today-items-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+    }
+    .today-food-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 18px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .today-food-item:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+    }
+    .today-food-name {
+      font-weight: 600;
+      color: var(--fg);
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .today-food-name::before {
+      content: '\25B8';
+      color: var(--gold);
+      font-size: 0.8rem;
+    }
+    .today-food-kcal {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--gold);
+      background: var(--gold-dim);
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      white-space: nowrap;
+    }
+
+    .today-footer-bar {
+      margin-top: 24px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .today-total-kcal {
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: var(--fg);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .today-total-badge {
+      background: var(--gold);
+      color: #000000;
+      padding: 2px 10px;
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      font-weight: 800;
+    }
+
+    .menu-cockpit-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .day-column {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .day-column:hover {
+      border-color: var(--border-accent);
+      transform: translateY(-2px);
+    }
+
+    .day-column-header {
+      background: var(--accent-wash);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .day-column-header h3 {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--fg);
+      margin: 0;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    .day-column-badge {
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: var(--radius-sm);
+      background: var(--accent-wash);
+      color: var(--accent);
+      border: 1px solid var(--border);
+    }
+
+    .meal-group {
+      background: var(--bg-deep);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin: 16px;
+    }
+    .meal-group.is-today {
+      background: var(--gold-dim);
+      border-color: var(--warn-border);
+    }
+
+    .meal-date {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed var(--border);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .meal-date::before {
+      content: '\1F4C5';
+      font-size: 0.75rem;
+    }
+
+    .meal-item {
+      padding: 7px 0;
+      color: var(--fg-muted);
+      font-size: 0.88rem;
+      line-height: 1.5;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .meal-item::before {
+      content: '\2022';
+      color: var(--accent);
+      font-weight: 800;
+      font-size: 1rem;
+    }
+    .meal-item:not(:last-child) {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .loading-state, .error-state {
+      padding: 60px 20px;
+      text-align: center;
+      background: var(--bg-surface);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-lg);
+      grid-column: 1 / -1;
+    }
+    .loading-state { color: var(--fg-muted); }
+    .error-state { color: var(--danger); border-color: rgba(239, 68, 68, 0.3); }
+  </style>
+</head>
+
+<body>
+  <!-- REUSABLE NAVBAR -->
+  <div id="navbarRoot"></div>
+  <script src="{{ url_for('static', filename='js/components.js') }}" defer></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', function(){
+      var opts = { is_logged_in: 'auto', active: 'yemek' };
+      if (window.THKU_UI && window.THKU_UI.Navbar) window.THKU_UI.Navbar.render('#navbarRoot', opts);
+      if (window.THKU_UI && window.THKU_UI.Footer)  window.THKU_UI.Footer.render('#footerRoot');
+    });
+  </script>
+
+  <div class="container" style="padding-top: 30px;">
+    <div class="page-head reveal-on-scroll">
+      <div>
+        <div class="hud-tag hud-tag-cyan" style="margin-bottom:8px;">REFECTORY & NUTRITION HUD</div>
+        <h1 class="page-title">Günün Tabildotu & Yemek Menüsü</h1>
+        <p class="page-sub">Türk Hava Kurumu Üniversitesi Merkez Yemekhane günlük kalori ve haftalık menü takibi.</p>
+      </div>
+      <div style="display: flex; gap: 12px;">
+        <a href="/" class="btn btn-outline">← Ana Sayfa</a>
+      </div>
+    </div>
+
+    <!-- Bugünün Öne Çıkan Menüsü -->
+    <div id="today-card" class="today-cockpit-card reveal-on-scroll" style="display:none;"></div>
+
+    <!-- Haftalık Menü Grid -->
+    <div class="section-header reveal-on-scroll">
+      <div class="section-title">Haftalık Tabildot Çizelgesi</div>
+    </div>
+    
+    <div id="menu-container" class="menu-cockpit-container reveal-on-scroll">
+      <div class="loading-state">
+        <div class="hud-loader-radar" style="margin: 0 auto 16px; width: 60px; height: 60px;">
+          <img src="{{ url_for('static', filename='img/logo.png') }}" onerror="this.onerror=null;this.src='/static/img/kedi.ico'" alt="THKÜ">
+        </div>
+        <p>Yemekhane verileri çekiliyor...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- REUSABLE FOOTER -->
+  <div id="footerRoot"></div>
+
+  <script>
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const parts = dateStr.split(/[-:]/);
+      if (parts.length === 3) {
+        return `${parts[2]}.${parts[1]}.${parts[0]}`;
+      }
+      return dateStr;
+    }
+
+    function isDateToken(s) {
+      return typeof s === 'string' && /^\d{4}[-:]\d{2}[-:]\d{2}$/.test(s.trim());
+    }
+
+    function renderToday(bugun) {
+      const card = document.getElementById('today-card');
+      if (!bugun || !bugun.items || bugun.items.length === 0) {
+        card.style.display = 'none';
+        return;
+      }
+      card.style.display = 'block';
+      const itemsHtml = bugun.items.map(it => `
+        <div class="today-food-item">
+          <span class="today-food-name">${escapeHtml(it.name)}</span>
+          <span class="today-food-kcal">${it.kcal != null ? it.kcal + ' kcal' : '—'}</span>
+        </div>`).join('');
+      card.innerHTML = `
+        <div class="today-header">
+          <div>
+            <div class="hud-tag hud-tag-amber" style="margin-bottom:6px;">CANLI GÜNLÜK SERVİS</div>
+            <h2>Bugünün Menüsü · ${escapeHtml(bugun.weekday || '')}</h2>
+            <div class="today-meta">${escapeHtml(bugun.date_display || bugun.date || '')} · Türk Hava Kurumu Üniversitesi</div>
+          </div>
+          <div style="font-size: 2.2rem;">🍲</div>
+        </div>
+        <div class="today-items-grid">${itemsHtml}</div>
+        <div class="today-footer-bar">
+          <span style="color:var(--fg-muted); font-size:0.88rem;">Öğle Servisi: 11:30 - 14:00</span>
+          ${bugun.total_kcal != null ? `<div class="today-total-kcal">Toplam Enerji <span class="today-total-badge">${bugun.total_kcal} kcal</span></div>` : ''}
+        </div>
+      `;
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[c]));
+    }
+
+    function renderMenu(data) {
+      const container = document.getElementById('menu-container');
+      container.innerHTML = '';
+      const gunler = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma'];
+      const todayIso = data.bugun && data.bugun.date;
+
+      gunler.forEach(gun => {
+        if (!data[gun] || data[gun].length === 0) return;
+
+        const column = document.createElement('div');
+        column.className = 'day-column';
+
+        const header = document.createElement('div');
+        header.className = 'day-column-header';
+        header.innerHTML = `
+          <h3>${gun}</h3>
+          <span class="day-column-badge">GÜNLÜK</span>
+        `;
+        column.appendChild(header);
+
+        const items = data[gun];
+        let i = 0;
+
+        while (i < items.length) {
+          const item = items[i];
+          if (isDateToken(item)) {
+            const mealGroup = document.createElement('div');
+            mealGroup.className = 'meal-group';
+            const iso = item.includes(':') ? item.replace(/:/g, '-') : item;
+            if (todayIso && iso === todayIso) mealGroup.classList.add('is-today');
+
+            const dateDiv = document.createElement('div');
+            dateDiv.className = 'meal-date';
+            dateDiv.textContent = formatDate(item);
+            mealGroup.appendChild(dateDiv);
+
+            i++;
+            while (i < items.length && !isDateToken(items[i])) {
+              const mealDiv = document.createElement('div');
+              mealDiv.className = 'meal-item';
+              mealDiv.textContent = items[i].trim();
+              mealGroup.appendChild(mealDiv);
+              i++;
+            }
+            column.appendChild(mealGroup);
+          } else {
+            i++;
+          }
+        }
+        container.appendChild(column);
+      });
+
+      if (container.children.length === 0) {
+        container.innerHTML = '<div class="error-state">Bu hafta için yemekhane menü kaydı bulunamadı.</div>';
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      fetch('/api/yemek-saatleri')
+        .then(res => {
+          if (!res.ok) throw new Error('Veri sunucudan alınamadı');
+          return res.json();
+        })
+        .then(data => {
+          if (data.error) throw new Error(data.error);
+          renderToday(data.bugun);
+          renderMenu(data);
+        })
+        .catch(err => {
+          document.getElementById('menu-container').innerHTML =
+            `<div class="error-state">Sistem Uyarısı: ${escapeHtml(err.message)}</div>`;
+        });
+    });
+  </script>
+</body>
+
+</html>

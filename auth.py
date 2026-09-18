@@ -160,7 +160,7 @@ def login():
         response.set_cookie('jwt_token', token)
         return response
 
-    return render_template('login.html')
+    return render_template('auth/login.html')
 
 
 def _update_streak_on_login(user: User):
@@ -265,7 +265,7 @@ def register():
 
         return redirect(url_for('auth.verify_email'))
 
-    return render_template('register.html', ref_code=ref_code)
+    return render_template('auth/register.html', ref_code=ref_code)
 
 
 @auth_bp.route('/verify', methods=['GET', 'POST'])
@@ -341,8 +341,19 @@ def verify_email():
             session.pop('verification_target_email', None)
             session.pop('davet_eden_id', None)
             session.pop('davet_kodu', None)
-            
-            return redirect(url_for('auth.login'))
+
+            # Otomatik giriş: kayıt sonrası tekrar login isteme
+            token = jwt.encode(
+                {
+                    'public_id': new_user.public_id,
+                    'exp': datetime.now(timezone.utc) + timedelta(hours=JWT_EXPIRATION_HOURS)
+                },
+                current_app.config['SECRET_KEY'],
+                algorithm="HS256"
+            )
+            response = make_response(redirect(url_for('pages.main_page')))
+            response.set_cookie('jwt_token', token)
+            return response
         else:
             # 3. ÖNLEM: Kod yanlışsa brute-force'u önlemek için session'ı patlat ve sıfırla
             session.pop('temp_user', None)
@@ -350,7 +361,7 @@ def verify_email():
             session.pop('verification_target_email', None)
             return "Kod yanlış veya oturum geçersiz! Güvenlik nedeniyle kaydınız iptal edildi. Lütfen tekrar üye olun.", 400
 
-    return render_template('verify.html', email=email)
+    return render_template('auth/verify.html', email=email)
 
 
 @auth_bp.route('/logout', methods=['POST'])

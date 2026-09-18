@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İstek & Öneri Terminali — THKÜ Portal</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ui.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/portal.css') }}">
+    <style>
+        body {
+            background: var(--night);
+            color: var(--fg);
+            min-height: 100vh;
+            padding-top: 90px;
+        }
+
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 20px 24px 60px;
+        }
+
+        .hud-header {
+            background: var(--night-panel);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .hud-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .hud-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: var(--radius-md);
+            background: rgba(200,16,46,.08);
+            border: 1px solid rgba(200,16,46,.28);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--thk-red);
+            font-size: 1.5rem;
+        }
+
+        .hud-title {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--fg);
+            margin-bottom: 4px;
+        }
+
+        .hud-sub {
+            font-size: 0.85rem;
+            color: var(--fg-muted);
+        }
+
+        .cockpit-form-card {
+            background: var(--night-panel);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            margin-bottom: 36px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--fg-muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .custom-input {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--fg);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            font-size: 0.95rem;
+            font-family: var(--font-sans);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .custom-input:focus {
+            border-color: var(--thk-red);
+        }
+
+        .custom-input::placeholder {
+            color: var(--fg-muted);
+        }
+
+        .custom-btn {
+            background: var(--thk-red);
+            color: var(--fg);
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            font-size: 0.95rem;
+            padding: 14px 20px;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+
+        .custom-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--thk-red);
+        }
+
+        .request-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 16px;
+        }
+
+        @media (max-width: 640px) {
+            .request-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .request-card {
+            background: var(--night-panel);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .request-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+        }
+
+        .req-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .req-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--fg);
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .badge-status {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            padding: 3px 8px;
+            border-radius: var(--radius-sm);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--fg-muted);
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .btn-delete-istek {
+            background: rgba(248,113,113,.08);
+            color: var(--danger);
+            border: 1px solid rgba(248,113,113,.28);
+            padding: 4px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-delete-istek:hover {
+            background: var(--danger);
+            color: var(--fg);
+        }
+
+        .req-body {
+            font-size: 0.88rem;
+            color: var(--fg-muted);
+            line-height: 1.55;
+            margin-bottom: 16px;
+        }
+
+        .req-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+            font-size: 0.78rem;
+            color: var(--fg-muted);
+            font-family: var(--font-mono);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- REUSABLE NAVBAR -->
+    <div id="navbarRoot"></div>
+    <script src="{{ url_for('static', filename='js/components.js') }}" defer></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', function(){
+            var opts = { is_logged_in: {% if session and session.get('user') %}true{% else %}false{% endif %}, active: 'istekler' };
+            if (window.THKU_UI && window.THKU_UI.Navbar) window.THKU_UI.Navbar.render('#navbarRoot', opts);
+            if (window.THKU_UI && window.THKU_UI.Footer)  window.THKU_UI.Footer.render('#footerRoot');
+        });
+    </script>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="hud-header">
+            <div class="hud-title-wrap">
+                <div class="hud-icon">
+                    <i class="fa-solid fa-lightbulb"></i>
+                </div>
+                <div>
+                    <h1 class="hud-title">İstek & Öneri Terminali</h1>
+                    <p class="hud-sub">Kampüs ve öğrenci portalını birlikte geliştirelim. Fikirlerini doğrudan ilet.</p>
+                </div>
+            </div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #E5484D; background: rgba(229,72,77,0.08); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(229,72,77,0.2);">
+                <i class="fa-solid fa-satellite-dish"></i> GERİ BİLDİRİM AKTİF
+            </div>
+        </div>
+
+        <!-- Form Card -->
+        <div class="cockpit-form-card">
+            <form id="istekForm">
+                <div style="margin-bottom: 18px;">
+                    <label for="baslik" class="form-label">Başlık / Konu</label>
+                    <input type="text" id="baslik" class="custom-input" placeholder="Örn: Yemekhane rezervasyon ekranı önerisi..." required>
+                </div>
+                
+                <div style="margin-bottom: 18px;">
+                    <label for="kategori" class="form-label">Kategori</label>
+                    <select id="kategori" class="custom-input">
+                        <option value="Genel">Genel Görüş</option>
+                        <option value="Şikayet">Şikayet / Aksaklık</option>
+                        <option value="Öneri">Yeni Özellik Önerisi</option>
+                        <option value="Teknik Problem">Hata & Teknik Problem</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <label for="aciklama" class="form-label">Açıklama & Detaylar</label>
+                    <textarea id="aciklama" class="custom-input" rows="4" placeholder="Fikrini veya karşılaştığın problemi ayrıntılı açıkla..." required></textarea>
+                </div>
+
+                <button type="submit" class="custom-btn">
+                    <i class="fa-solid fa-paper-plane"></i> Geri Bildirimi İlet
+                </button>
+            </form>
+        </div>
+
+        <!-- İstek Listesi -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+            <h2 style="font-size: 1.15rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-terminal" style="color: #E5484D;"></i> Gönderilen Bildirimler
+            </h2>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #8B9BB4;" id="istekCount">-</span>
+        </div>
+
+        <div id="istekListesi" class="request-grid">
+            <div style="color: #64748B; font-size: 0.9rem; padding: 20px;">Yükleniyor...</div>
+        </div>
+    </div>
+
+    <script>
+    async function istekleriGetir() {
+        try {
+            const response = await fetch('/api/istekler');
+            const veriler = await response.json();
+            const listeAlani = document.getElementById('istekListesi');
+            const countEl = document.getElementById('istekCount');
+            listeAlani.innerHTML = '';
+
+            if (!veriler || veriler.length === 0) {
+                if (countEl) countEl.innerText = '0 KAYIT';
+                listeAlani.innerHTML = '<div style="color: #64748B; font-size: 0.9rem; padding: 20px;">Henüz iletilmiş bir istek bulunmuyor. İlk bildirimi sen yap!</div>';
+                return;
+            }
+
+            if (countEl) countEl.innerText = veriler.length + ' KAYIT';
+
+            veriler.forEach(item => {
+                listeAlani.innerHTML += `
+                    <div class="request-card">
+                        <div>
+                            <div class="req-head">
+                                <h3 class="req-title">${item.baslik}</h3>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span class="badge-status">${item.durum || 'İnceleniyor'}</span>
+                                    <button onclick="istekSil(${item.id})" class="btn-delete-istek" title="İsteği Sil">
+                                        <i class="fa-regular fa-trash-can"></i> Sil
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="req-body">${item.aciklama}</p>
+                        </div>
+                        <div class="req-footer">
+                            <span><i class="fa-solid fa-tag"></i> <b>${item.kategori}</b></span>
+                            <span>${item.tarih || ''}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        } catch (err) {
+            console.error('İstekler yüklenirken hata oluştu:', err);
+        }
+    }
+
+    async function istekSil(istekId) {
+        if (!confirm("Bu isteği silmek istediğinize emin misiniz?")) return;
+
+        try {
+            const token = localStorage.getItem('access_token');
+            const response = await fetch(`/api/istekler/${istekId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': token ? `Bearer ${token}` : ''
+                }
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                istekleriGetir();
+            } else {
+                alert(data.message || "Silme işlemi başarısız.");
+            }
+        } catch (error) {
+            console.error("Hata:", error);
+            alert("Sunucuya bağlanılamadı.");
+        }
+    }
+
+    document.getElementById('istekForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const token = localStorage.getItem('access_token'); 
+
+        const payload = {
+            baslik: document.getElementById('baslik').value,
+            kategori: document.getElementById('kategori').value,
+            aciklama: document.getElementById('aciklama').value
+        };
+
+        try {
+            const response = await fetch('/api/istekler', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': token ? `Bearer ${token}` : ''
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const resData = await response.json();
+
+            if (response.ok) {
+                alert('Geri bildiriminiz başarıyla iletildi!');
+                document.getElementById('istekForm').reset();
+                istekleriGetir();
+            } else {
+                alert(resData.message || 'Bir hata oluştu.');
+            }
+        } catch (err) {
+            console.error('Gönderim hatası:', err);
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', istekleriGetir);
+    </script>
+
+    <!-- REUSABLE FOOTER -->
+    <div id="footerRoot"></div>
+</body>
+</html>

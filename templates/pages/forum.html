@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Öğrenci Forumu & Tartışma — THKÜ</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/ui.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/portal.css') }}">
+  <style>
+    .page-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .page-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: var(--fg);
+    }
+    .page-sub {
+      color: var(--fg-muted);
+      font-size: 0.92rem;
+      margin-top: 4px;
+    }
+
+    .cockpit-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      position: relative;
+      margin-bottom: 28px;
+    }
+
+    .composer-cockpit {
+      padding: 28px;
+    }
+    .composer-cockpit h2 {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--fg);
+      margin: 0 0 16px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .field-cockpit {
+      margin-bottom: 16px;
+    }
+    .field-cockpit label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--fg);
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    .cockpit-input, .cockpit-textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 13px 16px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      color: var(--fg);
+      background: var(--bg-deep);
+      outline: none;
+      transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .cockpit-input:focus, .cockpit-textarea:focus {
+      border-color: var(--thk-red);
+    }
+    .cockpit-textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .composer-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .toggle-cockpit {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--fg-muted);
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .toggle-cockpit input {
+      width: 17px;
+      height: 17px;
+      accent-color: var(--thk-red);
+    }
+
+    .alert {
+      padding: 12px 18px;
+      border-radius: var(--radius-md);
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .alert-success {
+      color: var(--success);
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .alert-error {
+      color: var(--danger);
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .post-list {
+      display: grid;
+      gap: 18px;
+    }
+
+    .post {
+      padding: 24px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--bg-surface);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .post:hover {
+      border-color: var(--border-accent);
+      background: var(--bg-surface);
+    }
+
+    .post-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .post-topic {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--fg);
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    .meta {
+      color: var(--fg-muted);
+      font-size: 0.8rem;
+      font-family: var(--font-mono);
+    }
+
+    .pill {
+      background: var(--accent-wash);
+      color: var(--accent);
+      border: 1px solid var(--border);
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+    }
+
+    .post-content {
+      white-space: pre-wrap;
+      line-height: 1.6;
+      margin-bottom: 16px;
+      color: var(--fg);
+      font-size: 0.95rem;
+    }
+
+    .gif-wrap {
+      margin-bottom: 16px;
+    }
+    .gif-wrap img,
+    .gif-wrap video {
+      display: block;
+      max-width: 100%;
+      max-height: 380px;
+      object-fit: contain;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+    }
+
+    .post-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .score {
+      font-weight: 800;
+      font-family: var(--font-mono);
+      color: var(--accent);
+      padding: 7px 14px;
+      background: var(--accent-wash);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+    }
+
+    .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .toggle { display: inline-flex; align-items: center; gap: 8px; color: var(--fg-muted); font-size: 0.9rem; cursor: pointer; }
+    .toggle input { width: 17px; height: 17px; accent-color: var(--thk-red); }
+
+    .btn-soft {
+      border: 1px solid var(--border);
+      background: var(--bg-surface);
+      color: var(--fg-muted);
+      padding: 7px 14px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .btn-soft:hover {
+      border-color: var(--border-hover);
+      color: var(--fg);
+      background: var(--bg-deep);
+    }
+    .btn-soft.active {
+      background: var(--accent-wash);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      padding: 7px 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+    }
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+
+    .comment-zone {
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+      margin-top: 16px;
+    }
+    .comment-title {
+      margin: 0 0 12px;
+      color: var(--fg);
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    .comment {
+      border-left: 2px solid var(--accent);
+      margin: 10px 0;
+      padding: 10px 14px;
+      background: var(--bg-deep);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    }
+    .comment.deleted {
+      opacity: 0.75;
+    }
+    .comment-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      color: var(--fg-muted);
+      font-size: 0.78rem;
+      font-family: var(--font-mono);
+    }
+    .comment-body {
+      margin: 0 0 8px;
+      white-space: pre-wrap;
+      font-size: 0.9rem;
+      color: var(--fg);
+      line-height: 1.5;
+    }
+    .comment-tools {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .reply-box {
+      margin-top: 12px;
+      display: none;
+    }
+    .reply-box.visible { display: block; }
+
+    .empty {
+      color: var(--fg-muted);
+      text-align: center;
+      padding: 48px 20px;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--bg-surface);
+    }
+
+    .shimmer {
+      opacity: 0;
+      animation: in 300ms ease forwards;
+    }
+
+    @keyframes in {
+      to { opacity: 1; }
+    }
+
+    .pager {
+      margin-top: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .pager-status {
+      color: var(--fg-muted);
+      font-size: 0.85rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      margin-right: 6px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- REUSABLE NAVBAR -->
+  <div id="navbarRoot"></div>
+  <script src="{{ url_for('static', filename='js/components.js') }}" defer></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', function(){
+      var opts = { is_logged_in: 'auto', active: 'forum' };
+      if (window.THKU_UI && window.THKU_UI.Navbar) window.THKU_UI.Navbar.render('#navbarRoot', opts);
+      if (window.THKU_UI && window.THKU_UI.Footer)  window.THKU_UI.Footer.render('#footerRoot');
+    });
+  </script>
+
+  <div class="container" style="max-width: 980px; padding-top: 30px;">
+    <div class="page-head reveal-on-scroll">
+      <div>
+        <div class="hud-tag hud-tag-cyan" style="margin-bottom:8px;">STUDENT DISCOURSE & COMMUNICATIONS</div>
+        <h1 class="page-title">Kampüs Öğrenci Forumu</h1>
+        <p class="page-sub">Dersler, kampüs hayatı, staj ve tavsiyeler üzerine açık tartışma ve bilgi paylaşım alanı.</p>
+      </div>
+      <div>
+        <a href="/" class="btn btn-outline">← Ana Sayfa</a>
+      </div>
+    </div>
+
+    <div id="alertContainer"></div>
+
+    <!-- Yeni Gönderi Paneli -->
+    <div class="cockpit-panel composer-cockpit reveal-on-scroll">
+      <h2>Yeni Bir Konu Başlat</h2>
+      <form id="postForm">
+        <div class="field-cockpit">
+          <label for="konu">Konu Başlığı</label>
+          <input id="konu" class="cockpit-input" maxlength="200" required placeholder="Örn: Calculus II vizesine nasıl hazırlanıyorsunuz?">
+        </div>
+        <div class="field-cockpit">
+          <label for="mesaj_icerigi">Açıklama / Mesaj İçeriği</label>
+          <textarea id="mesaj_icerigi" class="cockpit-textarea" maxlength="2000" placeholder="Soru, görüş veya detayları buraya yazınız..."></textarea>
+        </div>
+        <div class="field-cockpit">
+          <label for="gif_url">GIF / Medya URL (İsteğe bağlı)</label>
+          <input id="gif_url" class="cockpit-input" placeholder="https://media.tenor.com/... veya resim linki">
+        </div>
+        <div class="composer-actions">
+          <label class="toggle-cockpit">
+            <input id="isim_gorunsun" type="checkbox" checked>
+            <span>Öğrenci adım gönderide görünsün</span>
+          </label>
+          <button class="btn btn-primary" type="submit" id="postSubmitBtn">Gönderiyi Paylaş</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Gönderiler Listesi -->
+    <div class="cockpit-panel reveal-on-scroll" style="padding: 24px;">
+      <div id="postList" class="post-list">
+        <div class="empty">
+          <div class="hud-loader-radar" style="margin: 0 auto 16px; width: 60px; height: 60px;">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" onerror="this.onerror=null;this.src='/static/img/kedi.ico'" alt="THKÜ">
+          </div>
+          <p>Tartışmalar yükleniyor...</p>
+        </div>
+      </div>
+      <div class="pager">
+        <span id="pagerStatus" class="pager-status">Sayfa 1 / 1</span>
+        <button id="prevPageBtn" class="btn btn-secondary" type="button">Önceki</button>
+        <button id="nextPageBtn" class="btn btn-secondary" type="button">Sonraki</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- REUSABLE FOOTER -->
+  <div id="footerRoot"></div>
+
+  <script>
+        const postList = document.getElementById('postList');
+        const postForm = document.getElementById('postForm');
+        const postSubmitBtn = document.getElementById('postSubmitBtn');
+        const alertContainer = document.getElementById('alertContainer');
+        const prevPageBtn = document.getElementById('prevPageBtn');
+        const nextPageBtn = document.getElementById('nextPageBtn');
+        const pagerStatus = document.getElementById('pagerStatus');
+
+        let posts = [];
+        let currentPage = 1;
+        const pageSize = 8;
+        let pagination = {
+            page: 1,
+            total_pages: 1,
+            total_items: 0,
+            has_prev: false,
+            has_next: false,
+        };
+
+        const escapeHTML = (str) => {
+            if (str == null) return '';
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+            return String(str).replace(/[&<>"']/g, (ch) => map[ch]);
+        };
+
+        const asSafeHttpUrl = (value) => {
+            if (!value) return null;
+            const raw = String(value).trim();
+            if (!raw) return null;
+            const lower = raw.toLowerCase();
+            if (lower.startsWith('http://') || lower.startsWith('https://')) {
+                return raw;
+            }
+            return null;
+        };
+
+        const isVideoMediaUrl = (value) => {
+            if (!value) return false;
+            const lower = String(value).toLowerCase();
+            return lower.endsWith('.mp4') || lower.endsWith('.webm');
+        };
+
+        const timeAgo = (iso) => {
+            const date = new Date(iso);
+            const diff = Math.floor((Date.now() - date.getTime()) / 1000);
+            if (Number.isNaN(diff)) return '';
+            if (diff < 60) return 'Az once';
+            if (diff < 3600) return `${Math.floor(diff / 60)} dk once`;
+            if (diff < 86400) return `${Math.floor(diff / 3600)} saat once`;
+            return `${Math.floor(diff / 86400)} gun once`;
+        };
+
+        const countComments = (comments) => {
+            let total = 0;
+            const walk = (nodes) => {
+                for (const node of nodes || []) {
+                    total += 1;
+                    walk(node.children || []);
+                }
+            };
+            walk(comments || []);
+            return total;
+        };
+
+        const showAlert = (message, type = 'success') => {
+            const el = document.createElement('div');
+            el.className = `alert alert-${type}`;
+            el.textContent = message;
+            alertContainer.appendChild(el);
+            setTimeout(() => el.remove(), 3200);
+        };
+
+        const apiRequest = async (url, options = {}) => {
+            const res = await fetch(url, {
+                headers: { 'Content-Type': 'application/json' },
+                ...options,
+            });
+
+            const payload = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                if (res.status === 401) {
+                    window.location.href = `/login?next=${encodeURIComponent(window.location.pathname)}`;
+                    return null;
+                }
+                throw new Error(payload.message || 'Bir islem hatasi olustu.');
+            }
+            return payload;
+        };
+
+        const renderReplyBox = (postId, parentId) => `
+            <div class="reply-box" id="reply-box-${parentId}">
+                <textarea id="reply-text-${parentId}" maxlength="1200" placeholder="Yaniti yaz..."></textarea>
+                <div class="row" style="margin-top:8px;">
+                    <label class="toggle">
+                        <input type="checkbox" id="reply-visible-${parentId}" checked>
+                        Adim gorunsun
+                    </label>
+                    <button class="btn btn-primary" onclick="submitComment(${postId}, ${parentId})">Yaniti Gonder</button>
+                </div>
+            </div>
+        `;
+
+        const renderComment = (postId, comment, depth = 0) => {
+            const left = Math.min(depth * 18, 72);
+            const deletedClass = comment.is_deleted ? 'deleted' : '';
+            const body = escapeHTML(comment.yorum_icerigi || '');
+            const meta = `${escapeHTML(comment.display_name)} · ${timeAgo(comment.gonderilme_tarihi)}`;
+
+            return `
+                <div class="comment ${deletedClass}" style="margin-left:${left}px;">
+                    <div class="comment-meta">${meta}</div>
+                    <p class="comment-body">${body}</p>
+                    <div class="comment-tools">
+                        ${comment.is_deleted ? '' : `<button class="btn btn-soft" onclick="toggleReply(${comment.id})">Yanıtla</button>`}
+                        ${comment.can_delete ? `<button class="btn btn-danger" onclick="deleteComment(${comment.id})">Yorumu Sil</button>` : ''}
+                    </div>
+                    ${comment.is_deleted ? '' : renderReplyBox(postId, comment.id)}
+                    ${(comment.children || []).map((child) => renderComment(postId, child, depth + 1)).join('')}
+                </div>
+            `;
+        };
+
+        const renderPosts = () => {
+            if (!posts.length) {
+                postList.innerHTML = '<div class="empty">Henuz gonderi yok. Ilk basligi sen acabilirsin.</div>';
+                return;
+            }
+
+            postList.innerHTML = posts.map((post) => {
+                const topic = escapeHTML(post.konu || '');
+                const content = escapeHTML(post.mesaj_icerigi || '');
+                const author = escapeHTML(post.display_name || 'Anonim');
+                const dateStr = timeAgo(post.gonderilme_tarihi);
+                const likeActive = post.user_action === 'like' ? 'active' : '';
+                const dislikeActive = post.user_action === 'dislike' ? 'active' : '';
+                const gifUrl = asSafeHttpUrl(post.gif_url);
+                const isVideo = isVideoMediaUrl(gifUrl);
+                const totalCommentCount = countComments(post.comments || []);
+
+                return `
+                    <article class="post shimmer">
+                        <div class="post-head">
+                            <div>
+                                <h3 class="post-topic">${topic}</h3>
+                                <div class="meta">${author} · ${dateStr}</div>
+                            </div>
+                            <span class="pill">${totalCommentCount} yorum</span>
+                        </div>
+
+                        ${content ? `<div class="post-content">${content}</div>` : ''}
+                        ${gifUrl ? `<div class="gif-wrap">${isVideo
+                            ? `<video src="${escapeHTML(gifUrl)}" muted autoplay loop playsinline controls preload="metadata"></video>`
+                            : `<img src="${escapeHTML(gifUrl)}" loading="lazy" alt="Forum gifi">`
+                        }</div>` : ''}
+
+                        <div class="post-actions">
+                            <button class="btn btn-soft ${likeActive}" onclick="reactPost(${post.id}, 'like')">▲ Begen</button>
+                            <button class="btn btn-soft ${dislikeActive}" onclick="reactPost(${post.id}, 'dislike')">▼ Begenme</button>
+                            <span class="score">Skor: ${post.begeni_sayisi}</span>
+                            ${post.can_delete ? `<button class="btn btn-danger" onclick="deletePost(${post.id})">Gonderiyi Sil</button>` : ''}
+                        </div>
+
+                        <div class="comment-zone">
+                            <p class="comment-title">Yorumlar</p>
+                            ${(post.comments || []).map((c) => renderComment(post.id, c)).join('') || '<div class="meta">Ilk yorumu sen yaz.</div>'}
+
+                            <div class="reply-box visible">
+                                <textarea id="comment-text-${post.id}" maxlength="1200" placeholder="Bu gonderi hakkinda ne dusunuyorsun?"></textarea>
+                                <div class="row" style="margin-top:8px;">
+                                    <label class="toggle">
+                                        <input type="checkbox" id="comment-visible-${post.id}" checked>
+                                        Adim gorunsun
+                                    </label>
+                                    <button class="btn btn-primary" onclick="submitComment(${post.id}, null)">Yorum Yap</button>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+
+            pagerStatus.textContent = `Sayfa ${pagination.page} / ${pagination.total_pages} - ${pagination.total_items} gonderi`;
+            prevPageBtn.disabled = !pagination.has_prev;
+            nextPageBtn.disabled = !pagination.has_next;
+        };
+
+        const loadPosts = async (targetPage = currentPage) => {
+            try {
+                const data = await apiRequest(`/api/forum/posts?page=${encodeURIComponent(targetPage)}&page_size=${encodeURIComponent(pageSize)}`);
+                if (!data) return;
+
+                posts = data.items || [];
+                pagination = data.pagination || pagination;
+                currentPage = pagination.page || 1;
+                renderPosts();
+            } catch (err) {
+                console.error(err);
+                postList.innerHTML = '<div class="empty">Gonderiler yuklenemedi.</div>';
+                showAlert(err.message, 'error');
+            }
+        };
+
+        window.reactPost = async (postId, action) => {
+            try {
+                await apiRequest(`/api/forum/posts/${encodeURIComponent(postId)}/reactions`, {
+                    method: 'POST',
+                    body: JSON.stringify({ action }),
+                });
+                await loadPosts(currentPage);
+            } catch (err) {
+                showAlert(err.message, 'error');
+            }
+        };
+
+        window.toggleReply = (commentId) => {
+            const box = document.getElementById(`reply-box-${commentId}`);
+            if (!box) return;
+            box.classList.toggle('visible');
+        };
+
+        window.submitComment = async (postId, parentId) => {
+            const textEl = document.getElementById(parentId ? `reply-text-${parentId}` : `comment-text-${postId}`);
+            const visibleEl = document.getElementById(parentId ? `reply-visible-${parentId}` : `comment-visible-${postId}`);
+
+            const yorum_icerigi = textEl?.value?.trim() || '';
+            if (!yorum_icerigi) {
+                showAlert('Yorum bos olamaz.', 'error');
+                return;
+            }
+
+            try {
+                await apiRequest(`/api/forum/posts/${encodeURIComponent(postId)}/comments`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        yorum_icerigi,
+                        parent_comment_id: parentId,
+                        isim_gorunsun: !!visibleEl?.checked,
+                    }),
+                });
+                showAlert('Yorum eklendi.', 'success');
+                if (textEl) textEl.value = '';
+                await loadPosts(currentPage);
+            } catch (err) {
+                showAlert(err.message, 'error');
+            }
+        };
+
+        window.deletePost = async (postId) => {
+            if (!window.confirm('Bu gonderi silinsin mi?')) return;
+            try {
+                await apiRequest(`/api/forum/posts/${encodeURIComponent(postId)}`, { method: 'DELETE' });
+                showAlert('Gonderi silindi.', 'success');
+                await loadPosts(currentPage);
+            } catch (err) {
+                showAlert(err.message, 'error');
+            }
+        };
+
+        window.deleteComment = async (commentId) => {
+            if (!window.confirm('Bu yorum silinsin mi?')) return;
+            try {
+                await apiRequest(`/api/forum/comments/${encodeURIComponent(commentId)}`, { method: 'DELETE' });
+                showAlert('Yorum silindi.', 'success');
+                await loadPosts(currentPage);
+            } catch (err) {
+                showAlert(err.message, 'error');
+            }
+        };
+
+        postForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            postSubmitBtn.disabled = true;
+            postSubmitBtn.textContent = 'Gonderiliyor...';
+
+            const konu = document.getElementById('konu').value.trim();
+            const mesaj_icerigi = document.getElementById('mesaj_icerigi').value.trim();
+            const gif_url = document.getElementById('gif_url').value.trim();
+            const isim_gorunsun = document.getElementById('isim_gorunsun').checked;
+
+            try {
+                await apiRequest('/api/forum/posts', {
+                    method: 'POST',
+                    body: JSON.stringify({ konu, mesaj_icerigi, gif_url, isim_gorunsun }),
+                });
+                showAlert('Gonderi paylasildi.', 'success');
+                postForm.reset();
+                document.getElementById('isim_gorunsun').checked = true;
+                await loadPosts(1);
+            } catch (err) {
+                showAlert(err.message, 'error');
+            } finally {
+                postSubmitBtn.disabled = false;
+                postSubmitBtn.textContent = 'Gonder';
+            }
+        });
+
+        prevPageBtn.addEventListener('click', () => {
+            if (!pagination.has_prev) return;
+            loadPosts(currentPage - 1);
+        });
+
+        nextPageBtn.addEventListener('click', () => {
+            if (!pagination.has_next) return;
+            loadPosts(currentPage + 1);
+        });
+
+        document.addEventListener('DOMContentLoaded', loadPosts);
+    </script>
+</body>
+</html>

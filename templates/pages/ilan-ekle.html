@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>İlan Yayınla — THKÜ Bit Pazarı</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/ui.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/portal.css') }}">
+  <style>
+    .page-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .page-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--fg);
+    }
+    .page-sub {
+      color: var(--fg-muted);
+      font-size: 0.92rem;
+      margin-top: 4px;
+    }
+
+    .cockpit-form-card {
+      background: var(--night-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 40px;
+    }
+
+    .form-group {
+      margin-bottom: 22px;
+    }
+
+    .field-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      color: var(--fg);
+    }
+
+    .cockpit-input,
+    .cockpit-select,
+    .cockpit-textarea {
+      width: 100%;
+      padding: 14px 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      color: var(--fg);
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .cockpit-input:focus,
+    .cockpit-select:focus,
+    .cockpit-textarea:focus {
+      border-color: var(--thk-red);
+    }
+    .cockpit-select option {
+      background: var(--night-deep);
+      color: var(--fg);
+    }
+
+    .file-upload-cockpit {
+      border: 2px dashed var(--border);
+      padding: 28px 20px;
+      text-align: center;
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      background: var(--surface);
+      transition: border-color 0.2s;
+    }
+    .file-upload-cockpit:hover {
+      border-color: var(--sky);
+    }
+    .file-upload-cockpit .fic { font-size: 2rem; margin-bottom: 6px; }
+    .file-upload-cockpit .ftxt { font-size: 0.92rem; font-weight: 600; color: var(--fg); }
+  </style>
+</head>
+
+<body>
+  <!-- REUSABLE NAVBAR -->
+  <div id="navbarRoot"></div>
+  <script src="{{ url_for('static', filename='js/components.js') }}" defer></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', function(){
+      var opts = { is_logged_in: 'auto', active: 'pazar' };
+      if (window.THKU_UI && window.THKU_UI.Navbar) window.THKU_UI.Navbar.render('#navbarRoot', opts);
+      if (window.THKU_UI && window.THKU_UI.Footer)  window.THKU_UI.Footer.render('#footerRoot');
+    });
+  </script>
+
+  <div class="container" style="max-width: 680px; padding-top: 30px;">
+    <div class="page-head reveal-on-scroll">
+      <div>
+        <div class="hud-tag hud-tag-cyan" style="margin-bottom:8px;">INVENTORY LISTING PROTOCOL</div>
+        <h1 class="page-title">Yeni İlan Oluştur</h1>
+        <p class="page-sub">Kampüs bit pazarına ürün ekleyin ve alıcılarla doğrudan WhatsApp üzerinden buluşun.</p>
+      </div>
+      <div>
+        <a href="/bit-pazari" class="btn btn-outline">← Pazara Dön</a>
+      </div>
+    </div>
+
+    <div class="cockpit-form-card reveal-on-scroll">
+      <form id="ilanForm">
+        <div class="form-group">
+          <label class="field-label">İlan Başlığı <span style="color:var(--warn)">*</span></label>
+          <input type="text" name="baslik" class="cockpit-input" placeholder="Örn: David Clark H10-13.4 Havacılık Kulaklığı" required>
+        </div>
+
+        <div class="form-group">
+          <label class="field-label">Kategori <span style="color:var(--warn)">*</span></label>
+          <select name="kategori" class="cockpit-select">
+            <option value="Havacılık Ekipmanları">✈️ Havacılık Ekipmanları</option>
+            <option value="Ders Materyalleri">📚 Ders Materyalleri</option>
+            <option value="Yurt Eşyaları">🛏️ Yurt Eşyaları</option>
+            <option value="Diğer">📦 Diğer</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="field-label">Fiyat (TL) <span style="color:var(--warn)">*</span></label>
+          <input type="number" name="fiyat" class="cockpit-input" placeholder="Örn: 1250" required>
+        </div>
+
+        <div class="form-group">
+          <label class="field-label">Ürün Durumu & Açıklama</label>
+          <textarea name="aciklama" rows="3" class="cockpit-textarea" placeholder="Ürünün kozmetik ve çalışma durumu hakkında detaylar..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="field-label">İletişim Numarası (WhatsApp) <span style="color:var(--warn)">*</span></label>
+          <input type="tel" name="iletisim" class="cockpit-input" placeholder="05XX XXX XX XX" required>
+        </div>
+
+        <div class="form-group">
+          <label class="field-label">Ürün Fotoğrafı <span style="color:var(--warn)">*</span></label>
+          <div class="file-upload-cockpit" onclick="document.getElementById('fileInput').click()">
+            <div class="fic">📸</div>
+            <div class="ftxt">Ürün Fotoğrafı Seçmek İçin Dokunun</div>
+            <small id="fileName" style="display: block; margin-top: 6px; color: var(--cyan-thrust); font-family: var(--font-mono);"></small>
+          </div>
+          <input type="file" id="fileInput" name="file" accept="image/*" style="display: none;" required>
+        </div>
+
+        <div style="display: flex; gap: 14px; margin-top: 30px;">
+          <button type="submit" class="btn btn-primary" id="submitBtn" style="flex:1;">İlanı Yayınla</button>
+          <a href="/bit-pazari" class="btn btn-secondary">İptal</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- REUSABLE FOOTER -->
+  <div id="footerRoot"></div>
+
+  <script>
+    document.getElementById('fileInput').addEventListener('change', function (e) {
+      if (e.target.files[0]) {
+        document.getElementById('fileName').innerText = "Seçilen: " + e.target.files[0].name;
+      }
+    });
+
+    document.getElementById('ilanForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const btn = document.getElementById('submitBtn');
+      const orig = btn.innerText;
+      btn.innerText = "Yayınlanıyor...";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/ilan-ekle', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (res.ok) {
+          alert('İlanınız başarıyla listelendi!');
+          window.location.href = '/bit-pazari';
+        } else {
+          alert('İlan eklenirken bir hata meydana geldi!');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Sunucu iletişim hatası oluştu.');
+      } finally {
+        btn.innerText = orig;
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+
+</html>

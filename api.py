@@ -621,7 +621,7 @@ def api_kayip_ekle(current_user):
                 "title": bildirim_baslik,
                 "body": bildirim_mesaj,
                 "url": f"/kayip-esya/{yeni_ilan.id}",
-                "icon": "/static/kedi.ico"  
+                "icon": "/static/img/kedi.ico"  
             }
 
             # İlanda fotoğraf varsa büyük resim olarak ekle
@@ -1119,7 +1119,16 @@ def yemek_saatleri():
             new_buffer["kaynak"] = "excel"
             return jsonify(new_buffer)
         except Exception:
-            return jsonify({"error": f"Menü okunamadı: {str(e)}"}), 500
+            return jsonify({
+                "Pazartesi": [],
+                "Salı": [],
+                "Çarşamba": [],
+                "Perşembe": [],
+                "Cuma": [],
+                "bugun": None,
+                "kaynak": "bos",
+                "mesaj": "Güncel menü henüz yayınlanmadı."
+            }), 200
 
 
 @api_bp.get('/api/yemek-bugun')
@@ -1127,11 +1136,10 @@ def api_yemek_bugun():
     try:
         menu = get_today_menu()
         if not menu:
-            return jsonify({"bugun": None, "message": "Bugün için menü bulunamadı (hafta sonu veya tatil)."}), 200
-        return jsonify({"bugun": menu})
+            return jsonify({"bugun": None, "message": "Bugün için menü bulunamadı."}), 200
+        return jsonify({"bugun": menu}), 200
     except Exception as e:
-        traceback.print_exc()
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"bugun": None, "message": "Menü bilgisi alınamadı."}), 200
 
 
 @api_bp.get('/api/ulasim')

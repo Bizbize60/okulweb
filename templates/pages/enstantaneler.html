@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kampüsten Enstantaneler — THKÜ</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/ui.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/portal.css') }}">
+  <style>
+    .page-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .page-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--fg);
+    }
+    .page-sub {
+      color: var(--fg-muted);
+      font-size: 0.92rem;
+      margin-top: 4px;
+    }
+
+    .award-banner {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      margin-bottom: 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .award-info {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .award-info .trophy-icon {
+      font-size: 2rem;
+      color: var(--warn);
+    }
+    .award-text h4 {
+      margin: 0;
+      color: var(--fg);
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+    .award-text p {
+      margin: 4px 0 0;
+      color: var(--fg-muted);
+      font-size: 0.86rem;
+    }
+
+    .gallery-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+    .gallery-filter-grp {
+      display: flex;
+      gap: 10px;
+    }
+
+    .masonry-grid {
+      column-count: 4;
+      column-gap: 24px;
+      margin-bottom: 48px;
+    }
+    @media (max-width: 1100px) { .masonry-grid { column-count: 3; } }
+    @media (max-width: 768px) { .masonry-grid { column-count: 2; column-gap: 16px; } }
+    @media (max-width: 480px) { .masonry-grid { column-count: 1; } }
+
+    .pin-card {
+      break-inside: avoid;
+      margin-bottom: 24px;
+      background: var(--night-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .pin-card:hover {
+      border-color: var(--border-accent);
+      transform: translateY(-2px);
+    }
+
+    .pin-image {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .pin-card:hover .pin-image {
+      transform: scale(1.02);
+    }
+
+    .pin-content {
+      padding: 16px 18px;
+    }
+    .pin-text {
+      color: var(--fg);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin: 0 0 14px;
+      word-break: break-word;
+    }
+    .pin-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+    }
+    .pin-user {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--fg-muted);
+      font-size: 0.8rem;
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+
+    .like-btn {
+      background: rgba(248, 113, 113, 0.08);
+      border: 1px solid rgba(248, 113, 113, 0.2);
+      color: var(--danger);
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .like-btn:hover, .like-btn.liked {
+      background: var(--danger);
+      color: #FFFFFF;
+      transform: scale(1.1);
+    }
+    .like-count {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--fg-muted);
+      margin-left: 6px;
+    }
+
+    .cockpit-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(6, 13, 24, 0.85);
+      backdrop-filter: blur(12px);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .cockpit-modal-box {
+      background: var(--night-panel);
+      border: 1px solid var(--border-accent);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      max-width: 480px;
+      width: 100%;
+      position: relative;
+    }
+    .cockpit-modal-box h3 {
+      color: var(--fg);
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 800;
+      margin: 0 0 18px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- REUSABLE NAVBAR -->
+  <div id="navbarRoot"></div>
+  <script src="{{ url_for('static', filename='js/components.js') }}" defer></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', function(){
+      var opts = { is_logged_in: 'auto', active: 'enstantaneler' };
+      if (window.THKU_UI && window.THKU_UI.Navbar) window.THKU_UI.Navbar.render('#navbarRoot', opts);
+      if (window.THKU_UI && window.THKU_UI.Footer)  window.THKU_UI.Footer.render('#footerRoot');
+    });
+  </script>
+
+  <div class="container" style="padding-top: 30px;">
+    <div class="page-head reveal-on-scroll">
+      <div>
+        <div class="hud-tag hud-tag-cyan" style="margin-bottom:8px;">CAMPUS PHOTOGRAMMETRY & VISUAL GALLERY</div>
+        <h1 class="page-title">Kampüsten Enstantaneler</h1>
+        <p class="page-sub">Öğrencilerin objektifinden Türk Hava Kurumu Üniversitesi anları ve fotoğraf yarışması.</p>
+      </div>
+      <div>
+        <a href="/" class="btn btn-outline">← Ana Sayfa</a>
+      </div>
+    </div>
+
+    <!-- Ödül Banner -->
+    <div class="award-banner reveal-on-scroll">
+      <div class="award-info">
+        <div class="trophy-icon"><i class="fa-solid fa-trophy"></i></div>
+        <div class="award-text">
+          <h4>Dönemin En İyi Kampüs Fotoğrafına 1000 TL Teşvik Ödülü!</h4>
+          <p>En çok beğeni alan fotoğraf ödüllendirilecektir. (Min. 10 katılımcı barajı bulunmaktadır).</p>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="openModal()">+ Fotoğraf Paylaş</button>
+    </div>
+
+    <!-- Kontroller -->
+    <div class="gallery-controls reveal-on-scroll">
+      <div class="gallery-filter-grp">
+        <button onclick="loadPosts('populer')" id="btn-populer" class="btn btn-secondary"><i class="fa-solid fa-fire"></i> En Çok Beğenilen</button>
+        <button onclick="loadPosts('yeni')" id="btn-yeni" class="btn btn-secondary active"><i class="fa-solid fa-clock"></i> En Yeniler</button>
+      </div>
+    </div>
+
+    <!-- Fotoğraf Grid -->
+    <div class="masonry-grid reveal-on-scroll" id="feed">
+      <div style="column-span: all; text-align: center; padding: 60px 20px; color: var(--fg-muted);">
+        <div class="hud-loader-radar" style="margin: 0 auto 16px; width: 60px; height: 60px;">
+          <img src="{{ url_for('static', filename='img/logo.png') }}" onerror="this.onerror=null;this.src='/static/img/kedi.ico'" alt="THKÜ">
+        </div>
+        <p>Fotoğraflar taranıyor...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Yükleme Modalı -->
+  <div class="cockpit-modal" id="uploadModal">
+    <div class="cockpit-modal-box">
+      <h3>📸 Fotoğraf Paylaş</h3>
+      <div style="margin-bottom: 16px;">
+        <label style="display:block; font-size:0.85rem; font-weight:700; color:#FFFFFF; margin-bottom:8px;">Fotoğraf Dosyası</label>
+        <input type="file" id="fileInput" accept="image/*" style="width:100%; color:var(--fg-muted);">
+      </div>
+      <div style="margin-bottom: 20px;">
+        <label style="display:block; font-size:0.85rem; font-weight:700; color:#FFFFFF; margin-bottom:8px;">Açıklama</label>
+        <textarea id="descInput" rows="3" class="input" style="width:100%; box-sizing:border-box; padding:12px; background:rgba(14,22,36,0.8); border:1px solid var(--border); border-radius:var(--radius-md); color:#FFFFFF;" placeholder="Kampüsteki bu kare hakkında kısa bir not..."></textarea>
+      </div>
+      <div style="display: flex; gap: 12px;">
+        <button class="btn btn-primary" onclick="uploadPost()" id="modalUploadBtn" style="flex:1;">Paylaş</button>
+        <button class="btn btn-secondary" onclick="closeModal()">İptal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- REUSABLE FOOTER -->
+  <div id="footerRoot"></div>
+
+  <script>
+        const feedGrid = document.getElementById('feed');
+        const btnPopuler = document.getElementById('btn-populer');
+        const btnYeni = document.getElementById('btn-yeni');
+        const uploadModal = document.getElementById('uploadModal');
+        const fileInput = document.getElementById('fileInput');
+        const descInput = document.getElementById('descInput');
+        const uploadBtn = document.querySelector('.modal .upload-btn');
+
+        // XSS Koruması
+        const escapeHTML = str => {
+            if (!str) return '';
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' };
+            return String(str).replace(/[&<>'"]/g, tag => map[tag] || tag);
+        };
+
+        const loadPosts = async (sirala) => {
+            // Buton aktiflik durumu
+            document.querySelectorAll('.controls button').forEach(b => b.classList.remove('active'));
+            if (sirala === 'populer' && btnPopuler) btnPopuler.classList.add('active');
+            if (sirala === 'yeni' && btnYeni) btnYeni.classList.add('active');
+
+            if (feedGrid) feedGrid.innerHTML = '<p style="color:#666">Yükleniyor...</p>';
+
+            try {
+                const res = await fetch(`/api/enstantaneler?sirala=${encodeURIComponent(sirala)}`);
+
+                if (!res.ok) {
+                    if (res.status === 401) {
+                        window.location.href = `/login?next=${encodeURIComponent(window.location.pathname)}`;
+                        return;
+                    }
+                    throw new Error('Veriler yüklenemedi.');
+                }
+
+                const data = await res.json();
+
+                if (feedGrid) {
+
+                    if (!data.length) {
+                        feedGrid.innerHTML = '<p style="color:#666">Henüz fotoğraf paylaşılmamış.</p>';
+                        return;
+                    }
+                    
+                    feedGrid.innerHTML = data.map(post => {
+                        const safeImg = escapeHTML(post.foto);
+                        const safeDesc = escapeHTML(post.aciklama);
+                        const safeUser = escapeHTML(post.user_name);
+                        const isLiked = post.liked_by_user ? 'liked' : '';
+
+                        return `
+            <div class="pin-card">
+                <img src="${safeImg}" class="pin-image" loading="lazy" alt="Enstantane">
+                <div class="pin-content">
+                    <p class="pin-text">${safeDesc}</p>
+                    <div class="pin-footer">
+                        <div class="user-info">
+                            <i class="fa-solid fa-user" style="color:#888; margin-right:5px;"></i>
+                            <span>${safeUser}</span>
+                        </div>
+                        <div style="display:flex; align-items:center">
+                            <button class="like-btn ${isLiked}" onclick="toggleLike(${post.id}, this)">
+                                <i class="fa-solid fa-heart"></i>
+                            </button>
+                            <span class="like-count" id="count-${post.id}">${post.begeni_sayisi}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+                    }).join('');
+                }
+            } catch (e) {
+                console.error(e);
+                if (feedGrid) feedGrid.innerHTML = '<p style="color:#dc3545">Veriler yüklenirken bir hata oluştu.</p>';
+            }
+        };
+
+        const toggleLike = async (id, btn) => {
+            const countSpan = document.getElementById(`count-${id}`);
+            if (!countSpan) return;
+
+            let currentCount = parseInt(countSpan.innerText) || 0;
+
+            // Animasyon etkisi için anlık değişim
+            if (btn.classList.contains('liked')) {
+                btn.classList.remove('liked');
+                countSpan.innerText = currentCount - 1;
+            } else {
+                btn.classList.add('liked');
+                countSpan.innerText = currentCount + 1;
+            }
+
+            try {
+                const res = await fetch(`/api/enstantane-begen/${encodeURIComponent(id)}`, { method: 'POST' });
+                if (!res.ok) throw new Error('Beğeni işlemi başarısız.');
+                const data = await res.json();
+                countSpan.innerText = data.count;
+            } catch (e) {
+                console.error("Beğeni hatası:", e);
+            }
+        };
+
+        const uploadPost = async () => {
+            const file = fileInput?.files[0];
+            const desc = descInput?.value.trim();
+
+            if (!file) return alert("Lütfen bir dosya seçin!");
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('aciklama', desc || '');
+
+            if (uploadBtn) {
+                uploadBtn.innerText = "Yükleniyor...";
+                uploadBtn.disabled = true;
+            }
+
+            try {
+                const res = await fetch('/api/enstantane-yukle', { method: 'POST', body: formData });
+                if (res.ok) {
+                    closeModal();
+                    loadPosts('yeni');
+                    if (fileInput) fileInput.value = '';
+                    if (descInput) descInput.value = '';
+                } else {
+                    const errorData = await res.json();
+                    alert("Yükleme başarısız: " + escapeHTML(errorData.message || 'Bilinmeyen hata'));
+                }
+            } catch (e) {
+                console.error("Yükleme hatası:", e);
+                alert("Bir hata oluştu.");
+            } finally {
+                if (uploadBtn) {
+                    uploadBtn.innerText = "Paylaş";
+                    uploadBtn.disabled = false;
+                }
+            }
+        };
+
+        window.openModal = () => { if (uploadModal) uploadModal.style.display = 'flex'; };
+        window.closeModal = () => { if (uploadModal) uploadModal.style.display = 'none'; };
+
+        document.addEventListener('DOMContentLoaded', () => loadPosts('yeni'));
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duyurular — THKÜ</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ui.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/portal.css') }}">
+    <style>
+        .section-title {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            color: var(--fg);
+            margin: 0 0 6px 0;
+        }
+
+        .section-desc {
+            font-size: 1rem;
+            color: var(--fg-muted);
+            margin-bottom: 32px;
+        }
+
+        .duyuru-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .duyuru-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .duyuru-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--border-hover);
+        }
+
+        .duyuru-content {
+            flex: 1;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .duyuru-title {
+            font-family: var(--font-sans);
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--fg);
+            margin-bottom: 8px;
+            line-height: 1.35;
+        }
+
+        .duyuru-desc {
+            font-size: 0.86rem;
+            color: var(--fg-muted);
+            line-height: 1.5;
+            margin-bottom: 12px;
+            flex: 1;
+        }
+
+        .duyuru-date {
+            font-size: 0.76rem;
+            color: var(--accent);
+            font-family: var(--font-mono);
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .duyuru-actions {
+            margin-top: auto;
+        }
+
+        .duyuru-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--thk-red);
+            color: #FFFFFF;
+            padding: 8px 18px;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            font-family: var(--font-sans);
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+        }
+
+        .duyuru-btn:hover {
+            background: var(--thk-red-bright);
+            color: #FFFFFF;
+        }
+
+        .handwritten-meta {
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            color: var(--fg-muted);
+            margin-top: 6px;
+            margin-bottom: 0;
+        }
+
+        .sketch-loading {
+            width: 100%;
+            text-align: center;
+            font-family: var(--font-sans);
+            color: var(--fg-muted);
+            font-size: 1rem;
+            padding: 48px 0;
+        }
+
+        @media (max-width: 900px) {
+            .duyuru-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="navbarRoot"></div>
+
+    <main class="container" style="padding-top: 32px; padding-bottom: 60px;">
+        <div class="glass-container">
+            <div class="section-title">Tüm Duyurular</div>
+            <div class="section-desc" style="color:var(--fg-muted);margin-bottom:24px;">Üniversitemizden en güncel duyurular, ihaleler ve etkinlikler.</div>
+            <div class="duyuru-grid" id="duyuruGrid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:16px;"></div>
+            <div id="duyuruLoading" class="sketch-loading" style="text-align:center;padding:40px;color:var(--fg-muted);">
+                <div>Yükleniyor...</div>
+            </div>
+        </div>
+    </main>
+
+    <div id="footerRoot"></div>
+    <script src="{{ url_for('static', filename='js/components.js') }}" defer></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', function(){
+          var opts = { is_logged_in: {% if is_logged_in %}true{% else %}false{% endif %}, active: 'duyurular' };
+          if (window.THKU_UI && window.THKU_UI.Navbar) window.THKU_UI.Navbar.render('#navbarRoot', opts);
+          if (window.THKU_UI && window.THKU_UI.Footer)  window.THKU_UI.Footer.render('#footerRoot');
+        });
+
+        const grid = document.getElementById('duyuruGrid');
+        const loading = document.getElementById('duyuruLoading');
+        function showLoading() {
+            loading.style.display = 'block';
+            grid.style.display = 'none';
+        }
+        function hideLoading() {
+            loading.style.display = 'none';
+            grid.style.display = 'grid';
+        }
+        showLoading();
+        fetch('/api/duyurular')
+            .then(r => r.json())
+            .then(data => {
+                grid.innerHTML = '';
+                if (data.duyurular && data.duyurular.length > 0) {
+                    data.duyurular.forEach(duyuru => {
+                        const card = document.createElement('div');
+                        card.className = 'duyuru-card';
+                        let btnHtml = '';
+                        if (duyuru.link && duyuru.link !== '#') {
+                            btnHtml = `<a class="duyuru-btn" href="${duyuru.link}" target="_blank" rel="noopener">İncele →</a>`;
+                        } else {
+                            btnHtml = `<span class="duyuru-btn" style="opacity:0.5;cursor:not-allowed;">İncele</span>`;
+                        }
+                        card.innerHTML = `
+                            <div class="duyuru-content">
+                                <div class="duyuru-title">${duyuru.title}</div>
+                                <div class="duyuru-desc">${duyuru.description || ''}</div>
+                                <div class="duyuru-date">${duyuru.date || ''}</div>
+                                <div class="duyuru-actions" style="margin-top:14px;">${btnHtml}</div>
+                            </div>`;
+                        grid.appendChild(card);
+                    });
+                } else {
+                    grid.innerHTML = '<div style="text-align:center;grid-column:1/-1;color:var(--fg-muted);padding:30px;">Şu anda duyuru bulunamadı.</div>';
+                }
+                hideLoading();
+            })
+            .catch(() => { hideLoading(); });
+    </script>
+</body>
+</html>

@@ -27,12 +27,39 @@ def enstantane_upload_path(filename):
     return os.path.join(folder, filename)
 
 def send_verification_email(mail_app, user_email, code):
-    msg = Message(
-        subject="THKÜ Portal - Doğrulama Kodu",
-        recipients=[user_email]
-    )
-    msg.body = f"Merhaba,\n\nDoğrulama kodunuz: {code}\n\nİyi günler dileriz."
-    mail_app.send(msg)
+    """Doğrulama kodunu e-posta ile gönderir.
+
+    DEBUG modunda (yerel test) gerçek SMTP'ye çıkılmaz; kod terminale
+    yazdırılır ve kayıt akışı kaldığı yerden devam eder. Böylece Gmail
+    kimlik bilgisi olmadan da kayıt test edilebilir.
+    """
+    try:
+        from flask import current_app, has_app_context
+        cfg = current_app.config if has_app_context() else {}
+    except Exception:
+        cfg = {}
+    mail_user = str(cfg.get('MAIL_USERNAME') or '')
+    mail_pw = str(cfg.get('MAIL_PASSWORD') or '')
+    placeholder = (not mail_user or not mail_pw
+                   or mail_user == 'test@gmail.com' or mail_pw == 'password')
+    dev = bool(cfg.get('DEBUG', False) or cfg.get('TESTING', False) or placeholder)
+    if dev:
+        print(f"[DEV] SMTP atlandi. {user_email} icin dogrulama kodu: {code}")
+        print("[DEV] Bu kodu /verify sayfasindaki forma girerek kaydi tamamlayabilirsin.")
+        return
+    try:
+        msg = Message(
+            subject="THKÜ Portal - Doğrulama Kodu",
+            recipients=[user_email]
+        )
+        msg.body = f"Merhaba,\n\nDoğrulama kodunuz: {code}\n\nİyi günler dileriz."
+        mail_app.send(msg)
+    except Exception as ex:
+        # Üretimde sessiz geçme: terminale kodu + hatayı yaz, akışı durdurma
+        # (kullanıcı /verify ekranında kalır; kod logdan alınıp girilebilir).
+        print(f"[MAIL-HATA] {user_email} adresine gonderilemedi: {ex}")
+        print(f"[MAIL-HATA] Dogrulama kodu (gecici): {code}")
+        raise
 
 def scrape_haberler():
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -126,7 +153,7 @@ def bildirim_gonder_herkese(baslik, mesaj, url='/', tag='genel-bildirim'):
         "title": baslik,
         "body": mesaj,
         "url": url,
-        "icon": "/static/kedi.ico",
+        "icon": "/static/img/kedi.ico",
         "tag": tag
     })
     
@@ -176,7 +203,7 @@ def bildirim_gonder_kullaniciya(user_id, baslik, mesaj, url='/'):
         "title": baslik,
         "body": mesaj,
         "url": url,
-        "icon": "/static/kedi.ico"
+        "icon": "/static/img/kedi.ico"
     })
     
     for abonelik in abonelikler:

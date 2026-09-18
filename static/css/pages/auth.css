@@ -1,0 +1,241 @@
+/* =========================================================================
+ * THKU Auth Pages (login / register / verify) — 1. Giriş Ekranı Birebir Uyarlama
+ * Palette:
+ *   --thku-navy: #0B2A5B
+ *   --thku-blue: #3FA9F5
+ *   --thku-white: #FFFFFF
+ *   --thku-light-gray: #F3F5F7
+ * ========================================================================= */
+@import url('../tokens.css');
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { height: 100%; }
+
+body {
+  font-family: 'Figtree', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--bg-base);
+  color: var(--fg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px 40px;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Üst Uyarı Barı */
+.unofficial-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: var(--thku-navy);
+  border-bottom: 2px solid var(--thku-blue);
+  padding: 8px 24px;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  font-size: 0.8rem; color: #E2E8F0; font-weight: 500;
+}
+.unofficial-bar strong { color: #FFFFFF; }
+.unofficial-bar a { color: var(--thku-blue); text-decoration: underline; text-underline-offset: 2px; font-weight: 700; }
+
+/* Giriş/Kayıt Ana Kartı (Referans Görsel: 1. Giriş Ekranı) */
+.card, .register-container {
+  width: 100%; max-width: 440px;
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 40px 36px 32px;
+  box-shadow: 0 10px 30px -5px rgba(11, 42, 91, 0.1), 0 2px 8px rgba(0, 0, 0, 0.04);
+  position: relative;
+}
+@media (max-width: 480px) {
+  .card, .register-container { padding: 32px 22px 24px; }
+}
+
+.card-logo {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px; margin-bottom: 20px;
+}
+.card-logo img {
+  width: 52px; height: 52px;
+  border-radius: 12px; object-fit: contain; display: block;
+}
+.logo-text {
+  font-family: 'Figtree', sans-serif;
+  font-weight: 800; font-size: 1.25rem;
+  letter-spacing: -0.01em; color: var(--thku-navy);
+}
+.logo-badge {
+  font-size: 0.68rem; font-weight: 700; color: var(--thku-danger);
+  background: var(--thku-danger-bg); border: 1px solid rgba(214, 58, 58, 0.25);
+  padding: 3px 10px; border-radius: 6px; letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.card-title, .register-container h1 {
+  font-family: 'Figtree', sans-serif;
+  font-size: 1.65rem; font-weight: 700; letter-spacing: -0.01em;
+  margin-bottom: 6px; text-align: center; color: var(--thku-navy);
+}
+.card-subtitle, .register-container .subtitle {
+  font-size: 0.9rem; color: var(--fg-muted); text-align: center; margin-bottom: 24px;
+}
+
+.flash-error, .error-message {
+  background: var(--thku-danger-bg); border: 1px solid rgba(214, 58, 58, 0.3);
+  border-radius: 8px; padding: 12px 14px;
+  font-size: 0.85rem; color: var(--thku-danger);
+  margin-bottom: 18px; line-height: 1.5; font-weight: 500;
+}
+.warning-notice {
+  background: rgba(217, 119, 6, 0.08); border: 1px solid rgba(217, 119, 6, 0.25);
+  border-radius: 8px; padding: 12px 14px;
+  font-size: 0.82rem; color: #B45309; line-height: 1.5;
+  margin-bottom: 20px;
+}
+.warning-notice strong { color: #78350F; font-weight: 700; }
+
+.form-group { margin-bottom: 18px; }
+
+label {
+  display: block; margin-bottom: 6px;
+  font-size: 0.82rem; font-weight: 600; color: var(--thku-navy);
+}
+
+input[type="email"], input[type="password"], input[type="text"] {
+  width: 100%; padding: 12px 14px;
+  background: var(--thku-light-gray);
+  border: 1px solid var(--border);
+  border-radius: 10px; color: var(--fg);
+  font-size: 0.94rem; font-family: inherit;
+  transition: all 0.15s ease;
+}
+input[type="email"]:focus, input[type="password"]:focus, input[type="text"]:focus {
+  outline: none;
+  background: #FFFFFF;
+  border-color: var(--thku-blue);
+  box-shadow: 0 0 0 3px rgba(63, 169, 245, 0.2);
+}
+.input-hint {
+  display: block; margin-top: 5px;
+  font-size: 0.74rem; color: var(--fg-muted);
+}
+
+/* Buton (1. Giriş Ekranındaki gibi Derin Lacivert) */
+.submit-btn {
+  width: 100%; padding: 14px 20px;
+  background: var(--thku-navy); color: #FFFFFF;
+  border: none; border-radius: 10px;
+  font-size: 0.96rem; font-weight: 700; font-family: inherit;
+  cursor: pointer; transition: all 0.15s ease;
+  margin-top: 6px;
+  box-shadow: 0 4px 14px rgba(11, 42, 91, 0.2);
+}
+.submit-btn:hover {
+  background: var(--thku-navy-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(11, 42, 91, 0.28);
+}
+.submit-btn:disabled {
+  opacity: 0.6; cursor: not-allowed; transform: none;
+}
+
+.card-links {
+  margin-top: 22px; text-align: center; font-size: 0.88rem; color: var(--fg-muted);
+}
+.card-links a {
+  color: var(--thku-blue); font-weight: 700; text-decoration: none;
+}
+.card-links a:hover { text-decoration: underline; }
+.back-link {
+  display: inline-block; margin-top: 10px;
+  font-size: 0.82rem; color: var(--fg-muted) !important; font-weight: 500 !important;
+}
+
+.official-notice {
+  margin-top: 22px;
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px;
+  background: var(--thku-light-gray);
+  border: 1px solid var(--border);
+  border-radius: 10px; text-decoration: none;
+  transition: all 0.15s ease;
+}
+.official-notice:hover {
+  border-color: var(--thku-blue);
+  background: var(--thku-blue-light);
+}
+.official-notice-label {
+  font-size: 0.68rem; font-weight: 700; color: var(--thku-blue);
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+.official-notice-url {
+  font-size: 0.82rem; color: var(--thku-navy); font-weight: 600;
+}
+}
+input[type="email"]:focus, input[type="password"]:focus, input[type="text"]:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+input::placeholder { color: var(--fg-subtle); }
+
+.input-hint, .email-hint {
+  font-size: 0.75rem; color: var(--fg-muted); margin-top: 5px; display: block;
+}
+
+.submit-btn {
+  width: 100%; padding: 13px 24px; margin-top: 8px;
+  background: var(--accent); color: var(--bg-deep);
+  border: none; border-radius: var(--radius-md);
+  font-size: 0.9rem; font-weight: 700; font-family: inherit;
+  cursor: pointer; letter-spacing: 0.02em;
+  transition: background 0.15s ease;
+}
+.submit-btn:hover { background: var(--accent-bright); }
+.submit-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 22px 0; color: var(--fg-muted); font-size: 0.75rem;
+}
+.divider::before, .divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+.card-links {
+  display: flex; flex-direction: column; gap: 10px;
+  text-align: center; margin-top: 20px;
+}
+.card-links p { font-size: 0.85rem; color: var(--fg-muted); }
+.card-links a { color: var(--accent); text-decoration: none; font-weight: 600; }
+.card-links a:hover { color: var(--accent-bright); }
+.back-link { font-size: 0.8rem; color: var(--fg-muted); text-decoration: none; }
+.back-link:hover { color: var(--fg); }
+.login-link {
+  text-align: center; margin-top: 24px;
+  color: var(--fg-muted); font-size: 0.9rem;
+}
+.login-link a { color: var(--accent); text-decoration: none; font-weight: 600; }
+.login-link a:hover { color: var(--accent-bright); }
+.home-link { text-align: center; margin-top: 16px; }
+.home-link a { color: var(--fg-muted); text-decoration: none; font-size: 0.875rem; }
+.home-link a:hover { color: var(--fg); }
+
+.official-notice {
+  margin-top: 24px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px;
+  background: var(--accent-wash);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-md);
+  text-decoration: none; color: inherit;
+}
+.official-notice:hover { border-color: var(--accent); }
+.official-notice-text { flex: 1; }
+.official-notice-label { font-size: 0.68rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 2px; }
+.official-notice-url { font-size: 0.8rem; color: var(--fg-muted); }
+
+a:focus-visible, button:focus-visible, input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

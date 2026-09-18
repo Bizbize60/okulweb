@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ofis Saatleri — THKÜ</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/ui.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/portal.css') }}">
+  <style>
+    .page-container {
+      max-width: 1100px;
+      margin: 40px auto 80px;
+      padding: 0 clamp(16px, 3.5vw, 32px);
+    }
+    .page-header {
+      margin-bottom: 28px;
+    }
+    .page-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+      font-weight: 700;
+      color: var(--fg);
+      letter-spacing: -0.02em;
+    }
+    .page-subtitle {
+      color: var(--fg-muted);
+      font-size: 0.92rem;
+      margin-top: 6px;
+    }
+    .warning-card {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
+      border-left: 3px solid var(--warn);
+      border-radius: var(--radius-md);
+      padding: 20px 24px;
+      margin-bottom: 28px;
+    }
+    .warning-card p {
+      color: var(--warn);
+      font-size: 0.92rem;
+      line-height: 1.5;
+      margin-bottom: 6px;
+    }
+    .content-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 28px;
+      margin-bottom: 28px;
+    }
+    .content-card h2 {
+      color: var(--fg);
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    #gun-saat-listesi li {
+      margin-bottom: 8px;
+      color: var(--fg);
+      font-size: 0.88rem;
+      padding: 8px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      display: inline-block;
+      margin-right: 8px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="navbarRoot"></div>
+
+  <div class="page-container">
+    <div class="page-header">
+      <h1 class="page-title">Öğretim Görevlisi Ofis Saatleri</h1>
+      <p class="page-subtitle">Akademisyenlerin danışmanlık ve soru-cevap saatlerini takip edin veya katkıda bulunun.</p>
+    </div>
+
+    <div class="warning-card">
+      <p><strong>⚠️ Bilgilendirme:</strong> Bu liste tamamen öğrenci katkılarıyla güncellenmektedir.</p>
+      <p>Bildiğiniz veya öğrendiğiniz öğretim görevlisi ofis saatlerini aşağıdaki formdan ekleyerek kampüs arkadaşlarınızla paylaşabilirsiniz.</p>
+    </div>
+
+    <div class="content-card">
+      <h2>Kayıtlı Ofis Saatleri</h2>
+      <table id="ogretmen-tablosu">
+        <thead>
+          <tr>
+            <th>Ad</th>
+            <th>Soyad</th>
+            <th>Günler ve Saatler</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="3" style="text-align:center;">Yükleniyor...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="content-card">
+      <form id="ekleme-formu">
+        <h2>Yeni Öğretim Görevlisi Ekle</h2>
+
+        <div class="form-group">
+          <label for="ad">Ad</label>
+          <input type="text" id="ad" required>
+        </div>
+
+        <div class="form-group">
+          <label for="soyad">Soyad</label>
+          <input type="text" id="soyad" required>
+        </div>
+
+        <div class="form-group">
+          <label for="gun">Gün Seç</label>
+          <select id="gun">
+            <option value="">-- Gün Seçin --</option>
+            <option value="Pazartesi">Pazartesi</option>
+            <option value="Salı">Salı</option>
+            <option value="Çarşamba">Çarşamba</option>
+            <option value="Perşembe">Perşembe</option>
+            <option value="Cuma">Cuma</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="saat">Saat (örn: 10:00-12:00)</label>
+          <input type="text" id="saat" placeholder="örn: 10:00-12:00" class="form-control">
+        </div>
+
+        <button type="button" id="ekle-gun-saat" class="btn btn-secondary" style="margin-bottom:16px;">+ Gün & Saat Ekle</button>
+
+        <ul id="gun-saat-listesi" style="margin-bottom:20px;padding:0;list-style:none;"></ul>
+
+        <button type="submit" class="btn btn-primary" style="width:100%;">Öğretim Görevlisini Kaydet</button>
+        <div id="message"></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const gunSaatListesi = [];
+    const liste = document.getElementById("gun-saat-listesi");
+    const mesaj = document.getElementById("message");
+
+    function guncelleOgretmenTablosu() {
+      fetch('/api/ofis-saatleri')
+        .then(res => res.json())
+        .then(data => {
+          const tbody = document.querySelector('#ogretmen-tablosu tbody');
+          tbody.innerHTML = '';
+          if (data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">Kayıt bulunamadı.</td></tr>';
+            return;
+          }
+          
+          data.forEach(ogretmen => {
+            const satir = document.createElement('tr');
+            satir.innerHTML = `
+              <td>${ogretmen.ad}</td>
+              <td>${ogretmen.soyad}</td>
+              <td>${ogretmen.gun?.map(g => `${g.gun}: ${g.saatler.join(', ')}`).join('<br>') || '-'
+              }</td>
+            `;
+            tbody.appendChild(satir);
+          });
+        })
+        .catch(() => {
+          const tbody = document.querySelector('#ogretmen-tablosu tbody');
+          tbody.innerHTML = '<tr><td colspan="3" style="color:red;">Veri alınamadı.</td></tr>';
+        });
+    }
+
+    document.getElementById("ekle-gun-saat").addEventListener("click", () => {
+      const gun = document.getElementById("gun").value;
+      const saat = document.getElementById("saat").value.trim();
+
+      if (!gun || !saat) {
+        alert("Lütfen hem gün hem saat girin.");
+        return;
+      }
+
+      gunSaatListesi.push({ gun, saat });
+
+      liste.innerHTML = '';
+      gunSaatListesi.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = `${item.gun} - ${item.saat}`;
+        liste.appendChild(li);
+      });
+
+      document.getElementById("gun").value = "";
+      document.getElementById("saat").value = "";
+    });
+
+    document.getElementById("ekleme-formu").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      mesaj.textContent = "";
+
+      const ad = document.getElementById("ad").value.trim();
+      const soyad = document.getElementById("soyad").value.trim();
+
+      if (!ad || !soyad || gunSaatListesi.length === 0) {
+        alert("Lütfen tüm alanları doldurun ve en az bir gün + saat ekleyin.");
+        return;
+      }
+
+      const grupluGunler = {};
+      gunSaatListesi.forEach(item => {
+        if (!grupluGunler[item.gun]) grupluGunler[item.gun] = [];
+        grupluGunler[item.gun].push(item.saat);
+      });
+
+      const payload = {
+        ad,
+        soyad,
+        gun: Object.entries(grupluGunler).map(([gun, saatler]) => ({
+          gun,
+          saatler
+        }))
+      };
+
+      try {
+        const res = await fetch('/ogretmen-ekle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error("Ekleme başarısız.");
+
+        mesaj.style.color = "green";
+        mesaj.textContent = "Ekleme başarılı.";
+        gunSaatListesi.length = 0;
+        liste.innerHTML = '';
+        e.target.reset();
+        guncelleOgretmenTablosu();
+      } catch (err) {
+        mesaj.style.color = "red";
+        mesaj.textContent = "Hata oluştu: " + err.message;
+      }
+    });
+
+    window.addEventListener("DOMContentLoaded", function() {
+      guncelleOgretmenTablosu();
+      var opts = { is_logged_in: {% if is_logged_in %}true{% else %}false{% endif %}, active: 'ofis' };
+      if (window.THKU_UI && window.THKU_UI.Navbar) window.THKU_UI.Navbar.render('#navbarRoot', opts);
+      if (window.THKU_UI && window.THKU_UI.Footer)  window.THKU_UI.Footer.render('#footerRoot');
+    });
+  </script>
+  <div id="footerRoot"></div>
+  <script src="{{ url_for('static', filename='js/components.js') }}" defer></script>
+</body>
+</html>
