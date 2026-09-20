@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kulüp Yönetimi — THKÜ</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ui.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/portal.css') }}">
+    <style>
+        .form-card {
+            background: var(--night-panel);
+            border-radius: var(--radius-lg);
+            padding: 36px;
+            border: 1px solid var(--border);
+            max-width: 680px;
+            margin: 36px auto 60px;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--fg-muted);
+            font-weight: 600;
+            font-size: 0.88rem;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 0.92rem;
+            transition: border-color 0.2s;
+            background: var(--night-deep);
+            color: var(--fg);
+            font-family: inherit;
+            min-height: 110px;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--thk-red);
+        }
+
+        .file-upload-area {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-md);
+            padding: 32px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+            background: var(--night-deep);
+        }
+
+        .file-upload-area:hover, .file-upload-area.dragover {
+            border-color: var(--thk-red);
+            background: rgba(200, 16, 46, 0.06);
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .file-hint {
+            color: var(--fg-muted);
+            font-size: 0.82rem;
+            margin-top: 6px;
+            display: block;
+        }
+
+        .selected-file {
+            margin-top: 12px;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: var(--radius-sm);
+            font-size: 0.88rem;
+            color: var(--fg);
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .selected-file.show {
+            display: flex;
+        }
+
+        .success-message,
+        .error-message {
+            padding: 14px 18px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 20px;
+            display: none;
+            font-size: 0.88rem;
+            font-weight: 500;
+        }
+
+        .success-message {
+            background: rgba(52, 211, 153, 0.08);
+            color: var(--success);
+            border: 1px solid rgba(52, 211, 153, 0.25);
+        }
+
+        .error-message {
+            background: rgba(248, 113, 113, 0.08);
+            color: var(--danger);
+            border: 1px solid rgba(248, 113, 113, 0.25);
+        }
+
+        .success-message.show,
+        .error-message.show {
+            display: block;
+        }
+
+        .upload-icon {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="navbarRoot"></div>
+
+    <main class="container" style="padding-top: 24px;">
+        <div class="form-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;border-bottom:1px solid var(--border-subtle);padding-bottom:16px;">
+                <div>
+                    <h1 style="font-size:1.3rem;font-weight:800;color:#FFFFFF;margin-bottom:4px;">Kulüp İçerik Yönetimi</h1>
+                    <p style="font-size:0.84rem;color:var(--fg-muted);">Kulübünüz için yeni fotoğraf ve içerik paylaşın.</p>
+                </div>
+                <a href="/" class="btn btn-secondary" style="font-size:0.82rem;padding:6px 14px;min-height:36px;">← Geri</a>
+            </div>
+
+            <div class="success-message" id="successMessage">
+                ✓ Fotoğraf başarıyla yüklendi!
+            </div>
+            <div class="error-message" id="errorMessage">
+                ✗ Bir hata oluştu. Lütfen tekrar deneyin.
+            </div>
+
+            <form id="kulupForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="aciklama">İçerik Açıklaması</label>
+                    <textarea id="aciklama" name="aciklama" placeholder="İçerik hakkında kısa bir açıklama yazın..."
+                        required></textarea>
+                    <span class="file-hint">İçeriğin ne hakkında olduğunu belirtin</span>
+                </div>
+
+                <div class="form-group">
+                    <label>Fotoğraf Yükle</label>
+                    <div class="file-upload-area" id="fileUploadArea"
+                        onclick="document.getElementById('fileInput').click()">
+                        <div class="upload-icon">📸</div>
+                        <div style="font-weight: 500; color: var(--fg); margin-bottom: 8px;">
+                            Fotoğraf seçmek için tıklayın veya sürükleyin
+                        </div>
+                        <span class="file-hint">
+                            Desteklenen formatlar: PNG, JPG, JPEG, GIF
+                        </span>
+                    </div>
+                    <input type="file" id="fileInput" name="file" accept=".png,.jpg,.jpeg,.gif" required>
+                    <div class="selected-file" id="selectedFile">
+                        <span>📸</span>
+                        <span id="fileName"></span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="submitBtn" style="width:100%;min-height:46px;">
+                    Fotoğrafı Yükle
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Doğrudan const atamaları
+            const form = document.getElementById('kulupForm');
+            const fileInput = document.getElementById('fileInput');
+            const fileUploadArea = document.getElementById('fileUploadArea');
+            const selectedFile = document.getElementById('selectedFile');
+            const fileName = document.getElementById('fileName');
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            const submitBtn = document.getElementById('submitBtn');
+
+            // Güvenlik: XSS Koruması (İsim gösterimi için)
+            const escapeHTML = str => {
+                if (!str) return '';
+                const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' };
+                return String(str).replace(/[&<>'"]/g, tag => map[tag] || tag);
+            };
+
+            const handleFileSelect = (files) => {
+                if (files?.length > 0) {
+                    fileName.textContent = escapeHTML(files[0].name);
+                    selectedFile.classList.add('show');
+                }
+            };
+
+            fileInput.addEventListener('change', function () {
+                handleFileSelect(this.files);
+            });
+
+            fileUploadArea.addEventListener('dragover', function (e) {
+                e.preventDefault();
+                this.classList.add('dragover');
+            });
+
+            fileUploadArea.addEventListener('dragleave', function () {
+                this.classList.remove('dragover');
+            });
+
+            fileUploadArea.addEventListener('drop', function (e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+                if (e.dataTransfer.files?.length > 0) {
+                    fileInput.files = e.dataTransfer.files;
+                    handleFileSelect(e.dataTransfer.files);
+                }
+            });
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                successMessage.classList.remove('show');
+                errorMessage.classList.remove('show');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Yükleniyor...';
+
+                try {
+                    const formData = new FormData(form);
+                    const response = await fetch('/api/kulupler', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok && data.message?.includes('başarıyla')) {
+                        successMessage.textContent = '✓ ' + escapeHTML(data.message);
+                        successMessage.classList.add('show');
+                        form.reset();
+                        selectedFile.classList.remove('show');
+                    } else {
+                        throw new Error(data.message || 'Bir hata oluştu');
+                    }
+                } catch (error) {
+                    console.error('Hata:', error);
+                    errorMessage.textContent = '✗ ' + escapeHTML(error.message || 'Bir hata oluştu. Lütfen tekrar deneyin.');
+                    errorMessage.classList.add('show');
+                } finally {
+                    submitBtn.disabled = false;
+            var opts = { is_logged_in: {% if is_logged_in %}true{% else %}false{% endif %}, active: 'kulup' };
+            if (window.THKU_UI && window.THKU_UI.Navbar) window.THKU_UI.Navbar.render('#navbarRoot', opts);
+            if (window.THKU_UI && window.THKU_UI.Footer)  window.THKU_UI.Footer.render('#footerRoot');
+        });
+    </script>
+    <div id="footerRoot"></div>
+    <script src="{{ url_for('static', filename='js/components.js') }}" defer></script>
+</body>
+</html>

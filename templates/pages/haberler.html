@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Haberler — THKÜ</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ui.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/portal.css') }}">
+    <style>
+        .section-title {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            color: var(--fg);
+            margin: 0 0 6px 0;
+        }
+
+        .section-desc {
+            font-size: 1rem;
+            color: var(--fg-muted);
+            margin-bottom: 32px;
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .news-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .news-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--border-hover);
+        }
+
+        .news-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .news-content {
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .news-title {
+            font-family: var(--font-sans);
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--fg);
+            margin-bottom: 8px;
+            line-height: 1.35;
+        }
+
+        .news-desc {
+            font-size: 0.86rem;
+            color: var(--fg-muted);
+            line-height: 1.5;
+            margin-bottom: 12px;
+            flex: 1;
+        }
+
+        .news-date {
+            font-size: 0.76rem;
+            color: var(--accent);
+            font-family: var(--font-mono);
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .news-actions {
+            margin-top: auto;
+        }
+
+        .news-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--thk-red);
+            color: #FFFFFF;
+            padding: 8px 18px;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            font-family: var(--font-sans);
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+            width: fit-content;
+        }
+
+        .news-btn:hover {
+            background: var(--thk-red-bright);
+            color: #FFFFFF;
+        }
+
+        .sketch-loading {
+            width: 100%;
+            text-align: center;
+            font-family: var(--font-sans);
+            color: var(--fg-muted);
+            font-size: 1rem;
+            padding: 48px 0;
+        }
+
+        @media (max-width: 900px) {
+            .news-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 1100px) {
+            .news-card {
+                min-width: 0;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="navbarRoot"></div>
+
+    <main class="container" style="padding-top: 32px; padding-bottom: 60px;">
+        <div class="glass-container">
+            <div class="section-title">Tüm Haberler</div>
+            <div class="section-desc" style="color:var(--fg-muted);margin-bottom:24px;">Üniversitemizden en güncel haberler, başarılar ve duyurular.</div>
+            <div class="news-grid" id="newsGrid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:20px;"></div>
+            <div id="newsLoading" class="sketch-loading" style="text-align:center;padding:40px;color:var(--fg-muted);">
+                <div>Yükleniyor...</div>
+            </div>
+        </div>
+    </main>
+
+    <div id="footerRoot"></div>
+    <script src="{{ url_for('static', filename='js/components.js') }}" defer></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', function(){
+          var opts = { is_logged_in: {% if is_logged_in %}true{% else %}false{% endif %}, active: 'haberler' };
+          if (window.THKU_UI && window.THKU_UI.Navbar) window.THKU_UI.Navbar.render('#navbarRoot', opts);
+          if (window.THKU_UI && window.THKU_UI.Footer)  window.THKU_UI.Footer.render('#footerRoot');
+        });
+
+        const grid = document.getElementById('newsGrid');
+        const loading = document.getElementById('newsLoading');
+        function showLoading() {
+            loading.style.display = 'block';
+            grid.style.display = 'none';
+        }
+        function hideLoading() {
+            loading.style.display = 'none';
+            grid.style.display = 'grid';
+        }
+        showLoading();
+        fetch('/api/haberler')
+            .then(r => r.json())
+            .then(data => {
+                grid.innerHTML = '';
+                if (data.articles && data.articles.length > 0) {
+                    data.articles.forEach(haber => {
+                        let imgSrc = haber.thumbnail || '/static/default-news.jpg';
+                        if (imgSrc && imgSrc.startsWith('/images/')) {
+                            imgSrc = 'https://www.thk.edu.tr' + imgSrc;
+                        }
+                        const card = document.createElement('div');
+                        card.className = 'news-card';
+                        card.innerHTML = `
+                            <img class="news-img" src="${imgSrc}" alt="${haber.title}">
+                            <div class="news-content">
+                                <div class="news-title">${haber.title}</div>
+                                <div class="news-desc">${haber.content ? haber.content : ''}</div>
+                                <div class="news-date">${haber.source || ''}</div>
+                                <div class="news-actions" style="margin-top:auto;">
+                                    <a class="news-btn" href="${haber.link}" target="_blank" rel="noopener">Haberi Oku →</a>
+                                </div>
+                            </div>
+                        `;
+                        grid.appendChild(card);
+                    });
+                } else {
+                    grid.innerHTML = '<div style="text-align:center;grid-column:1/-1;color:var(--fg-muted);padding:30px;">Şu anda haber bulunamadı.</div>';
+                }
+                hideLoading();
+            })
+            .catch(() => { hideLoading(); });
+    </script>
+</body>
+</html>

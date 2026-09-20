@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-posta Doğrulama - THKÜ</title>
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/auth.css') }}">
+</head>
+
+<body>
+  <div class="register-container">
+    <h1>Doğrulama</h1>
+    <p class="subtitle">Lütfen e-posta adresinizi kontrol edin</p>
+
+    <p class="info-text">
+      <span class="email-display">{{ email }}</span> adresine 6 haneli bir kod gönderdik.
+    </p>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="error-message">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="/verify">
+      <div class="form-group">
+        <label for="code">Doğrulama Kodu</label>
+        <input type="text" id="code" name="code" required placeholder="Örn: 4A2B1C" maxlength="6"
+          style="text-align: center; letter-spacing: 5px; font-weight: bold; font-size: 1.2em;">
+      </div>
+
+      <button type="submit" class="submit-btn">Hesabı Onayla</button>
+    </form>
+
+    <div class="login-link">
+      Kodu almadınız mı? <a href="/signup">Tekrar Gönder</a>
+    </div>
+  </div>
+</body>
+
+</html>

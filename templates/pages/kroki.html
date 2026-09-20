@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kampüs Krokisi & Yerleşim Planı — THKÜ</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/ui.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/portal.css') }}">
+  <style>
+    .page-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .page-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--fg);
+    }
+    .page-sub {
+      color: var(--fg-muted);
+      font-size: 0.92rem;
+      margin-top: 4px;
+    }
+
+    .kroki-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+
+    .kroki-cockpit-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+    .kroki-cockpit-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+    }
+
+    .kroki-img-wrap {
+      position: relative;
+      cursor: zoom-in;
+      background: var(--night-deep);
+      overflow: hidden;
+      aspect-ratio: 16 / 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .kroki-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .kroki-cockpit-card:hover .kroki-img {
+      transform: scale(1.03);
+    }
+
+    .kroki-info {
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .kroki-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--fg);
+      letter-spacing: -0.01em;
+    }
+    .kroki-badge {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--sky);
+      background: var(--sky-wash);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      font-weight: 700;
+    }
+
+    .kroki-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 7, 11, 0.92);
+      z-index: 1000;
+      padding: 30px;
+      align-items: center;
+      justify-content: center;
+    }
+    .kroki-modal.active { display: flex; }
+    .kroki-modal-img {
+      max-width: 95%;
+      max-height: 90vh;
+      object-fit: contain;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+    }
+    .kroki-modal-close {
+      position: absolute;
+      top: 24px;
+      right: 32px;
+      color: var(--fg);
+      font-size: 36px;
+      cursor: pointer;
+      line-height: 1;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .kroki-modal-close:hover {
+      transform: scale(1.1);
+      color: var(--thk-red);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- REUSABLE NAVBAR -->
+  <div id="navbarRoot"></div>
+  <script src="{{ url_for('static', filename='js/components.js') }}" defer></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', function(){
+      var opts = { is_logged_in: 'auto', active: 'kroki' };
+      if (window.THKU_UI && window.THKU_UI.Navbar) window.THKU_UI.Navbar.render('#navbarRoot', opts);
+      if (window.THKU_UI && window.THKU_UI.Footer)  window.THKU_UI.Footer.render('#footerRoot');
+    });
+  </script>
+
+  <div class="container" style="padding-top: 30px;">
+    <div class="page-head reveal-on-scroll">
+      <div>
+        <div class="hud-tag hud-tag-cyan" style="margin-bottom:8px;">SPATIAL BLUEPRINT & CARTOGRAPHY</div>
+        <h1 class="page-title">Kampüs Yerleşim Planı & Krokisi</h1>
+        <p class="page-sub">Türk Hava Kurumu Üniversitesi Etimesgut Kampüsü fakülteler, hangarlar ve derslik kat planları.</p>
+      </div>
+      <div>
+        <a href="/" class="btn btn-outline">← Ana Sayfa</a>
+      </div>
+    </div>
+
+    <!-- Kroki Kartları -->
+    <div class="kroki-grid reveal-on-scroll">
+      <div class="kroki-cockpit-card">
+        <div class="kroki-img-wrap" onclick="openModal('/static/img/kroki1.png')">
+          <img src="/static/img/kroki1.png" alt="Fakülteler Binası Kat Planı" class="kroki-img">
+        </div>
+        <div class="kroki-info">
+          <div class="kroki-title">Fakülteler Binası İç Planı</div>
+          <span class="kroki-badge">BÜYÜTMEK İÇİN TIKLA</span>
+        </div>
+      </div>
+
+      <div class="kroki-cockpit-card">
+        <div class="kroki-img-wrap" onclick="openModal('/static/img/kroki2.png')">
+          <img src="/static/img/kroki2.png" alt="Kampüs Genel Yerleşim Krokisi" class="kroki-img">
+        </div>
+        <div class="kroki-info">
+          <div class="kroki-title">Kampüs Genel Yerleşim Krokisi</div>
+          <span class="kroki-badge">BÜYÜTMEK İÇİN TIKLA</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Büyütme Modalı -->
+  <div id="imageModal" class="kroki-modal" onclick="closeModal()">
+    <span class="kroki-modal-close">&times;</span>
+    <img class="kroki-modal-img" id="modalImage">
+  </div>
+
+  <!-- REUSABLE FOOTER -->
+  <div id="footerRoot"></div>
+
+  <script>
+    const openModal = (imageSrc) => {
+      const modal = document.getElementById('imageModal');
+      const modalImg = document.getElementById('modalImage');
+      modalImg.src = imageSrc;
+      modal.classList.add('active');
+    };
+
+    const closeModal = () => {
+      document.getElementById('imageModal').classList.remove('active');
+    };
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeModal();
+    });
+  </script>
+</body>
+
+</html>

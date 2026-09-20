@@ -1,0 +1,64 @@
+/* =========================================================================
+ * THKÜ Portal Tasarım Sistemi — Resmi Görsel Kılavuz Teması
+ * Referans Tasarım Paleti:
+ *   --thku-navy: #0B2A5B (Ana Renk - Derin Havacılık Laciverti)
+ *   --thku-blue: #3FA9F5 (Vurgu Rengi - Gökyüzü Açık Mavi)
+ *   --thku-white: #FFFFFF (Beyaz Kart & Yüzeyler)
+ *   --thku-light-gray: #F3F5F7 (Açık Gri Arka Plan)
+ *   --thku-danger: #D63A3A (Uyarı / Kırmızı)
+ * ========================================================================= */
+
+:root {
+  /* ——— Görsel Kılavuzdaki Ana Renkler ——— */
+  --thku-navy: #0B2A5B;
+  --thku-navy-hover: #071D40;
+  --thku-blue: #3FA9F5;
+  --thku-blue-dark: #1E88E5;
+  --thku-blue-light: #E8F4FD;
+  --thku-blue-soft: rgba(63, 169, 245, 0.12);
+  --thku-white: #FFFFFF;
+  --thku-light-gray: #F3F5F7;
+  --thku-light-border: #E2E8F0;
+  --thku-danger: #D63A3A;
+  --thku-danger-bg: rgba(214, 58, 58, 0.10);
+  --thku-success: #10B981;
+  --thku-success-bg: rgba(16, 185, 129, 0.10);
+
+  /* ——— Zemin ve Yüzeyler ——— */
+  --bg-deep: #0B2A5B;
+  --bg-base: #F3F5F7;
+  --bg-surface: #FFFFFF;
+  --bg-elevated: #FFFFFF;
+  --bg-hover: #F8FAFC;
+
+  /* ——— Tipografi & Metin Renkleri ——— */
+  --fg: #1E293B;
+  --fg-muted: #64748B;
+  --fg-subtle: #94A3B8;
+
+  /* ——— Kenarlıklar & Gölgeler ——— */
+  --border: #E2E8F0;
+  --border-hover: #CBD5E1;
+  --border-accent: #3FA9F5;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 16px -2px rgba(11, 42, 91, 0.08);
+  --shadow-lg: 0 10px 25px -4px rgba(11, 42, 91, 0.12);
+
+  /* ——— Vurgular & Semantik ——— */
+  --accent: #3FA9F5;
+  --accent-bright: #60BAF7;
+  --accent-dim: rgba(63, 169, 245, 0.12);
+  --accent-border: rgba(63, 169, 245, 0.35);
+  --gold: #D97706;
+  --gold-dim: rgba(217, 119, 6, 0.10);
+  --gold-border: rgba(217, 119, 6, 0.25);
+
+  /* ——— Tipografi Fontları (Görsel Kılavuza Göre: Inter / Poppins) ——— */
+  --font-sans: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-display: 'Poppins', 'Inter', -apple-system, sans-serif;
+
+  /* ——— Boyutlar ——— */
+  --bar-h: 38px;
+  --container-max: 1240px;
+  --nav-height: 64px;
+}

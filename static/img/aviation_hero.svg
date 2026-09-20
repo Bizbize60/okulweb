@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 540" width="100%" height="100%">
+  <defs>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#4FA8E8"/>
+      <stop offset="45%" stop-color="#89C4F4"/>
+      <stop offset="75%" stop-color="#CFE6FA"/>
+      <stop offset="100%" stop-color="#EAF3FA"/>
+    </linearGradient>
+    <linearGradient id="planeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="70%" stop-color="#D9E6F2"/>
+      <stop offset="100%" stop-color="#A5C0D8"/>
+    </linearGradient>
+    <linearGradient id="wingGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#E8F1F8"/>
+      <stop offset="100%" stop-color="#93B4D3"/>
+    </linearGradient>
+    <linearGradient id="glassGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B2A5B"/>
+      <stop offset="100%" stop-color="#1E4B8A"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Sky Background -->
+  <rect width="720" height="540" fill="url(#skyGrad)"/>
+
+  <!-- Subtle Runway / Grid Lines in Distance -->
+  <path d="M-50 490 L770 490 M-50 515 L770 515" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
+  <path d="M360 460 L180 540 M360 460 L540 540 M360 460 L360 540" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-dasharray="6,6"/>
+
+  <!-- Clouds in Background -->
+  <path d="M-20 420 Q60 380 150 410 Q240 370 340 400 Q460 360 560 410 Q660 380 740 420 L740 540 L-20 540 Z" fill="rgba(255,255,255,0.65)"/>
+  <path d="M40 450 Q140 410 260 440 Q390 400 500 440 Q620 420 700 460 L700 540 L40 540 Z" fill="rgba(255,255,255,0.85)"/>
+
+  <!-- Jet Silhouette in upper left -->
+  <g transform="translate(180, 110) scale(0.45) rotate(-18)">
+    <path d="M0 0 L90 -12 L130 -12 L80 15 L20 18 L-40 40 L-55 35 L-25 15 L-90 12 L-100 -5 L-40 -4 L-15 -35 L5 -35 Z" fill="#0B2A5B" opacity="0.35"/>
+  </g>
+
+  <!-- Big Commercial Airliner Landing / Centered -->
+  <g transform="translate(360, 310)">
+    <!-- Shadow -->
+    <ellipse cx="0" cy="170" rx="220" ry="18" fill="rgba(11,42,91,0.18)" filter="blur(6px)"/>
+
+    <!-- Left Wing -->
+    <polygon points="-80,-10 -310,25 -295,45 -80,18" fill="url(#wingGrad)"/>
+    <!-- Left Engine -->
+    <rect x="-180" y="15" width="45" height="55" rx="14" fill="#0B2A5B"/>
+    <ellipse cx="-157" cy="22" rx="18" ry="8" fill="#3FA9F5"/>
+    <ellipse cx="-157" cy="22" rx="9" ry="4" fill="#071D40"/>
+
+    <!-- Right Wing -->
+    <polygon points="80,-10 310,25 295,45 80,18" fill="url(#wingGrad)"/>
+    <!-- Right Engine -->
+    <rect x="135" y="15" width="45" height="55" rx="14" fill="#0B2A5B"/>
+    <ellipse cx="158" cy="22" rx="18" ry="8" fill="#3FA9F5"/>
+    <ellipse cx="158" cy="22" rx="9" ry="4" fill="#071D40"/>
+
+    <!-- Main Fuselage -->
+    <ellipse cx="0" cy="0" rx="80" ry="120" fill="url(#planeGrad)"/>
+
+    <!-- Cockpit Windows -->
+    <path d="M-42,-45 Q-20,-60 0,-62 Q20,-60 42,-45 Q28,-40 0,-42 Q-28,-40 -42,-45 Z" fill="url(#glassGrad)"/>
+    <path d="M-38,-44 L-18,-54 L-18,-43 L-34,-41 Z" fill="#3FA9F5" opacity="0.8"/>
+    <path d="M38,-44 L18,-54 L18,-43 L34,-41 Z" fill="#3FA9F5" opacity="0.8"/>
+    <rect x="-10" y="-55" width="20" height="13" rx="2" fill="#071D40"/>
+
+    <!-- Nose Cone -->
+    <ellipse cx="0" cy="40" rx="38" ry="48" fill="#FFFFFF"/>
+    <circle cx="0" cy="65" r="4" fill="#0B2A5B" opacity="0.4"/>
+
+    <!-- Tail Fin (Vertical Stabilizer) -->
+    <polygon points="-16,-115 16,-115 22,-205 -22,-205" fill="#0B2A5B"/>
+    <path d="M-12,-190 L12,-190 L8,-140 L-8,-140 Z" fill="#3FA9F5"/>
+
+    <!-- Landing Gear -->
+    <rect x="-6" y="115" width="12" height="35" rx="3" fill="#64748B"/>
+    <circle cx="-14" cy="154" r="12" fill="#1E293B"/>
+    <circle cx="14" cy="154" r="12" fill="#1E293B"/>
+    <circle cx="-14" cy="154" r="5" fill="#94A3B8"/>
+    <circle cx="14" cy="154" r="5" fill="#94A3B8"/>
+  </g>
+
+  <!-- Flight Path Dashed Curve -->
+  <path d="M40 180 Q 220 80 520 140 T 700 80" fill="none" stroke="#3FA9F5" stroke-width="3" stroke-dasharray="8,8" opacity="0.6"/>
+
+  <!-- Vignette overlay for text legibility -->
+  <rect width="720" height="540" fill="url(#glassGrad)" opacity="0.15"/>
+</svg>

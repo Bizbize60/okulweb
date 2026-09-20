@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Öğretim Üyesi Değerlendirmeleri — THKÜ</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/ui.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/portal.css') }}">
+  <style>
+    .page-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .page-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--fg);
+    }
+    .page-sub {
+      color: var(--fg-muted);
+      font-size: 0.92rem;
+      margin-top: 4px;
+    }
+
+    .teachers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+
+    .teacher-cockpit-card {
+      background: var(--night-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 26px;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+    }
+    .teacher-cockpit-card:hover {
+      border-color: var(--border-accent);
+      transform: translateY(-2px);
+    }
+
+    .teacher-name {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--fg);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: -0.01em;
+    }
+
+    .rating-metric-box {
+      background: var(--sky-wash);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+    .rating-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--fg-muted);
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .rating-num {
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--thk-red-bright);
+    }
+
+    .stars-display {
+      display: flex;
+      gap: 4px;
+      font-size: 1.1rem;
+    }
+    .star-filled { color: var(--warn); }
+    .star-empty { color: var(--border); }
+
+    .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 16px 0;
+      padding-top: 14px;
+      border-top: 1px dashed var(--border);
+    }
+    .tag-badge {
+      background: var(--night-deep);
+      color: var(--fg-muted);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 0.76rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+    }
+    .tag-high-rate {
+      background: rgba(200, 16, 46, 0.1);
+      color: var(--thk-red-bright);
+      border-color: var(--border-accent);
+    }
+
+    .stats-cockpit-row {
+      display: flex;
+      justify-content: space-between;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      margin-top: auto;
+    }
+    .stat-item {
+      text-align: center;
+    }
+    .stat-label {
+      font-size: 0.72rem;
+      color: var(--fg-muted);
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .stat-value {
+      font-size: 1.3rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      color: var(--fg);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      background: var(--night-panel);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-lg);
+      grid-column: 1 / -1;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- REUSABLE NAVBAR -->
+  <div id="navbarRoot"></div>
+  <script src="{{ url_for('static', filename='js/components.js') }}" defer></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', function(){
+      var opts = { is_logged_in: 'auto', active: 'ogretmenler' };
+      if (window.THKU_UI && window.THKU_UI.Navbar) window.THKU_UI.Navbar.render('#navbarRoot', opts);
+      if (window.THKU_UI && window.THKU_UI.Footer)  window.THKU_UI.Footer.render('#footerRoot');
+    });
+  </script>
+
+  <div class="container" style="padding-top: 30px;">
+    <div class="page-head reveal-on-scroll">
+      <div>
+        <div class="hud-tag hud-tag-cyan" style="margin-bottom:8px;">FACULTY EVALUATION & PEER REVIEW</div>
+        <h1 class="page-title">Öğretim Görevlisi Değerlendirmeleri</h1>
+        <p class="page-sub">THKÜ öğrencileri tarafından ders anlatımı, sınav zorluğu ve akademik yaklaşımların değerlendirilmesi.</p>
+      </div>
+      <div style="display: flex; gap: 12px;">
+        <a href="/ogretmen-degerlendirme" class="btn btn-primary">+ Değerlendirme Yap</a>
+        <a href="/" class="btn btn-outline">← Ana Sayfa</a>
+      </div>
+    </div>
+
+    <div id="loading" class="empty-state reveal-on-scroll">
+      <div class="hud-loader-radar" style="margin: 0 auto 16px; width: 60px; height: 60px;">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" onerror="this.onerror=null;this.src='/static/img/kedi.ico'" alt="THKÜ">
+      </div>
+      <p>Öğretim görevlisi verileri çekiliyor...</p>
+    </div>
+
+    <div id="teachersGrid" class="teachers-grid reveal-on-scroll" style="display: none;"></div>
+
+    <div id="emptyState" class="empty-state" style="display: none;">
+      <h3 style="color:#FFFFFF; margin-bottom:8px;">📚 Henüz Değerlendirme Bulunmuyor</h3>
+      <p style="color:var(--fg-muted); margin-bottom:20px;">İlk değerlendirmeyi yaparak diğer öğrencilere rehberlik edin!</p>
+      <a href="/ogretmen-degerlendirme" class="btn btn-primary">+ Değerlendirme Ekle</a>
+    </div>
+  </div>
+
+  <!-- REUSABLE FOOTER -->
+  <div id="footerRoot"></div>
+
+  <script>
+    const etiketIsimleri = {
+      'slayttan_isler': '📽️ Slayttan İşler',
+      'yoklama_alir': '📝 Yoklama Alır',
+      'kitap_onemli': '📚 Kitap Önemli',
+      'kanaat_notu': '✨ Kanaat Kullanır',
+      'projeye_onem': '💻 Proje Önemli'
+    };
+
+    async function loadTeachers() {
+      try {
+        const response = await fetch('/api/ogretmen-degerlendirmeleri');
+        const data = await response.json();
+
+        document.getElementById('loading').style.display = 'none';
+
+        if (!data || data.length === 0) {
+          document.getElementById('emptyState').style.display = 'block';
+          return;
+        }
+
+        const aggregated = aggregateTeachers(data);
+        displayTeachers(aggregated);
+        document.getElementById('teachersGrid').style.display = 'grid';
+      } catch (error) {
+        console.error('Hata:', error);
+        document.getElementById('loading').innerHTML =
+          '<p style="color:var(--danger)">Veriler yüklenirken bir hata oluştu.</p>';
+      }
+    }
+
+    function aggregateTeachers(items) {
+      const map = new Map();
+
+      items.forEach(item => {
+        const key = `${(item.ad || '').trim().toLowerCase()}_${(item.soyad || '').trim().toLowerCase()}`;
+        const count = Number(item.degerlendirme_sayisi || 1);
+
+        if (!map.has(key)) {
+          map.set(key, {
+            ad: item.ad,
+            soyad: item.soyad,
+            ders_anlatma_ort: Number(item.ders_anlatma_ort || 0),
+            sinav_zorlugu_ort: Number(item.sinav_zorlugu_ort || 0),
+            genel_ort: Number(item.genel_ort || 0),
+            degerlendirme_sayisi: count,
+            etiketler: Object.assign({}, item.etiketler || {})
+          });
+        } else {
+          const existing = map.get(key);
+          const prevCount = existing.degerlendirme_sayisi;
+          const newCount = prevCount + count;
+
+          existing.ders_anlatma_ort = (existing.ders_anlatma_ort * prevCount + Number(item.ders_anlatma_ort || 0) * count) / newCount;
+          existing.sinav_zorlugu_ort = (existing.sinav_zorlugu_ort * prevCount + Number(item.sinav_zorlugu_ort || 0) * count) / newCount;
+          existing.genel_ort = (existing.genel_ort * prevCount + Number(item.genel_ort || 0) * count) / newCount;
+
+          existing.etiketler = existing.etiketler || {};
+          if (item.etiketler) {
+            for (const [k, v] of Object.entries(item.etiketler)) {
+              const prevTagVal = Number(existing.etiketler[k] ?? 0);
+              const newTagVal = (prevTagVal * prevCount + Number(v) * count) / newCount;
+              existing.etiketler[k] = newTagVal;
+            }
+          }
+          existing.degerlendirme_sayisi = newCount;
+        }
+      });
+
+      return Array.from(map.values());
+    }
+
+    function displayTeachers(teachers) {
+      const grid = document.getElementById('teachersGrid');
+      grid.innerHTML = '';
+
+      teachers.forEach(teacher => {
+        const card = createTeacherCard(teacher);
+        grid.appendChild(card);
+      });
+    }
+
+    function createTeacherCard(teacher) {
+      const card = document.createElement('div');
+      card.className = 'teacher-cockpit-card';
+
+      let tagsHtml = '<div class="tags-container">';
+      if (teacher.etiketler) {
+        for (const [key, value] of Object.entries(teacher.etiketler)) {
+          if (value > 0) {
+            const activeClass = value > 50 ? 'tag-high-rate' : '';
+            tagsHtml += `
+              <span class="tag-badge ${activeClass}">
+                ${etiketIsimleri[key] || key}: %${Math.round(value)}
+              </span>
+            `;
+          }
+        }
+      }
+      tagsHtml += '</div>';
+
+      card.innerHTML = `
+        <div class="teacher-name">
+          <span>👨‍🏫</span> ${escapeHTML(teacher.ad)} ${escapeHTML(teacher.soyad)}
+        </div>
+
+        <div class="rating-metric-box">
+          <div class="rating-title">
+            <span>📚 Ders Anlatımı</span>
+            <span class="rating-num">${teacher.ders_anlatma_ort.toFixed(1)} / 5.0</span>
+          </div>
+          <div class="stars-display">
+            ${generateStars(teacher.ders_anlatma_ort)}
+          </div>
+        </div>
+
+        <div class="rating-metric-box">
+          <div class="rating-title">
+            <span>📝 Sınav Zorluğu</span>
+            <span class="rating-num">${teacher.sinav_zorlugu_ort.toFixed(1)} / 5.0</span>
+          </div>
+          <div class="stars-display">
+            ${generateStars(teacher.sinav_zorlugu_ort)}
+          </div>
+        </div>
+
+        ${tagsHtml}
+
+        <div class="stats-cockpit-row">
+          <div class="stat-item">
+            <div class="stat-label">Genel İtibar</div>
+            <div class="stat-value" style="color:var(--cyan-thrust);">${teacher.genel_ort.toFixed(1)}</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Oy Sayısı</div>
+            <div class="stat-value">${teacher.degerlendirme_sayisi}</div>
+          </div>
+        </div>
+      `;
+
+      return card;
+    }
+
+    function generateStars(rating) {
+      let stars = '';
+      const fullStars = Math.floor(rating);
+      const hasHalfStar = rating % 1 >= 0.5;
+
+      for (let i = 0; i < fullStars; i++) {
+        stars += '<span class="star-filled">★</span>';
+      }
+
+      if (hasHalfStar && fullStars < 5) {
+        stars += '<span class="star-filled">★</span>';
+      }
+
+      const emptyStars = 5 - Math.ceil(rating);
+      for (let i = 0; i < emptyStars; i++) {
+        stars += '<span class="star-empty">★</span>';
+      }
+
+      return stars;
+    }
+
+    function escapeHTML(str) {
+      if (!str) return '';
+      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' };
+      return String(str).replace(/[&<>'"]/g, tag => map[tag] || tag);
+    }
+
+    document.addEventListener('DOMContentLoaded', loadTeachers);
+  </script>
+</body>
+
+</html>

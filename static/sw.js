@@ -10,8 +10,8 @@ self.addEventListener('push', function(event) {
             const title = data.title || "Kampüs Kayıp Eşya";
             const options = {
                 body: data.body || "Yeni bir ilan eklendi!",
-                icon: data.icon || '/static/kedi.ico', 
-                badge: data.badge || '/static/kedi.ico', // Android durum çubuğu ikonu
+                icon: data.icon || '/static/img/kedi.ico', 
+                badge: data.badge || '/static/img/kedi.ico', // Android durum çubuğu ikonu
                 image: data.image || '', // Varsa ilan fotoğrafı
                 
                 // --- MOBİL ÖZEL AYARLAR ---

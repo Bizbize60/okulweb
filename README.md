@@ -131,27 +131,33 @@ Uygulama `http://localhost:5000` adresinde çalışacaktır. 🎉
 
 ```
 okulweb/
-├── backend.py              # Ana Flask uygulaması
+├── backend.py              # Ana Flask uygulaması (rotalar: routes, auth, api)
+├── auth.py                 # Giriş/kayıt/doğrulama (templates/auth/* kullanır)
+├── routes.py               # Sayfa rotaları (templates/pages|clubs|admin/* kullanır)
+├── api.py                  # JSON API uçları
 ├── config.py.example       # Örnek konfigürasyon (şablonu kopyalayın)
 ├── requirements.txt        # Python bağımlılıkları
-├── database/
+├── database/               # SQLAlchemy modelleri + kurulum scriptleri
 │   ├── initdb.py           # Veritabanı başlatma
 │   ├── createtables.py     # Tablo oluşturma scripti
 │   ├── user.py             # Kullanıcı modeli
-│   ├── forum_message.py    # Forum mesaj modeli
-│   ├── forum_like.py       # Forum beğeni modeli
-│   ├── kulupler.py         # Kulüp modeli
-│   ├── kulupicerik.py      # Kulüp içerik modeli
-│   ├── kulupyonetim.py     # Kulüp yönetim modeli
-│   ├── pazar.py            # Bit pazarı modeli
-│   ├── saatler.py          # Ofis saatleri modeli
-│   ├── dersnotu.py         # Ders notu modeli
-│   ├── degerlendirme.py    # Değerlendirme modeli
-│   ├── example_model.py    # Örnek model şablonu (yeni model için)
-│   ├── seed_admins.py.example    # Admin seed şablonu
-│   └── seed_kulupler.py.example  # Kulüp seed şablonu
-├── templates/              # HTML şablonları
-├── static/                 # CSS, JS, görseller
+│   ├── ...                 # Diğer modeller (forum, kulüp, pazar, ders notu...)
+│   └── seed_*.example      # Örnek seed şablonları
+├── templates/              # HTML şablonları (gruplu)
+│   ├── auth/               # login, register, verify
+│   ├── pages/              # İçerik sayfaları (anasayfa, forum, pazar...)
+│   ├── clubs/              # Kulüp sayfaları (fsource, utaamc...)
+│   └── admin/              # Yönetim panelleri
+├── static/
+│   ├── css/
+│   │   ├── tokens.css      # THK tasarım jetonları (renk/font - tek kaynak)
+│   │   ├── ui.css          # Genel arayüz (tokens.css'i içe aktarır)
+│   │   └── pages/
+│   │       └── auth.css    # Giriş/kayıt/doğrulama ortak stili
+│   ├── js/
+│   │   └── components.js   # Navbar/footer + ortak istemci davranışları
+│   ├── img/                # Site görselleri (logo, kulüp, kroki...)
+│   └── sw.js               # Bildirim service worker (kökten sunulur)
 └── uploads/                # Kullanıcı yüklemeleri
     ├── kulup/              # Kulüp görselleri
     ├── notes/              # Ders notları

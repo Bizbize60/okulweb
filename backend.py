@@ -268,7 +268,7 @@ def sw():
 
 @app.route('/favicon.ico')
 def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'), 'kedi.ico', mimetype='image/vnd.microsoft.icon')
+    return send_from_directory(os.path.join(app.root_path, 'static', 'img'), 'kedi.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.route('/uploads/katkida/<path:filename>')
 def katkida_gorsel_indir(filename):

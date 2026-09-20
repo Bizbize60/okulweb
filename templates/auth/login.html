@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giriş Yap — Gayriresmi THKÜ Portal</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/auth.css') }}">
+</head>
+<body>
+
+  <!-- Unofficial bar -->
+  <div class="unofficial-bar">
+    <span>⚠️</span>
+    <span>Bu site <strong>gayriresmi</strong> bir öğrenci projesidir.</span>
+    <span>·</span>
+    <a href="https://www.thk.edu.tr" target="_blank" rel="noopener noreferrer">Resmi Site →</a>
+  </div>
+
+  <div class="card">
+    <div class="card-logo">
+      <img src="/static/img/logo.png" onerror="this.onerror=null;this.src='/static/img/kedi.ico'" alt="Logo" width="36" height="36" style="border-radius: 8px; object-fit: cover;">
+      <span class="logo-text">THKÜ Portal</span>
+      <span class="logo-badge">Gayriresmi</span>
+    </div>
+
+    <h1 class="card-title">Giriş Yap</h1>
+    <p class="card-subtitle">Öğrenci hesabınla devam et</p>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for message in messages %}
+      <div class="flash-error">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="email">Öğrenci E-postası</label>
+        <input type="email" id="email" name="email" required placeholder="s123456789@stu.thk.edu.tr" autocomplete="email">
+        <span class="input-hint">Sadece @stu.thk.edu.tr uzantılı e-postalar</span>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Şifre</label>
+        <input type="password" id="password" name="password" required placeholder="••••••••" autocomplete="current-password">
+      </div>
+
+      <button type="submit" class="submit-btn">Giriş Yap</button>
+    </form>
+
+    <div class="card-links">
+      <p>Hesabın yok mu? <a href="/signup">Kayıt Ol</a></p>
+      <a href="/" class="back-link">← Anasayfaya Dön</a>
+    </div>
+
+    <a href="https://www.thk.edu.tr" target="_blank" rel="noopener noreferrer" class="official-notice">
+      <span style="font-size:18px;">🏛️</span>
+      <div class="official-notice-text">
+        <div class="official-notice-label">Resmi Site</div>
+        <div class="official-notice-url">Anasayfa | THK Üniversitesi — thk.edu.tr</div>
+      </div>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7FB6DC" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+    </a>
+  </div>
+
+  <script>
+    function validateEmail(email) {
+      return /^s\d{9,10}@stu\.thk\.edu\.tr$/.test(email);
+    }
+
+    async function submitForm(event) {
+      event.preventDefault();
+      const emailInput    = document.getElementById('email');
+      const passwordInput = document.getElementById('password');
+      const btn           = document.querySelector('.submit-btn');
+      const email         = emailInput.value.trim();
+
+      if (!validateEmail(email)) {
+        alert('Lütfen geçerli bir THKÜ öğrenci e-postası kullanın (@stu.thk.edu.tr)');
+        emailInput.focus();
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Giriş yapılıyor…';
+
+      try {
+        const formData = new FormData(document.getElementById('loginForm'));
+        const response = await fetch('/login', {
+          method: 'POST',
+          body: formData,
+          credentials: 'same-origin'
+        });
+
+        if (response.redirected) { window.location.href = response.url; return; }
+        if (response.ok)         { window.location.reload(); return; }
+
+        const err = await response.json();
+        alert('Giriş başarısız. ' + (err.message || 'Lütfen bilgilerinizi kontrol edin.'));
+        passwordInput.focus();
+      } catch {
+        alert('Sunucuya bağlanılamadı.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Giriş Yap';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('loginForm').addEventListener('submit', submitForm);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THKÜ Öğrenci Portalı — Öğrencilerden Öğrencilere</title>
+  <meta name="description" content="Bu site bağımsız öğrenciler tarafından yapılmış gayriresmi bir projedir. THK Üniversitesi ile hiçbir resmi bağı bulunmamaktadır.">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/ui.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/portal.css') }}">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>
+    /* Sayfaya özel stiller. Ortak tema (header, bilgi bandı, footer,
+       butonlar, ikon boyutları) portal.css içinde. */
+
+    /* ---- hero: tek parça panoramik banner ---- */
+    .portal-hero-section{ padding:22px 0 6px; }
+    .portal-hero-section .container{ max-width:1400px; }
+
+    .hero-banner{
+      position:relative; overflow:hidden;
+      border-radius:20px; border:1px solid var(--line);
+      box-shadow:0 10px 30px -8px rgba(10,36,88,.25);
+      min-height:560px; display:flex;
+    }
+    .hero-bg{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:68% center; }
+    /* Solda eriyen katman: width:100% ve tam alana yayılan pürüzsüz gradyan (çizgi oluşamaz) */
+    .hero-glass{
+      position:absolute; inset:0; pointer-events:none;
+      background:linear-gradient(90deg,
+        rgba(255,255,255,0.92) 0%,
+        rgba(255,255,255,0.85) 28%,
+        rgba(255,255,255,0.60) 42%,
+        rgba(255,255,255,0.25) 54%,
+        rgba(255,255,255,0) 68%
+      );
+    }
+    .hero-inner{
+      position:relative; z-index:1; width:100%;
+      display:grid; grid-template-columns:minmax(0,480px) 1fr; gap:20px; align-items:center;
+      padding:40px 36px; min-height:560px;
+    }
+    @media(max-width:1020px){
+      .hero-inner{ grid-template-columns:1fr; padding:26px; min-height:0; }
+      .hero-glass{ width:100%; background:rgba(255,255,255,.85); }
+      .hero-spacer{ display:none; }
+    }
+    @media(max-width:560px){ .hero-inner{ padding:20px 14px; } }
+
+    .hero-panel{ padding:10px 8px; display:flex; flex-direction:column; justify-content:center; max-width:440px; }
+    .eyebrow{ display:flex; align-items:center; gap:10px; color:#2A93E8; font-size:.7rem; font-weight:700; letter-spacing:.22em; text-transform:uppercase; margin-bottom:14px; }
+    .eyebrow::before{ content:''; width:26px; height:3px; background:#2A93E8; border-radius:2px; display:inline-block; }
+    .hero-title{ font-family:'Figtree',sans-serif !important; font-size:clamp(2.3rem,3.6vw,3.1rem) !important; line-height:1.08 !important; letter-spacing:-.02em !important; color:var(--navy) !important; margin:0 0 14px 0 !important; font-weight:800 !important; }
+    .hero-title .hl{ color:#1E8EEC !important; }
+    .hero-sub{ color:#5B6B80 !important; font-size:.94rem !important; line-height:1.65 !important; max-width:46ch; margin:0 0 24px 0 !important; }
+    .hero-actions{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:30px; }
+    .btn-hero{ display:inline-flex; align-items:center; gap:8px; min-height:44px; padding:0 20px; border-radius:10px; font-size:.88rem; font-weight:600; text-decoration:none; border:1px solid transparent; cursor:pointer; font-family:inherit; }
+    .btn-hero .lucide{ width:17px; height:17px; }
+    .btn-hero-primary{ background:#0E63C6; color:#fff; }
+    .btn-hero-primary:hover{ background:#0B4FA3; }
+    .btn-hero-ghost{ background:rgba(255,255,255,.55); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); border-color:rgba(255,255,255,.8); color:#0A2458; }
+    .btn-hero-ghost:hover{ border-color:#1B7FE0; background:rgba(255,255,255,.8); }
+    .btn-hero-ghost.muted{ color:#5B6B80; }
+    .hero-trust{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:auto; }
+    @media(max-width:560px){ .hero-trust{ grid-template-columns:1fr; } }
+    .trust-item{ display:flex; gap:9px; align-items:flex-start; font-size:.74rem; color:#5B6B80; line-height:1.45; }
+    .trust-item .lucide{ width:22px; height:22px; color:#0A2458; flex-shrink:0; margin-top:1px; }
+
+    /* ---- canlı kampüs bölümü (ayrı bölüm, beyaz kartlar) ---- */
+    .live-section{ padding:14px 0 2px; }
+    .live-section .container{ max-width:1400px; }
+    .live-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:14px; margin:0 0 10px 2px; }
+    .live-eyebrow{ display:flex; align-items:center; gap:10px; color:#2A93E8; font-size:.7rem; font-weight:700; letter-spacing:.22em; text-transform:uppercase; }
+    .live-eyebrow::before{ content:''; width:26px; height:3px; background:#2A93E8; border-radius:2px; }
+    .live-title{ font-family:'Figtree',sans-serif; font-size:1.2rem; font-weight:800; color:var(--navy); margin:2px 0 0 0; letter-spacing:-.01em; }
+    .live-hint{ color:#7B8DA1; font-size:.8rem; }
+    .side-stack{ display:flex; flex-direction:column; gap:10px; }
+    .side-card{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:14px; padding:12px 14px 10px;
+      box-shadow:0 4px 14px -4px rgba(10,36,88,.06);
+    }
+    .side-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; }
+    .side-title{ display:flex; align-items:center; gap:8px; font-family:'Figtree',sans-serif; font-size:.95rem; font-weight:700; color:var(--navy); margin:0; }
+    .side-title .lucide{ width:20px; height:20px; color:#1B7FE0; }
+    .side-title .lucide.gold{ color:#EAB308; }
+    .date-pill{ font-size:.7rem; font-weight:600; color:#5B6B80; background:#EEF2F7; border-radius:7px; padding:5px 10px; white-space:nowrap; }
+    .live-pill{ display:inline-flex; align-items:center; gap:6px; font-size:.72rem; font-weight:700; color:var(--green); background:var(--green-bg); border-radius:7px; padding:5px 10px; }
+    .live-dot{ width:7px; height:7px; border-radius:50%; background:var(--green); }
+    .mini-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+    @media(max-width:560px){ .mini-grid{ grid-template-columns:1fr; } }
+    .mini{ border:1px solid var(--line-soft); border-radius:10px; padding:8px 10px; background:#fff; display:flex; flex-direction:column; gap:1px; }
+    .mini-top{ display:flex; align-items:center; gap:6px; color:#334155; font-size:.72rem; font-weight:500; }
+    .mini-top .lucide{ width:15px; height:15px; color:#1B7FE0; }
+    .mini-top .lucide.red{ color:#EF4444; } .mini-top .lucide.green{ color:#16A34A; } .mini-top .lucide.amber{ color:#F59E0B; } .mini-top .lucide.pin{ color:#EF4444; } .mini-top .lucide.clock{ color:#F59E0B; }
+    .mini-val{ font-size:.83rem; font-weight:700; color:var(--navy); }
+    .mini-link{ font-size:.72rem; font-weight:600; color:#1B7FE0; text-decoration:none; display:inline-flex; align-items:center; gap:3px; margin-top:auto; }
+    .mini-link:hover{ text-decoration:underline; }
+    .mini-link .lucide{ width:12px; height:12px; }
+    .mini-ico{ width:22px; height:22px; border-radius:7px; display:flex; align-items:center; justify-content:center; margin-bottom:2px; }
+    .mini-ico .lucide{ width:16px; height:16px; }
+    .mi-red{ background:#FDECEC; } .mi-red .lucide{ color:#E11D48; }
+    .mi-green{ background:#E5F6EC; } .mi-green .lucide{ color:#16A34A; }
+    .mi-amber{ background:#FEF3E2; } .mi-amber .lucide{ color:#D97706; }
+    .link-more{ font-size:.78rem; font-weight:600; color:#1B7FE0; text-decoration:none; display:inline-flex; align-items:center; gap:4px; }
+    .link-more .lucide{ width:14px; height:14px; }
+    .elci-body{ display:flex; align-items:center; gap:12px; }
+    .elci-avatar{ width:40px; height:40px; border-radius:50%; background:#E7EDF3; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .elci-avatar .lucide{ width:24px; height:24px; color:#8CA0B5; }
+    .elci-text{ font-size:.82rem; color:#334155; line-height:1.5; }
+    .elci-text strong{ color:var(--navy); }
+    .btn-elci{ margin-left:auto; background:var(--blue-soft); border:1px solid #BFD6EF; color:#0E63C6; border-radius:9px; padding:9px 14px; font-size:.8rem; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; flex-shrink:0; }
+    .btn-elci:hover{ background:#D8EAFD; }
+    .btn-elci .lucide{ width:14px; height:14px; }
+
+    /* ---- özellikler ---- */
+    .feat-section{ padding:30px 0 10px; }
+    .feat-eyebrow{ display:flex; align-items:center; gap:10px; color:#2A93E8; font-size:.7rem; font-weight:700; letter-spacing:.22em; text-transform:uppercase; margin-bottom:6px; }
+    .feat-eyebrow::before{ content:''; width:26px; height:3px; background:#2A93E8; border-radius:2px; }
+    .feat-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:18px; }
+    .feat-title{ font-family:'Figtree',sans-serif !important; font-size:2rem !important; font-weight:800 !important; color:var(--navy) !important; margin:0 !important; letter-spacing:-.02em !important; }
+    .feat-right{ display:flex; align-items:center; gap:14px; color:#7B8DA1; font-size:.83rem; }
+    .carousel-btns{ display:flex; gap:8px; }
+    .cbtn{ width:36px; height:36px; border-radius:50%; border:1px solid var(--line); background:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#334155; }
+    .cbtn:hover{ border-color:#1B7FE0; color:#1B7FE0; }
+    .cbtn .lucide{ width:16px; height:16px; }
+    .feat-grid{ display:grid; grid-template-columns:repeat(6,1fr); gap:12px; overflow-x:auto; padding-bottom:6px; scroll-behavior:smooth; }
+    @media(max-width:1100px){ .feat-grid{ grid-template-columns:repeat(3,1fr); } }
+    @media(max-width:640px){ .feat-grid{ grid-template-columns:repeat(2,1fr); } .feat-head{ flex-direction:column; align-items:flex-start; } }
+    .feat-card{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:18px 16px 16px; text-decoration:none; color:inherit; display:flex; flex-direction:column; min-height:172px; transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
+    .feat-card:hover{ transform:translateY(-3px); box-shadow:0 10px 22px -6px rgba(10,36,88,.14); border-color:#BFD6EF; }
+    .feat-ico{ width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:12px; }
+    .feat-ico .lucide{ width:20px; height:20px; color:#fff; }
+    .fi-purple{ background:#8B5CF6; } .fi-blue{ background:#2A93E8; } .fi-green{ background:#22C55E; }
+    .fi-red{ background:#F87171; } .fi-amber{ background:#FBBF24; } .fi-teal{ background:#2DD4BF; }
+    .feat-name{ font-size:.88rem; font-weight:700; color:var(--navy); margin-bottom:4px; font-family:'Figtree',sans-serif; }
+    .feat-desc{ font-size:.76rem; color:#7B8DA1; line-height:1.55; margin:0 0 12px 0; }
+    .feat-go{ margin-top:auto; width:26px; height:26px; border-radius:50%; background:var(--blue-soft); display:flex; align-items:center; justify-content:center; }
+    .feat-go .lucide{ width:14px; height:14px; color:#1B7FE0; }
+
+    /* legal modal — ana sayfaya özel */
+    .legal-overlay{ position:fixed; inset:0; z-index:99999; background:rgba(10,36,88,.55); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px; }
+    .legal-overlay.hidden{ display:none; }
+    body.legal-open{ overflow:hidden; }
+    .legal-modal{ max-width:520px; width:100%; background:#fff; border-radius:16px; padding:30px 28px 24px; box-shadow:0 24px 60px rgba(10,36,88,.25); }
+    .legal-ico{ width:46px; height:46px; border-radius:12px; background:#FDECEC; display:flex; align-items:center; justify-content:center; margin-bottom:14px; }
+    .legal-ico .lucide{ width:22px; height:22px; color:#D63A3A; }
+    .legal-title{ font-family:'Figtree',sans-serif; font-size:1.05rem; font-weight:700; color:var(--navy); margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+    .legal-text{ font-size:.85rem; color:#5B6B80; line-height:1.7; margin-bottom:16px; }
+    .legal-text strong{ color:var(--navy); }
+    .legal-official{ display:flex; align-items:center; gap:12px; background:#F0F7FF; border:1px solid #BFD6EF; border-radius:10px; padding:11px 14px; text-decoration:none; margin-bottom:18px; }
+    .legal-official .lucide{ width:20px; height:20px; color:#1B7FE0; }
+    .legal-accept{ width:100%; background:var(--navy); color:#fff; border:0; border-radius:10px; padding:13px; font-weight:600; font-size:.9rem; cursor:pointer; font-family:inherit; }
+    .legal-accept:hover{ background:#071D40; }
+
+  </style>
+</head>
+<body>
+  <div id="cat-loader" role="status" aria-live="polite" aria-label="Sayfa yükleniyor">
+    <div class="cat-spinner">
+      <img src="{{ url_for('static', filename='img/logo.png') }}" onerror="this.onerror=null;this.src='/static/img/kedi.ico'" alt="" aria-hidden="true">
+      <div class="cat-shadow"></div>
+    </div>
+    <h2 class="loader-text">THKÜ Öğrenci Portalı</h2>
+    <div class="loader-progress"><span></span></div>
+  </div>
+
+  <div class="legal-overlay" id="legalOverlay">
+    <div class="legal-modal" role="dialog" aria-modal="true" aria-labelledby="legalTitle">
+      <div class="legal-ico"><i data-lucide="shield-alert"></i></div>
+      <div class="legal-title" id="legalTitle">Önemli Yasal Uyarı</div>
+      <p class="legal-text">
+        Bu site <strong>thkuogrenci.com</strong>'dur ve tamamen <strong>bağımsız öğrenciler tarafından</strong> geliştirilmiştir.<br><br>
+        <strong>Türk Hava Kurumu Üniversitesi (THKÜ)</strong> bu siteyi kurmamış, yönetmemiş veya onaylamamıştır. İçerikler resmi kaynak sayılmaz. Resmi işlemler için yalnızca üniversitenin resmi kanallarını kullanın.
+      </p>
+      <a href="https://www.thk.edu.tr" target="_blank" rel="noopener noreferrer" class="legal-official">
+        <i data-lucide="landmark"></i>
+        <span><span style="display:block;font-size:.7rem;font-weight:700;color:#1B7FE0;text-transform:uppercase;letter-spacing:.06em;">Resmi Site</span><span style="font-size:.86rem;color:#0A2458;font-weight:600;">thk.edu.tr — THK Üniversitesi</span></span>
+        <i data-lucide="external-link" style="margin-left:auto;"></i>
+      </a>
+      <button class="legal-accept" id="legalAcceptBtn">Anladım — Devam Et</button>
+    </div>
+  </div>
+
+  <div class="top-notice" id="topNotice">
+    <div class="top-notice-inner">
+      <i data-lucide="info"></i>
+      <span>Bu site THK Üniversitesi'nin <strong>RESMİ sitesi DEĞİLDİR</strong>. Öğrenciler tarafından, öğrenciler için yapılmış bağımsız bir projedir.</span>
+      <span class="sep">|</span>
+      <a href="https://www.thk.edu.tr" target="_blank" rel="noopener noreferrer">Resmi Site <i data-lucide="arrow-right" style="width:13px;height:13px;"></i></a>
+      <button class="top-notice-close" id="topNoticeClose" aria-label="Bildirimi kapat"><i data-lucide="x"></i></button>
+    </div>
+  </div>
+
+  <div id="navbarRoot"></div>
+  <script src="{{ url_for('static', filename='js/components.js') }}" defer></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', function(){
+      var opts = { is_logged_in: {% if is_logged_in %}true{% else %}false{% endif %}, active: 'home' };
+      if (window.THKU_UI && window.THKU_UI.Navbar) window.THKU_UI.Navbar.render('#navbarRoot', opts);
+      if (window.THKU_UI && window.THKU_UI.Footer) window.THKU_UI.Footer.render('#footerRoot');
+      if (window.lucide) lucide.createIcons();
+    });
+  </script>
+
+  <section class="portal-hero-section">
+    <div class="container">
+      <div class="hero-banner">
+        <!-- HERO GÖRSELİ: kampüs fotoğrafı → static/img/hero-campus.jpg -->
+        <img class="hero-bg" src="{{ url_for('static', filename='img/hero-campus.jpg') }}" alt="Türk Hava Kurumu Üniversitesi kampüsü ve uçakları" fetchpriority="high" onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/aviation_hero.svg') }}'">
+        <div class="hero-glass"></div>
+        <div class="hero-inner">
+
+        <div class="hero-panel">
+            <div class="eyebrow">Öğrencilerden Öğrencilere</div>
+            <h1 class="hero-title">Gayriresmi<br><span class="hl">THKÜ Öğrenci Portalı</span></h1>
+            <p class="hero-sub">Ders notlarına, ofis saatlerine, yemekhane menüsüne, forum ve kampüs bilgilerine tek yerden ulaş. Bu platform, THKÜ öğrencileri tarafından geliştirilmiş bağımsız bir öğrenci projesidir.</p>
+            <div class="hero-actions">
+              <a href="/signup" class="btn-hero btn-hero-primary"><i data-lucide="arrow-right"></i> Hemen Başla</a>
+              <a href="#ozellikler" class="btn-hero btn-hero-ghost"><i data-lucide="compass"></i> Özellikleri Keşfet</a>
+              <a href="https://www.thk.edu.tr" target="_blank" rel="noopener noreferrer" class="btn-hero btn-hero-ghost muted"><i data-lucide="landmark"></i> Resmi Site: thk.edu.tr</a>
+            </div>
+            <div class="hero-trust">
+              <div class="trust-item"><i data-lucide="graduation-cap"></i><span>Daha bağlantılı<br>bir öğrenci topluluğu</span></div>
+              <div class="trust-item"><i data-lucide="users"></i><span>Öğrenciler tarafından<br>geliştirildi</span></div>
+              <div class="trust-item"><i data-lucide="heart"></i><span>THKÜ öğrencileri<br>için, her zaman</span></div>
+            </div>
+          </div>
+          <div class="hero-spacer"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="live-section" aria-label="Kampüste Bugün">
+    <div class="container">
+      <div class="live-head">
+        <div>
+          <div class="live-eyebrow">Canlı</div>
+          <h2 class="live-title">Kampüste Bugün</h2>
+        </div>
+        <span class="live-hint">Yemekhane, ulaşım ve topluluk — tek bakışta</span>
+      </div>
+      <div class="side-stack">
+          <div class="side-card">
+            <div class="side-head">
+              <h3 class="side-title"><i data-lucide="utensils"></i> Bugün Yemekhanede</h3>
+              <span class="date-pill" id="bugunTarih">Bugün</span>
+            </div>
+            <div class="mini-grid">
+              <div class="mini">
+                <div class="mini-ico mi-red"><i data-lucide="drumstick"></i></div>
+                <span class="mini-top">Ana yemek</span>
+                <span class="mini-val">Tavuk Sote</span>
+                <a class="mini-link" href="/yemekhane">Menü <i data-lucide="arrow-right"></i></a>
+              </div>
+              <div class="mini">
+                <div class="mini-ico mi-green"><i data-lucide="salad"></i></div>
+                <span class="mini-top">Yan / Salata</span>
+                <span class="mini-val">Mevsim Salatası</span>
+                <a class="mini-link" href="/yemekhane">Tıkla gör <i data-lucide="arrow-right"></i></a>
+              </div>
+              <div class="mini">
+                <div class="mini-ico mi-amber"><i data-lucide="cake-slice"></i></div>
+                <span class="mini-top">Tatlı / İçecek</span>
+                <span class="mini-val">Sütlaç</span>
+                <a class="mini-link" href="/yemekhane">Kalori bilgisi <i data-lucide="arrow-right"></i></a>
+              </div>
+            </div>
+          </div>
+
+          <div class="side-card">
+            <div class="side-head">
+              <h3 class="side-title"><i data-lucide="bus"></i> Sonraki Otobüs</h3>
+              <span class="live-pill"><span class="live-dot"></span> Canlı Takip</span>
+            </div>
+            <div class="mini-grid">
+              <div class="mini">
+                <span class="mini-top"><i data-lucide="map-pin" class="pin"></i> Durak</span>
+                <span class="mini-val">Üniversite</span>
+                <a class="mini-link" href="/otobus-saatleri">Gidiş <i data-lucide="arrow-right"></i></a>
+              </div>
+              <div class="mini">
+                <span class="mini-top"><i data-lucide="clock" class="clock"></i> Saat</span>
+                <span class="mini-val">14:30</span>
+                <a class="mini-link" href="/otobus-saatleri">Tüm seferler <i data-lucide="arrow-right"></i></a>
+              </div>
+              <div class="mini">
+                <span class="mini-top"><i data-lucide="map"></i> Güzergah</span>
+                <span class="mini-val">Şehir merkezi</span>
+                <a class="mini-link" href="/kroki">Harita <i data-lucide="arrow-right"></i></a>
+              </div>
+            </div>
+          </div>
+
+          <div class="side-card">
+            <div class="side-head">
+              <h3 class="side-title"><i data-lucide="crown" class="gold"></i> Bu Haftanın Elçisi</h3>
+              <a href="/liderlik-tablosu" class="link-more">Tüm sıralama <i data-lucide="arrow-right"></i></a>
+            </div>
+            {% if haftanin_elcisi %}
+            <div class="elci-body">
+              <div class="elci-avatar"><i data-lucide="user"></i></div>
+              <div class="elci-text"><strong>{{ haftanin_elcisi.ad or haftanin_elcisi.name or 'Öğrenci' }}</strong><br>{{ haftanin_elcisi.seviye_adi or 'Üye' }} · {{ haftanin_elcisi.haftanin_davet_sayisi or haftanin_elcisi.hafta_davet or 0 }} davet · {{ haftanin_elcisi.puan or haftanin_elcisi.ambassador_points or 0 }} puan</div>
+              <a href="/ogrenci-elcisi" class="btn-elci">Başvur</a>
+            </div>
+            {% else %}
+            <div class="elci-body">
+              <div class="elci-avatar"><i data-lucide="user"></i></div>
+              <div class="elci-text">Henüz elçi seçilmedi.<br>İlk sen ol!</div>
+              <a href="/ogrenci-elcisi" class="btn-elci">Öğrenci Elçisi Ol <i data-lucide="arrow-right"></i></a>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+    </div>
+  </section>
+
+  <main id="main-content">
+    <div class="container feat-section" id="ozellikler">
+      <div class="feat-eyebrow">Hızlı Erişim</div>
+      <div class="feat-head">
+        <h2 class="feat-title">Özellikler</h2>
+        <div class="feat-right">
+          <span>THKÜ'de öğrenci hayatını kolaylaştıran araçlar</span>
+          <span class="carousel-btns">
+            <button class="cbtn" id="featPrev" aria-label="Geri"><i data-lucide="chevron-left"></i></button>
+            <button class="cbtn" id="featNext" aria-label="İleri"><i data-lucide="chevron-right"></i></button>
+          </span>
+        </div>
+      </div>
+      <div class="feat-grid" id="featGrid">
+        <a href="/ders-notlari" class="feat-card">
+          <span class="feat-ico fi-purple"><i data-lucide="file-text"></i></span>
+          <span class="feat-name">Not Paylaşımı</span>
+          <p class="feat-desc">Ders notlarını paylaş, arkadaşlarının notlarına eriş.</p>
+          <span class="feat-go"><i data-lucide="arrow-right"></i></span>
+        </a>
+        <a href="/ogretmen-listesi" class="feat-card">
+          <span class="feat-ico fi-blue"><i data-lucide="book-open"></i></span>
+          <span class="feat-name">Ders Bilgileri</span>
+          <p class="feat-desc">Ders içerikleri, kaynaklar ve önceki yılların notları.</p>
+          <span class="feat-go"><i data-lucide="arrow-right"></i></span>
+        </a>
+        <a href="/forum" class="feat-card">
+          <span class="feat-ico fi-green"><i data-lucide="users"></i></span>
+          <span class="feat-name">Forum &amp; Topluluk</span>
+          <p class="feat-desc">Sorularını sor, fikir alışverişi yap, THKÜ topluluğuna katıl.</p>
+          <span class="feat-go"><i data-lucide="arrow-right"></i></span>
+        </a>
+        <a href="/ofis-saatleri" class="feat-card">
+          <span class="feat-ico fi-red"><i data-lucide="calendar"></i></span>
+          <span class="feat-name">Ofis Saatleri</span>
+          <p class="feat-desc">Hocaların ofis saatlerini öğren, randevunu planla.</p>
+          <span class="feat-go"><i data-lucide="arrow-right"></i></span>
+        </a>
+        <a href="/duyurular" class="feat-card">
+          <span class="feat-ico fi-amber"><i data-lucide="megaphone"></i></span>
+          <span class="feat-name">Duyurular</span>
+          <p class="feat-desc">Önemli duyuruları ve etkinlikleri takip et.</p>
+          <span class="feat-go"><i data-lucide="arrow-right"></i></span>
+        </a>
+        <a href="/yemekhane" class="feat-card">
+          <span class="feat-ico fi-teal"><i data-lucide="wrench"></i></span>
+          <span class="feat-name">Kampüs Araçları</span>
+          <p class="feat-desc">Yemekhane, otobüs, bit pazarı ve daha fazlası.</p>
+          <span class="feat-go"><i data-lucide="arrow-right"></i></span>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <div id="footerRoot"></div>
+
+  <a href="/istekler" class="floating-feedback-btn" title="İstek veya Öneri Bildir">
+    <i data-lucide="lightbulb"></i>
+    <span class="text">İstek / Öneri</span>
+  </a>
+
+  <script>
+    document.body.classList.add('legal-open');
+    document.getElementById('legalAcceptBtn').addEventListener('click', function() {
+      document.getElementById('legalOverlay').classList.add('hidden');
+      document.body.classList.remove('legal-open');
+      if (window.lucide) lucide.createIcons();
+    });
+    var nc = document.getElementById('topNoticeClose');
+    if (nc) nc.addEventListener('click', function(){ document.getElementById('topNotice').style.display = 'none'; });
+    try {
+      var d = new Date();
+      var gunler = ['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+      var aylar = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+      document.getElementById('bugunTarih').textContent = d.getDate() + ' ' + aylar[d.getMonth()] + ' ' + d.getFullYear() + ', ' + gunler[d.getDay()];
+    } catch(e){}
+    var grid = document.getElementById('featGrid');
+    var prev = document.getElementById('featPrev'), next = document.getElementById('featNext');
+    if (prev && grid) prev.addEventListener('click', function(){ grid.scrollBy({left:-260, behavior:'smooth'}); });
+    if (next && grid) next.addEventListener('click', function(){ grid.scrollBy({left:260, behavior:'smooth'}); });
+    if (window.lucide) lucide.createIcons();
+  </script>
+</body>
+</html>

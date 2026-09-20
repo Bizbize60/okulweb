@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Not Yükle & Kredi Kazan — THKÜ</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/ui.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/portal.css') }}">
+  <style>
+    .page-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .page-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--fg);
+    }
+    .page-sub {
+      color: var(--fg-muted);
+      font-size: 0.92rem;
+      margin-top: 4px;
+    }
+
+    .hud-rules-box {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 28px;
+      position: relative;
+    }
+    .hud-rules-box::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--warn);
+      border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+    }
+    .hud-rules-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--fg);
+      margin-bottom: 8px;
+    }
+    .hud-rules-desc {
+      font-size: 0.88rem;
+      color: var(--fg-muted);
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
+    .hud-rules-desc strong { color: var(--fg); }
+
+    .rule-items {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .rule-items li {
+      font-size: 0.82rem;
+      color: var(--fg-muted);
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      line-height: 1.5;
+    }
+    .rule-items li::before {
+      content: '\2713';
+      color: var(--sky);
+      font-weight: 800;
+    }
+    .rule-items li.no::before {
+      content: '\2717';
+      color: var(--danger);
+    }
+    .rule-items code {
+      font-family: var(--font-mono);
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: var(--night-deep);
+      color: var(--sky);
+      font-size: 0.85em;
+    }
+    .rule-items code.bad-code {
+      color: var(--danger);
+      text-decoration: line-through;
+    }
+
+    .cockpit-form-card {
+      background: var(--night-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      margin-bottom: 40px;
+    }
+
+    .form-step-field {
+      margin-bottom: 24px;
+    }
+    .form-step-field.hidden { display: none !important; }
+
+    .field-cockpit-label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--fg);
+      margin-bottom: 10px;
+    }
+    .field-cockpit-label .req { color: var(--warn); }
+    .field-cockpit-label .field-hint {
+      font-weight: 400;
+      color: var(--fg-muted);
+      font-size: 0.82rem;
+      margin-left: 6px;
+    }
+
+    .type-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+    }
+    .type-opt {
+      cursor: pointer;
+      padding: 16px 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: var(--night-deep);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      text-align: center;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .type-opt:hover {
+      border-color: var(--border-accent);
+      transform: translateY(-2px);
+    }
+    .type-opt.selected {
+      background: rgba(200, 16, 46, 0.12);
+      border-color: var(--thk-red);
+    }
+    .type-opt .ic { font-size: 1.4rem; }
+    .type-opt .lbl { font-size: 0.85rem; font-weight: 700; color: var(--fg); }
+
+    .cockpit-input, .cockpit-select {
+      width: 100%;
+      padding: 14px 18px;
+      background: var(--night-deep);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      color: var(--fg);
+      font-family: inherit;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .cockpit-input:focus, .cockpit-select:focus {
+      border-color: var(--thk-red);
+    }
+    .cockpit-input.mono {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    .cockpit-input.invalid {
+      border-color: var(--danger) !important;
+    }
+
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+    .check-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--thk-red);
+    }
+    .check-row .ctxt {
+      font-size: 0.85rem;
+      color: var(--fg-muted);
+    }
+
+    .file-drop {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px 20px;
+      text-align: center;
+      cursor: pointer;
+      background: var(--night-deep);
+      transition: border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .file-drop:hover, .file-drop.dragover {
+      border-color: var(--thk-red);
+    }
+    .file-drop .fic { font-size: 2rem; margin-bottom: 8px; }
+    .file-drop .ftxt { font-size: 0.95rem; font-weight: 600; color: var(--fg); }
+    .file-drop .fsub { font-size: 0.8rem; color: var(--fg-muted); margin-top: 4px; font-family: var(--font-mono); }
+
+    .preview-cockpit {
+      background: var(--night-deep);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+    }
+    .plabel { font-size: 0.75rem; font-family: var(--font-mono); color: var(--sky); font-weight: 700; margin-bottom: 6px; }
+    .pname { font-family: var(--font-mono); font-size: 0.92rem; color: var(--fg); word-break: break-all; }
+    .pstatus {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+    .pstatus.ok { background: rgba(52, 211, 153, 0.1); color: var(--success); border: 1px solid rgba(52, 211, 153, 0.25); }
+    .pstatus.bad { background: rgba(248, 113, 113, 0.1); color: var(--danger); border: 1px solid rgba(248, 113, 113, 0.25); }
+
+    .err-msg {
+      display: none;
+      color: var(--danger);
+      font-size: 0.8rem;
+      margin-top: 6px;
+    }
+    .err-msg.show { display: block; }
+  </style>
+</head>
+
+<body>
+  <!-- REUSABLE NAVBAR -->
+  <div id="navbarRoot"></div>
+  <script src="{{ url_for('static', filename='js/components.js') }}" defer></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', function(){
+      var opts = { is_logged_in: 'auto', active: 'notlar' };
+      if (window.THKU_UI && window.THKU_UI.Navbar) window.THKU_UI.Navbar.render('#navbarRoot', opts);
+      if (window.THKU_UI && window.THKU_UI.Footer)  window.THKU_UI.Footer.render('#footerRoot');
+    });
+  </script>
+
+  <div class="container" style="max-width: 820px; padding-top: 30px;">
+    <div class="page-head reveal-on-scroll">
+      <div>
+        <div class="hud-tag hud-tag-cyan" style="margin-bottom:8px;">ARCHIVE INGESTION PROTOCOL</div>
+        <h1 class="page-title">Yeni Ders Notu / Çıkmış Yükle</h1>
+        <p class="page-sub">Akademik arşive not veya çıkmış sınav ekleyin, onaylandığında <strong>+2 Kredi</strong> kazanın.</p>
+      </div>
+      <div>
+        <a href="/ders-notlari" class="btn btn-outline">← Notlara Dön</a>
+      </div>
+    </div>
+
+    <!-- Kurallar Kartı -->
+    <div class="hud-rules-box reveal-on-scroll">
+      <div class="hud-rules-title">⚠️ Standart İsimlendirme Kuralları</div>
+      <div class="hud-rules-desc">
+        Arşiv bütünlüğü için dosyalar sistem standardına uygun isimlendirilir. Formu doldurdukça format otomatik üretilir; bozuk veya kurallara uymayan içerikler <strong>silinir.</strong>
+      </div>
+      <ul class="rule-items">
+        <li>Ders kodu bitişik ve büyük harfle yazılır: <code>CENG302</code> &nbsp;—&nbsp; <code class="bad-code">CENG 302</code></li>
+        <li>Öğretim görevlisinin adı bitişik girilir: <code>LeylaAtmaca</code></li>
+        <li>Vize / Final için yıl zorunludur: <code>Vize(2025)-CENG302-LeylaAtmaca</code></li>
+        <li>Ortak ve çok hocalı derslerde hoca yerine <code>*</code> işareti kullanılır.</li>
+        <li>Sadece çözüm içeren dosyalara <code>Çözüm-</code> ön eki eklenir.</li>
+        <li class="no">Boşluklu ve rastgele isimlendirilmiş dosyalar kabul edilmez.</li>
+      </ul>
+    </div>
+
+    <!-- Yükleme Formu -->
+    <div class="cockpit-form-card reveal-on-scroll">
+      <!-- 1) Tür -->
+      <div class="form-step-field">
+        <label class="field-cockpit-label">İçerik Türü <span class="req">*</span></label>
+        <div class="type-grid" id="typeGrid">
+          <div class="type-opt" data-type="not">
+            <span class="ic">📘</span><span class="lbl">Çalışma Notu</span>
+          </div>
+          <div class="type-opt" data-type="sorular">
+            <span class="ic">📝</span><span class="lbl">Çalışma Soruları</span>
+          </div>
+          <div class="type-opt" data-type="vize">
+            <span class="ic">📄</span><span class="lbl">Vize Sınavı</span>
+          </div>
+          <div class="type-opt" data-type="final">
+            <span class="ic">🎓</span><span class="lbl">Final Sınavı</span>
+          </div>
+          <div class="type-opt" data-type="quiz">
+            <span class="ic">⚡</span><span class="lbl">Quiz</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2) Ders Kodu -->
+      <div class="form-step-field hidden" id="f-code">
+        <label class="field-cockpit-label" for="codeInput">Ders Kodu <span class="req">*</span>
+          <span class="field-hint">— örn: CENG302, MAT121, PHY101</span>
+        </label>
+        <input type="text" id="codeInput" class="cockpit-input mono" placeholder="CENG302" autocomplete="off" spellcheck="false" maxlength="12">
+        <div class="err-msg" id="err-code">Geçerli bir ders kodu giriniz: örn. CENG302, EEE102.</div>
+      </div>
+
+      <!-- 3) Yıl -->
+      <div class="form-step-field hidden" id="f-year">
+        <label class="field-cockpit-label" for="yearInput">Sınav Yılı <span class="req">*</span></label>
+        <select id="yearInput" class="cockpit-select"></select>
+      </div>
+
+      <!-- 4) Öğretim Görevlisi -->
+      <div class="form-step-field hidden" id="f-teacher">
+        <label class="field-cockpit-label" for="teacherInput">Öğretim Görevlisi <span class="req">*</span>
+          <span class="field-hint">— örn: Leyla Atmaca</span>
+        </label>
+        <input type="text" id="teacherInput" class="cockpit-input" placeholder="Leyla Atmaca" autocomplete="off" spellcheck="false">
+        <label class="check-row" id="commonRow">
+          <input type="checkbox" id="commonCheck">
+          <span class="ctxt">Ortak ders / Birden fazla öğretim görevlisi (Hoca yerine <code>*</code> konur).</span>
+        </label>
+        <div class="err-msg" id="err-teacher">Öğretim görevlisi adını girin veya ortak ders kutucuğunu işaretleyin.</div>
+      </div>
+
+      <!-- 5) Konular -->
+      <div class="form-step-field hidden" id="f-topics">
+        <label class="field-cockpit-label" for="topicsInput">Konu İçeriği <span class="req">*</span>
+          <span class="field-hint">— virgülle ayırarak yazabilirsiniz</span>
+        </label>
+        <input type="text" id="topicsInput" class="cockpit-input" placeholder="Limit, Türev, İntegral" autocomplete="off" spellcheck="false">
+        <div class="err-msg" id="err-topics">En az bir konu başlığı belirtmelisiniz.</div>
+      </div>
+
+      <!-- 6) Sadece Çözüm -->
+      <div class="form-step-field hidden" id="f-solution">
+        <label class="check-row" id="solRow">
+          <input type="checkbox" id="solCheck">
+          <span class="ctxt"><b>Yalnızca Sınav Çözümü</b> (Soru kağıdı yoksa ismin başına <code>Çözüm-</code> eklenir).</span>
+        </label>
+      </div>
+
+      <!-- 7) Dosya -->
+      <div class="form-step-field hidden" id="f-file">
+        <label class="field-cockpit-label">Doküman Dosyası <span class="req">*</span>
+          <span class="field-hint">— PDF, DOCX, PPTX</span>
+        </label>
+        <div class="file-drop" id="fileDrop">
+          <div class="fic">📎</div>
+          <div class="ftxt">Dosyayı buraya sürükleyin veya <b>Gözatın</b></div>
+          <div class="fsub" id="fileSub">PDF · DOC · DOCX · PPT · PPTX (Maks. 25MB)</div>
+        </div>
+        <input type="file" id="fileInput" class="hidden" accept=".pdf,.doc,.docx,.ppt,.pptx">
+      </div>
+
+      <!-- Canlı Önizleme -->
+      <div class="form-step-field hidden" id="f-preview">
+        <div class="preview-cockpit">
+          <div class="plabel">STANDART DOSYA ETİKETİ ÖNİZLEMESİ</div>
+          <div class="pname" id="previewName"><span style="color:var(--fg-muted);">Önce içerik türünü seçin…</span></div>
+          <span class="pstatus bad" id="pstatus">Eksik alanlar mevcut</span>
+        </div>
+      </div>
+
+      <!-- Aksiyon Butonları -->
+      <div class="form-step-field hidden" id="f-actions" style="margin-bottom:0;">
+        <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+          <button class="btn btn-primary" id="submitBtn" style="flex:1;" disabled>📤 Notu Yükle (+2 Kredi Kazan)</button>
+          <button class="btn btn-secondary" id="copyBtn" title="İsmi kopyala">📋 İsmi Kopyala</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REUSABLE FOOTER -->
+  <div id="footerRoot"></div>
+
+  <script>
+    const UPLOAD_ENDPOINT = '/api/not-ekle';
+    const state = { type: null, code: '', year: '', teacher: '', common: false, topics: '', solution: false, file: null };
+    const $ = id => document.getElementById(id);
+
+    const TYPE_FIELDS = {
+      not:     { code:1, topics:1 },
+      sorular: { code:1, topics:1 },
+      vize:    { code:1, year:1, teacher:1, solution:1 },
+      final:   { code:1, year:1, teacher:1, solution:1 },
+      quiz:    { code:1, year:1, topics:1, solution:1 },
+    };
+    const TYPE_PREFIX = { vize: 'Vize', final: 'Final', quiz: 'Quiz' };
+
+    (function fillYears() {
+      const sel = $('yearInput');
+      const now = new Date().getFullYear();
+      for (let y = now; y >= now - 12; y--) {
+        const o = document.createElement('option');
+        o.value = y; o.textContent = y;
+        sel.appendChild(o);
+      }
+      state.year = String(now);
+    })();
+
+    function formatCode(raw) {
+      return raw.toLocaleUpperCase('tr-TR').replace(/[^A-ZÇĞİÖŞÜ0-9]/g, '');
+    }
+
+    function formatTeacher(raw) {
+
+    // Konular: virgülle ayır, her birini kırp, baş harfleri büyüt, "K1,K2" olarak birleştir
+    function formatTopics(raw) {
+      return raw.split(',').map(t => t.trim()).filter(Boolean).map(t =>
+        t.split(/\s+/).map(w => w.charAt(0).toLocaleUpperCase('tr-TR') + w.slice(1)).join(' ')
+      ).join(',');
+    }
+
+    // ====== Tür seçimi ======
+    $('typeGrid').addEventListener('click', e => {
+      const opt = e.target.closest('.type-opt');
+      if (!opt) return;
+      document.querySelectorAll('.type-opt').forEach(o => o.classList.toggle('selected', o === opt));
+      state.type = opt.dataset.type;
+      applyVisibility();
+      update();
+    });
+
+    function applyVisibility() {
+      const needs = TYPE_FIELDS[state.type] || {};
+      $('f-code').classList.toggle('hidden', !needs.code);
+      $('f-year').classList.toggle('hidden', !needs.year);
+      $('f-teacher').classList.toggle('hidden', !needs.teacher);
+      $('f-topics').classList.toggle('hidden', !needs.topics);
+      $('f-solution').classList.toggle('hidden', !needs.solution);
+      // tür seçilince dosya, önizleme ve butonlar görünür
+      const on = !!state.type;
+      $('f-file').classList.toggle('hidden', !on);
+      $('f-preview').classList.toggle('hidden', !on);
+      $('f-actions').classList.toggle('hidden', !on);
+    }
+
+    // ====== Girdi olayları ======
+    $('codeInput').addEventListener('input', e => {
+      const pos = e.target.selectionStart;
+      e.target.value = formatCode(e.target.value);
+      state.code = e.target.value;
+      try { e.target.setSelectionRange(pos, pos); } catch (_) {}
+      update();
+    });
+    $('yearInput').addEventListener('change', e => { state.year = e.target.value; update(); });
+    $('teacherInput').addEventListener('input', e => { state.teacher = e.target.value; update(); });
+    $('teacherInput').addEventListener('blur', e => {
+      if (!state.common && e.target.value.trim()) { e.target.value = formatTeacher(e.target.value); state.teacher = e.target.value; update(); }
+    });
+    $('commonCheck').addEventListener('change', e => {
+      state.common = e.target.checked;
+      $('teacherInput').disabled = state.common;
+      $('teacherInput').style.opacity = state.common ? 0.4 : 1;
+      update();
+    });
+    $('topicsInput').addEventListener('input', e => { state.topics = e.target.value; update(); });
+    $('topicsInput').addEventListener('blur', e => {
+      if (e.target.value.trim()) { e.target.value = formatTopics(e.target.value); state.topics = e.target.value; update(); }
+    });
+    $('solCheck').addEventListener('change', e => { state.solution = e.target.checked; update(); });
+
+    // ====== Dosya ======
+    const fileDrop = $('fileDrop'), fileInput = $('fileInput');
+    fileDrop.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
+    ['dragover', 'dragenter'].forEach(ev => fileDrop.addEventListener(ev, e => { e.preventDefault(); fileDrop.classList.add('drag'); }));
+    ['dragleave', 'drop'].forEach(ev => fileDrop.addEventListener(ev, e => { e.preventDefault(); fileDrop.classList.remove('drag'); }));
+    fileDrop.addEventListener('drop', e => { if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]); });
+
+    function setFile(f) {
+      if (!f) return;
+      state.file = f;
+      fileDrop.classList.add('has-file');
+      fileDrop.querySelector('.fic').textContent = '✅';
+      fileDrop.querySelector('.ftxt').innerHTML = '<b>' + escapeHTML(f.name) + '</b>';
+      $('fileSub').textContent = (f.size / 1024 / 1024).toFixed(2) + ' MB · değiştirmek için tıkla';
+      update();
+    }
+    const escapeHTML = s => (s || '').replace(/[&<>'"]/g, t => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[t]));
+
+    // ====== İsim üretimi + doğrulama ======
+    function buildName() {
+      const t = state.type;
+      if (!t) return { ok: false, html: '<span class="placeholder">Önce bir tür seç…</span>', text: '' };
+
+      const code = state.code;
+      const codeOk = CODE_RE.test(code);
+      const segCode = `<span class="seg-code">${escapeHTML(code || 'DERSKODU')}</span>`;
+
+      if (t === 'not' || t === 'sorular') {
+        const label = t === 'not' ? 'Çalışma-Notu' : 'Çalışma-Soruları';
+        const topics = formatTopics(state.topics);
+        const topicsOk = topics.length > 0;
+        const ok = codeOk && topicsOk;
+        const segTopics = `<span class="seg-data">(${escapeHTML(topics || 'Konu1,Konu2')})</span>`;
+        return {
+          ok,
+          html: `<span class="seg-type">${label}:</span>${segCode}-${segTopics}`,
+          text: `${label}:${code}-(${topics})`
+        };
+      }
+
+      // vize / final / quiz
+      const prefix = TYPE_PREFIX[t];
+      const yearOk = !!state.year;
+      const solPrefix = state.solution ? '<span class="seg-sol">Çözüm-</span>' : '';
+      const solText = state.solution ? 'Çözüm-' : '';
+      const head = `${solPrefix}<span class="seg-type">${prefix}(${escapeHTML(state.year || 'YIL')})-</span>${segCode}-`;
+      const headText = `${solText}${prefix}(${state.year})-${code}-`;
+
+      if (t === 'quiz') {
+        const topics = formatTopics(state.topics);
+        const topicsOk = topics.length > 0;
+        const ok = codeOk && yearOk && topicsOk;
+        return {
+          ok,
+          html: head + `<span class="seg-data">(${escapeHTML(topics || 'Konu1,Konu2')})</span>`,
+          text: headText + `(${topics})`
+        };
+      }
+
+      // vize / final → öğretim görevlisi veya *
+      let teacher, teacherOk;
+      if (state.common) { teacher = '*'; teacherOk = true; }
+      else { teacher = formatTeacher(state.teacher); teacherOk = teacher.length > 0; }
+      const ok = codeOk && yearOk && teacherOk;
+      return {
+        ok,
+        html: head + `<span class="seg-data">${escapeHTML(teacher || 'HocaAdi')}</span>`,
+        text: headText + teacher
+      };
+    }
+
+    function update() {
+      const res = buildName();
+      $('previewName').innerHTML = res.html;
+
+      // alan içi hata göstergeleri
+      const codeShown = !$('f-code').classList.contains('hidden');
+      if (codeShown) {
+        const bad = state.code.length > 0 && !CODE_RE.test(state.code);
+        $('codeInput').classList.toggle('invalid', bad);
+        $('err-code').classList.toggle('show', bad);
+      }
+
+      const ready = res.ok && !!state.file;
+      const ps = $('pstatus');
+      if (res.ok) {
+        ps.className = 'pstatus ok';
+        ps.textContent = state.file ? '✓ Hazır' : '✓ İsim geçerli — dosya bekleniyor';
+      } else {
+        ps.className = 'pstatus bad';
+        ps.textContent = 'Eksik / hatalı alanlar var';
+      }
+      $('submitBtn').disabled = !ready;
+
+      // sonraki kullanım için son metni sakla
+      $('submitBtn').dataset.name = res.text;
+      $('copyBtn').dataset.name = res.text;
+    }
+
+    // ====== Kopyala ======
+    $('copyBtn').addEventListener('click', async () => {
+      const name = $('copyBtn').dataset.name || '';
+      if (!name) return;
+      try { await navigator.clipboard.writeText(name); flash($('copyBtn'), '✅ Kopyalandı'); }
+      catch { flash($('copyBtn'), '⚠️ Olmadı'); }
+    });
+    function flash(btn, txt) {
+      const old = btn.innerHTML; btn.innerHTML = txt;
+      setTimeout(() => btn.innerHTML = old, 1400);
+    }
+
+    // ====== Gönderim ======
+    $('submitBtn').addEventListener('click', async () => {
+      const btn = $('submitBtn');
+      const name = btn.dataset.name;
+      if (!name || !state.file) return;
+
+      const fd = new FormData();
+      fd.append('ders_adi', name);    // standart formatlı isim
+      fd.append('file', state.file);  // backend dosyayı 'file' anahtarıyla bekliyor; tip kendi türetiliyor
+
+      const orig = btn.innerHTML;
+      btn.innerHTML = '⏳ Yükleniyor...'; btn.disabled = true;
+      try {
+        const res = await fetch(UPLOAD_ENDPOINT, { method: 'POST', body: fd });
+        if (res.status === 401) { window.location.href = '/login'; return; }
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        btn.innerHTML = '✅ Onaya gönderildi!';
+        setTimeout(() => { window.location.href = '/ders-notlari'; }, 1100);
+      } catch (err) {
+        console.error('Yükleme hatası:', err);
+        alert('Yükleme sırasında bir hata oluştu. Lütfen tekrar dene.');
+        btn.innerHTML = orig; btn.disabled = false;
+      }
+    });
+
+    update();
+  </script>
+</body>
+
+</html>

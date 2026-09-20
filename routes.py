@@ -53,7 +53,7 @@ def _haftanin_elcisi_ve_liderler():
 @token_required(next_location='/login')
 @is_admin
 def admin_page(current_user):
-    return render_template('admin.html')
+    return render_template('admin/admin.html')
 
 # Genel sayfalar
 @pages.route('/')
@@ -77,7 +77,7 @@ def main_page():
     top_5_ambassador, haftanin_elcisi = _haftanin_elcisi_ve_liderler()
 
     return render_template(
-        'anasayfa.html',
+        'pages/anasayfa.html',
         is_logged_in=is_logged_in,
         show_contributors=show_contributors,
         current_user=current_user_obj,
@@ -88,114 +88,114 @@ def main_page():
 @pages.route('/ders-notlari')
 @token_required(next_location='/login')
 def ders_notlari_page(current_user):
-    return render_template('ders-notlari.html')
+    return render_template('pages/ders-notlari.html')
 
 @pages.route('/not-ekle')
 @token_required(next_location='/not-ekle')
 def not_ekle_sayfa(current_user):
-    return render_template('not-ekle.html')
+    return render_template('pages/not-ekle.html')
 
 @pages.route('/haberler')
 def haberler_page():
-    return render_template('haberler.html')
+    return render_template('pages/haberler.html')
 
 @pages.route('/duyurular')
 def duyurular_page():
-    return render_template('duyurular.html')
+    return render_template('pages/duyurular.html')
 
 @pages.route('/ofis-saatleri')
 @token_required(next_location='/login')
 def ofis_saatleri_page(current_user):
-    return render_template('ofis-saatleri.html')
+    return render_template('pages/ofis-saatleri.html')
 
 @pages.route('/kroki')
 def kroki_page():
-    return render_template('kroki.html')
+    return render_template('pages/kroki.html')
 
 @pages.route('/kayiplar')
 @token_required(next_location='/login')
 def kayiplar_page(current_user):
-    return render_template('kayiplar.html')
+    return render_template('pages/kayiplar.html')
 
 @pages.route('/KampusteHayat')
 @token_required(next_location='/login')
 def enstantaneler_sayfa(current_user):
-    return render_template('enstantaneler.html')
+    return render_template('pages/enstantaneler.html')
 
 @pages.route('/yemekhane')
 def yemekhane_sayfa():
-    return render_template('yemekhane.html')
+    return render_template('pages/yemekhane.html')
 
 @pages.route('/otobus-saatleri')
 def otobus_saatleri_sayfa():
-    return render_template('otobus-saatleri.html')
+    return render_template('pages/otobus-saatleri.html')
 
 @pages.route('/forum')
 @token_required(next_location='/login')
 def forum_sayfa(current_user):
-    return render_template('forum.html')
+    return render_template('pages/forum.html')
 
 @pages.route('/ogretmen-degerlendirme')
 @token_required(next_location='/ogretmen-degerlendirme')
 def ogretmen_degerlendirme_sayfa(current_user):
-    return render_template('ogretmen-degerlendirme.html')
+    return render_template('pages/ogretmen-degerlendirme.html')
 
 @pages.route('/ogretmen-listesi')
 @token_required(next_location='/login')
 def ogretmen_listesi_sayfa(current_user):
-    return render_template('ogretmen-listesi.html')
+    return render_template('pages/ogretmen-listesi.html')
 
 @pages.route('/ilan-ekle')
 @token_required(next_location='/ilan-ekle')
 def ilan_ekle_sayfa(current_user):
-    return render_template('ilan-ekle.html')
+    return render_template('pages/ilan-ekle.html')
 
 @pages.route('/bit-pazari')
 @token_required(next_location='/login')
 def bit_pazari_sayfa(current_user):
-    return render_template('pazar.html')
+    return render_template('pages/pazar.html')
 
 # Kulüp Sayfaları
 @pages.route('/Kulup-Yonetimi')
 @token_required(next_location='/Kulup-Yonetimi')
 @is_club_admin
 def kulup_yonetimi_sayfa(current_user):
-    return render_template('kulup-yonetimi.html')
+    return render_template('admin/kulup-yonetimi.html')
 
 @pages.route('/kulupler/kanatlibulten')
 def kanatli_bulten_sayfa():
-    return render_template('kanatlibulten.html')
+    return render_template('clubs/kanatlibulten.html')
     
 @pages.route('/kulupler/utaa-music-club')
 def utaa_music_club_page():
-    return render_template('utaamc.html')
+    return render_template('clubs/utaamc.html')
 
 @pages.route('/kulupler/fsource')
 def fsource_page():
-    return render_template('fsource.html')
+    return render_template('clubs/fsource.html')
 
 @pages.route('/kulupler/makine-muhendisligi')
 def makine_muh_page():
-    return render_template('makinemuh.html')
+    return render_template('clubs/makinemuh.html')
 
 @pages.route('/kulupler/turk-tarih-toplulugu')
 def turk_tarih_page():
-    return render_template('turktarih.html')
+    return render_template('clubs/turktarih.html')
 
 
 @pages.route('/istekler')
 @token_required(next_location='/login')
 def istekler_page(current_user):
-    return render_template('istekler.html')
+    return render_template('pages/istekler.html')
 
 @pages.route('/katkida-bulunanlar')
 @token_required(next_location='/katkida-bulunanlar')
 def katkida_bulunanlar_page(current_user):
-    return render_template('katkida-bulunanlar.html')
+    return render_template('pages/katkida-bulunanlar.html')
 
 @pages.route('/moderatorler')
 def moderatorler_page():
-    return render_template('moderatorler.html')
+    return render_template('admin/moderatorler.html')
 
 
 # ============================================================================
@@ -206,7 +206,7 @@ def moderatorler_page():
 @token_required(next_location='/login')
 def profilim_sayfa(current_user):
     """Kullanıcının kendi profili (rozetler, puan, seviye, davet linki)."""
-    return render_template('profilim.html', user=current_user)
+    return render_template('pages/profilim.html', user=current_user)
 
 
 @pages.route('/ogrenci-elcisi')
@@ -220,17 +220,17 @@ def ogrenci_elcisi_tanitimi():
             is_logged_in = True
         except Exception:
             is_logged_in = False
-    return render_template('ogrenci-elcisi.html', is_logged_in=is_logged_in)
+    return render_template('pages/ogrenci-elcisi.html', is_logged_in=is_logged_in)
 
 
 @pages.route('/elci-paneli')
 @token_required(next_location='/login')
 def elci_paneli_sayfa(current_user):
     """Kullanıcının elçi paneli (istatistik, davet linki, ödül dükkanı)."""
-    return render_template('ambassador_panel.html', user=current_user)
+    return render_template('admin/ambassador_panel.html', user=current_user)
 
 
 @pages.route('/liderlik-tablosu')
 def elci_liderlik_tablosu():
     """Tüm öğrencilerin görebildiği Elçiler Liderlik Tablosu."""
-    return render_template('liderlik-tablosu.html')
+    return render_template('pages/liderlik-tablosu.html')

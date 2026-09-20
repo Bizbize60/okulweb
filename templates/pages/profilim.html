@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profilim — THKÜ Portal</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- THKU UI Global -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/ui.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/portal.css') }}">
+  <style>
+    body { background: var(--night); }
+    .wrap { max-width: 820px; margin: 0 auto; }
+    .card {
+      background: var(--night-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-md);
+    }
+    h1 {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      letter-spacing: -0.03em;
+      margin-bottom: 8px;
+      font-weight: 700;
+      color: var(--fg);
+    }
+    .sub { color: var(--fg-muted); font-size: 0.92rem; margin-bottom: 22px; }
+    .head {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+      padding-bottom: 22px;
+      border-bottom: 1px solid var(--border);
+    }
+    .avatar {
+      width: 76px; height: 76px; border-radius: 50%;
+      background: var(--thk-red);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; font-weight: 800; color: var(--fg);
+    }
+    .metas { flex: 1; min-width: 200px; }
+    .meta-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 18px; }
+    .meta { background: var(--surface); border: 1px solid var(--border); padding: 14px; border-radius: var(--radius-md); }
+    .meta .v { font-weight: 800; font-size: 1.3rem; font-family: var(--font-mono); color: var(--thk-red); }
+    .meta .l { font-size: 0.72rem; color: var(--fg-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .seviye-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: var(--radius-full);
+      font-weight: 700; font-size: 0.82rem; font-family: var(--font-mono);
+    }
+    .seviye-Uye { background: rgba(200,16,46,.1); color: var(--thk-red); border: 1px solid rgba(200,16,46,.3); }
+    .seviye-Bronz { background: rgba(205,127,50,.1); color: #CD7F32; border: 1px solid rgba(205,127,50,.3); }
+    .seviye-Gumus { background: rgba(192,192,192,.1); color: #C0C0C0; border: 1px solid rgba(192,192,192,.3); }
+    .seviye-Altın { background: rgba(255,215,0,.1); color: #FFD700; border: 1px solid rgba(255,215,0,.3); }
+    .seviye-Elmas { background: rgba(185,242,255,.1); color: #B9F2FF; border: 1px solid rgba(185,242,255,.3); }
+    h2 { font-size: 1.1rem; margin-bottom: 14px; letter-spacing: -0.01em; font-weight: 700; color: var(--fg); }
+    .ref-box {
+      background: var(--warn-bg);
+      border: 1px dashed var(--warn-border);
+      padding: 14px; border-radius: var(--radius-md);
+      display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    }
+    .ref-box input {
+      flex: 1; min-width: 200px; padding: 10px 14px;
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--surface); color: var(--thk-red);
+      font-size: 0.85rem; font-family: var(--font-mono);
+    }
+    .btn { padding: 10px 18px; border: none; border-radius: var(--radius-md); font-weight: 700; font-size: 0.84rem; cursor: pointer; transition: all 0.2s; }
+    .btn-primary { background: var(--thk-red); color: var(--fg); }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .link-hint { font-size: 0.78rem; color: var(--fg-muted); margin-top: 8px; }
+    .badges { display: flex; flex-wrap: wrap; gap: 10px; }
+    .badge { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-full); padding: 6px 14px; display: inline-flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--fg); }
+    .empty { padding: 20px; text-align: center; color: var(--fg-muted); font-size: 0.85rem; }
+    .back { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 20px; color: var(--fg-muted); text-decoration: none; font-size: 0.85rem; font-weight: 600; }
+    .back:hover { color: var(--thk-red); }
+    .link-cta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--fg); text-decoration: none; padding: 10px 16px; border-radius: var(--radius-md); transition: border-color 0.2s; }
+    .btn-outline:hover { border-color: var(--thk-red); color: var(--thk-red); }
+    .msg { margin-top: 10px; padding: 10px; border-radius: var(--radius-sm); font-size: 0.82rem; display: none; }
+    .ok { background: rgba(52,211,153,.08); border: 1px solid rgba(52,211,153,.28); color: var(--success); display: block; }
+  </style>
+</head>
+<body>
+  <!-- REUSABLE NAVBAR -->
+  <div id="navbarRoot"></div>
+  <script src="{{ url_for('static', filename='js/components.js') }}" defer></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', function(){
+      var opts = { is_logged_in: 'auto', active: 'profil' };
+      if (window.THKU_UI && window.THKU_UI.Navbar) window.THKU_UI.Navbar.render('#navbarRoot', opts);
+      if (window.THKU_UI && window.THKU_UI.Footer)  window.THKU_UI.Footer.render('#footerRoot');
+    });
+  </script>
+<div class="wrap">
+  <a href="/" class="back">← Anasayfaya dön</a>
+
+  <div class="card">
+    <div class="head">
+      <div class="avatar" id="avatarLetter">T</div>
+      <div class="metas">
+        <h1 id="userName">Yükleniyor...</h1>
+        <p class="sub"><span id="userEmail">...</span></p>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px;">
+          <span id="seviyeBadge" class="seviye-badge seviye-Uye">● Üye</span>
+          <span class="badge"><span style="font-size:1rem;">🔥</span> <span id="streakDays">0</span> gün</span>
+          <span class="badge" id="resmiElci" style="display:none;"><span style="font-size:1rem;">⭐</span> Resmi Elçi</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="meta-row">
+      <div class="meta"><div class="v" id="puanV">0</div><div class="l">Aktivite Puanı</div></div>
+      <div class="meta"><div class="v" id="krediV">0</div><div class="l">Ders Notu Hakkı</div></div>
+      <div class="meta"><div class="v" id="davetV">0</div><div class="l">Toplam Davet</div></div>
+      <div class="meta"><div class="v" id="kayitV">-</div><div class="l">Üyelik Tarihi</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🔗 Davet Linkim — Arkadaşlarını Davet Et 🎁</h2>
+    <div class="ref-box">
+      <input type="text" id="refLink" readonly value="Yükleniyor...">
+      <button class="btn btn-primary" id="copyBtn">📋 Kopyala</button>
+    </div>
+    <p class="link-hint">💡 Arkadaşın linkini kullanıp kayıt olursa: sen <strong style="color:#10B981;">+150 puan + 2 kredi</strong>, o <strong style="color:#10B981;">+2 ekstra kredi</strong> kazanır! 🔥</p>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;">
+      <button class="btn" id="shWA" style="background:#25D366;color:white;border:none;font-size:.78rem;padding:6px 12px;">💬 WhatsApp</button>
+      <button class="btn" id="shTG" style="background:#0088cc;color:white;border:none;font-size:.78rem;padding:6px 12px;">✈️ Telegram</button>
+      <button class="btn" id="shMail" style="background:#7FB6DC;color:white;border:none;font-size:.78rem;padding:6px 12px;">📧 Mail</button>
+      <button class="btn" id="shIG" style="background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:white;border:none;font-size:.78rem;padding:6px 12px;">📸 Instagram</button>
+    </div>
+
+    <div class="link-cta">
+      <a href="/elci-paneli" class="btn btn-outline">📊 Detaylı Elçi Paneli (Hazır Mesajlar + Puan Dükkanı)</a>
+      <a href="/liderlik-tablosu" class="btn btn-outline">🏆 Liderlik Tablosu</a>
+    </div>
+    <div id="copyMsg" class="msg"></div>
+  </div>
+
+  <div class="card">
+    <h2>🏆 Kazandığım Rozetler</h2>
+    <div id="badgesArea" class="badges"><div class="empty">Yükleniyor...</div></div>
+  </div>
+</div>
+
+<script>
+const $=(s)=>document.querySelector(s);
+function trackAnalyticsEvent(name, params = {}) {
+  if (window.gtag) {
+    window.gtag('event', name, params);
+  }
+}
+
+async function load(){
+  try{
+    const r=await fetch('/api/ambassador/me',{credentials:'include'});
+    if(!r.ok){ window.location='/login'; return; }
+    const d=await r.json(); const u=d.user;
+    $('#userName').textContent=u.name;
+    $('#userEmail').textContent=u.email;
+    $('#avatarLetter').textContent=(u.name||'T').trim().charAt(0).toUpperCase();
+    $('#seviyeBadge').className='seviye-badge seviye-'+u.seviye_adi.replace(/ğ/ig,'g').replace(/ı/ig,'i').replace(/ş/ig,'s').replace(/ç/ig,'c').replace(/ö/ig,'o').replace(/ü/ig,'u');
+    $('#seviyeBadge').innerHTML=(u.seviye_ikon||'●')+' '+u.seviye_adi;
+    $('#puanV').textContent=(u.ambassador_points||0).toLocaleString('tr');
+    $('#krediV').textContent=u.kredi||0;
+    $('#davetV').textContent=u.referral_count||0;
+    $('#kayitV').textContent=u.created_at ? new Date(u.created_at).toLocaleDateString('tr') : '-';
+    $('#streakDays').textContent=u.streak_gun||0;
+    if(u.is_ambassador){ $('#resmiElci').style.display='inline-flex'; }
+    $('#refLink').value=d.referral_link;
+    $('#badgesArea').innerHTML='';
+    if(!d.badges || !d.badges.length){ $('#badgesArea').innerHTML='<div class="empty">Henüz rozetin yok, aktivite yapmaya devam et! 🚀</div>'; }
+    else { d.badges.forEach(b=>{
+      const el=document.createElement('span'); el.className='badge'; el.title=b.aciklama||'';
+      el.innerHTML='<span style="font-size:1rem;">'+(b.ikon_emoji||'🏅')+'</span> '+b.ad;
+      $('#badgesArea').appendChild(el);
+    }); }
+  }catch(e){console.error(e);}
+}
+$('#copyBtn').addEventListener('click',()=>{
+  navigator.clipboard.writeText($('#refLink').value)
+    .then(() => {
+      trackAnalyticsEvent('referral_copy', {
+        source: 'profile_page',
+        link_type: 'referral'
+      });
+      const m=$('#copyMsg'); m.className='msg ok'; m.textContent='✅ Davet linkin panoya kopyalandı!';
+      setTimeout(()=>{m.className='msg';},3000);
+    })
+    .catch(() => {
+      const m=$('#copyMsg'); m.className='msg ok'; m.textContent='❌ Kopyalama başarısız oldu';
+      setTimeout(()=>{m.className='msg';},3000);
+    });
+});
+// --- Sosyal paylasim butonlari (profilim icin sade versiyon) ---
+$('#shWA')?.addEventListener('click', ()=>{
+  const link = $('#refLink').value;
+  const metin = encodeURIComponent('Selam! THKÜ için öğrencilerin yapmış olduğu ücretsiz öğrenci portalına davetlisin! Ders notları, yemekhane, bit pazarı ve daha fazlası. Kayıt olursan sana +2 ekstra kredi verir 💚 Link: '+link);
+  window.open('https://wa.me/?text='+metin, '_blank');
+});
+$('#shTG')?.addEventListener('click', ()=>{
+  const link = $('#refLink').value;
+  const metin = encodeURIComponent('🌟 THKÜ Öğrenci Portalı — Ders notları, yemekhane, bit pazarı. Davet linkim: '+link+' (+2 ekstra kredi hediye!)');
+  window.open('https://t.me/share/url?url='+encodeURIComponent(link)+'&text='+metin, '_blank');
+});
+$('#shMail')?.addEventListener('click', ()=>{
+  const link = $('#refLink').value;
+  window.open('mailto:?subject='+encodeURIComponent('THKÜ Öğrenci Portalı Daveti 🌟')+'&body='+encodeURIComponent('Merhaba! THKÜ öğrenci portalına davetlisin: '+link+' — Kayıt ol, +2 kredi kazan 💜'), '_blank');
+});
+$('#shIG')?.addEventListener('click', ()=>{
+  const link = $('#refLink').value;
+  navigator.clipboard.writeText(link);
+  const m=$('#copyMsg'); m.className='msg ok';
+  m.innerHTML='✅ Link kopyalandı!<br><small>Instagram → Hikaye → "Link" butonu → Yapıştır → Paylaş 🎉</small>';
+  setTimeout(()=>{m.className='msg';},7000);
+});
+load();
+</script>
+
+  <!-- REUSABLE FOOTER -->
+  <div id="footerRoot"></div>
+</body>
+</html>
