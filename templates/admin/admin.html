@@ -991,6 +991,7 @@
         const ambassadorPanel = document.getElementById('ambassadors-panel');
         const ambassadorTableBody = document.getElementById('ambassadorTableBody');
         const ambassadorStatusFilter = document.getElementById('ambassadorStatusFilter');
+        const rolesPanel = document.getElementById('roles-panel');
         let istekCache = [];
         let katkidaCache = [];
         let moderatorCache = [];
@@ -1004,7 +1005,7 @@
         const switchTab = (tabName) => {
             navBtns.forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
-            [usersPanel, requestsPanel, isteklerPanel, notesPanel, allNotesPanel, subsPanel, katkidaPanel, moderatorlerPanel]
+            [usersPanel, requestsPanel, isteklerPanel, notesPanel, allNotesPanel, examBlitzPanel, subsPanel, katkidaPanel, rolesPanel, moderatorlerPanel, ambassadorPanel]
                 .forEach(p => p && p.classList.remove('active'));
 
             if (tabName === 'users') {
@@ -1032,7 +1033,7 @@
                 katkidaPanel.classList.add('active');
                 loadKatkida();
             } else if (tabName === 'roles') {
-                document.getElementById('roles-panel').classList.add('active');
+                rolesPanel.classList.add('active');
                 loadRoleCatalog();
                 loadRoleUsers();
             } else if (tabName === 'moderatorler') {
