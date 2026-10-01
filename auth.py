@@ -32,11 +32,8 @@ def token_required(next_location="/"):
             token = request.cookies.get('jwt_token')
 
             if not token:
-
-                # Eğer istek api ise JSON formatında hata döndür, değilse login sayfasına yönlendir
                 if request.path.startswith('/api/'):
                     return jsonify({'message': 'Unauthorized'}), 401
-
                 return redirect(url_for('auth.login', next=next_location))
 
             try:
@@ -46,12 +43,9 @@ def token_required(next_location="/"):
                 if not current_user:
                     raise Exception("Kullanıcı bulunamadı!")
             except Exception:
-
-                # Eğer istek api ise JSON formatında hata döndür, değilse login sayfasına yönlendir
                 if request.path.startswith('/api/'):
                     return jsonify({'message': 'Unauthorized'}), 401
-
-                return redirect(url_for('auth.login', next=next_location)) # Token geçersizse de giriş sayfasına yönlendirelim böylece kullanıcı tekrar giriş yaparak yeni bir token alabilir
+                return redirect(url_for('auth.login', next=next_location))
 
             return f(current_user, *args, **kwargs)
         
@@ -82,6 +76,7 @@ def token_required_api(f):
         return f(current_user, *args, **kwargs)
 
     return decorated
+
 
 def user_has_permission(current_user: User, permission_key: str) -> bool:
     if not current_user:
@@ -116,14 +111,35 @@ def require_role(role_name: str):
 
 
 def is_admin(f):
-    return require_permission('system.admin')(f)
+    """Admin paneline erişim kontrolü: owner, developer veya moderator rollerini kabul eder."""
+    @wraps(f)
+    def wrapper(current_user, *args, **kwargs):
+        if not current_user:
+            return jsonify({'message': 'Unauthorized'}), 401
+
+        allowed_roles = {'owner', 'developer', 'moderator'}
+        user_roles = {r.name for r in (current_user.roles or [])}
+
+        has_access = (
+            user_has_permission(current_user, 'system.admin') or
+            bool(user_roles & allowed_roles) or
+            (current_user.email in ADMIN_EMAILS)
+        )
+
+        if not has_access:
+            if request.path.startswith('/api/'):
+                return jsonify({'message': 'Admin yetkiniz yok!'}), 403
+            return render_template('unauthorized.html', message='Admin yetkiniz yok!'), 403
+
+        return f(current_user, *args, **kwargs)
+    return wrapper
 
 
 def is_club_admin(f):
     @wraps(f)
     def wrapper(current_user, *args, **kwargs):
-        is_admin = KulupYonetim.query.filter_by(kullanici_id=current_user.id).first()
-        if not is_admin:
+        is_admin_record = KulupYonetim.query.filter_by(kullanici_id=current_user.id).first()
+        if not is_admin_record:
             return jsonify({'message': 'Bu işlem kulüp yöneticisi yetkisi gerektirir!'}), 403
         
         return f(current_user, *args, **kwargs)
@@ -139,12 +155,11 @@ def login():
         password = request.form['password']
         user = User.query.filter_by(email=email).first()
 
-        # ---- Giriş yapınca streak ve son giriş güncelle ----
         if user:
             try:
                 _update_streak_on_login(user)
             except Exception:
-                pass  # Streak hatası kritik değil, girişe etki etmesin
+                pass
 
         token = jwt.encode(
             {
@@ -164,15 +179,13 @@ def login():
 
 
 def _update_streak_on_login(user: User):
-    """Her girişte streak_gun ve elçi puanını güncelle (günlük 1 kez)."""
     bugun_tr = datetime.now(ZoneInfo('Europe/Istanbul')).date()
     if not user.son_giris_tarihi:
         user.streak_gun = 1
     elif user.son_giris_tarihi == bugun_tr:
-        return  # Aynı gün tekrar giriş yapıldıysa dokunma
+        return
     elif (bugun_tr - user.son_giris_tarihi).days == 1:
         user.streak_gun += 1
-        # Art arda 7 gün giriş yapana 50 puan + rozet hediye
         if user.streak_gun == 7:
             _give_ambassador_points(user, 50, "7 gün üst üste giriş")
             _give_badge_if_not_exists(user, "STREAK_7", "🔥 7'li Streak", "7 gün üst üste siteye girdin!", "#EF4444")
@@ -183,14 +196,12 @@ def _update_streak_on_login(user: User):
 
 
 def _give_ambassador_points(user: User, puan: int, sebep: str = ""):
-    """Kullanıcıya elçi puanı ver ve seviye atlama olup olmadığını kontrol et."""
     user.ambassador_points = (user.ambassador_points or 0) + puan
-    # Seviye eşikleri (tamamen puan tabanlı, üniversite onaylı olanlara ayrıca 500 puan bonus verirsin)
     seviyeler = [
-        (1, 100),    # Bronz
-        (2, 500),    # Gümüş
-        (3, 2000),   # Altın
-        (4, 5000),   # Elmas
+        (1, 100),
+        (2, 500),
+        (3, 2000),
+        (4, 5000),
     ]
     for sev, esik in seviyeler:
         if user.ambassador_points >= esik and (user.ambassador_level or 0) < sev:
@@ -215,14 +226,11 @@ def seviye_renk_str(sev: int) -> str:
 
 
 def _give_badge_if_not_exists(user: User, kod: str, ad: str, aciklama: str = "", renk: str = "#FFD700", ikon: str = "🏅"):
-    """Rozet yoksa oluştur, kullanıcıya ekle (varsa geç)."""
-    # Badge'i bul veya oluştur
     badge = Badge.query.filter_by(kod=kod).first()
     if not badge:
         badge = Badge(kod=kod, ad=ad, aciklama=aciklama, ikon_emoji=ikon, renk=renk)
         db.session.add(badge)
         db.session.flush()
-    # Kullanıcı daha önce almış mı?
     var_mi = UserBadge.query.filter_by(user_id=user.id, badge_id=badge.id).first()
     if not var_mi:
         db.session.add(UserBadge(user_id=user.id, badge_id=badge.id))
@@ -231,7 +239,6 @@ def _give_badge_if_not_exists(user: User, kod: str, ad: str, aciklama: str = "",
 
 @auth_bp.route('/signup', methods=['GET', 'POST'])
 def register():
-    # ---- Davet kodunu URL'den session'a al ----
     ref_code = request.args.get('ref', '') or request.form.get('ref', '')
     if ref_code:
         ref_code = ref_code.strip().upper()
@@ -241,7 +248,7 @@ def register():
             session['davet_kodu'] = ref_code
 
     if request.method == 'POST':
-        email = request.form['email'].strip().lower() # Küçük harfe çevir ve boşlukları sil
+        email = request.form['email'].strip().lower()
 
         if User.query.filter_by(email=email).first():
             return "Bu email zaten kayıtlı!", 400
@@ -249,14 +256,12 @@ def register():
         if not re.match(r'^s\d{9,10}@stu\.thk\.edu\.tr$', email):
             return 'E-Mailinin başında "s" harfi eksik ya da okul numaranı yanlış girdin', 400
 
-        # Kullanıcı verilerini session'a kaydet
         session['temp_user'] = {
             'name': request.form['name'],
             'email': email,
             'password': generate_password_hash(request.form['password'])
         }
 
-        # 1. ÖNLEM: Kodun hangi e-posta için üretildiğini session'a kilitle
         v_code = secrets.token_hex(3).upper()
         session['verification_code'] = v_code
         session['verification_target_email'] = email 
@@ -271,24 +276,20 @@ def register():
 @auth_bp.route('/verify', methods=['GET', 'POST'])
 def verify_email():
     temp_user_data = session.get('temp_user')
-    # Eğer session'da geçici kullanıcı yoksa register'a at
     if not temp_user_data:
         return redirect(url_for('auth.register'))
 
-    # Email format kontrolü
     email = temp_user_data.get('email', '')
     if not re.match(r'^s\d{9,10}@stu\.thk\.edu\.tr$', email):
         return "Geçersiz email formatı! Lütfen THKÜ öğrenci emailinizi kullanın.", 400
 
     if request.method == 'POST':
-        user_code = request.form['code'].strip().upper() # Boşlukları temizle ve büyük harf yap
+        user_code = request.form['code'].strip().upper()
         
-        # 2. ÖNLEM: Hem kodu hem de kodun ait olduğu e-postayı eş zamanlı doğrula
         saved_code = session.get('verification_code')
         target_email = session.get('verification_target_email')
 
         if saved_code and target_email and user_code == saved_code and email == target_email:
-            # ---- Kişisel davet kodunu otomatik üret ----
             try:
                 ref_kodu = User.generate_referral_code(temp_user_data['name'])
             except Exception:
@@ -299,15 +300,14 @@ def verify_email():
                 name=temp_user_data['name'],
                 email=temp_user_data['email'],
                 password=temp_user_data['password'],
-                kredi=3,  # Yeni gelenlere 3 kredi bonusu
+                kredi=3,
                 referral_code=ref_kodu,
                 streak_gun=1,
                 son_giris_tarihi=datetime.now(ZoneInfo('Europe/Istanbul')).date(),
             )
             db.session.add(new_user)
-            db.session.flush()  # ID alabilmek için
+            db.session.flush()
 
-            # ---- Davet eden varsa işlemleri yap ----
             davet_eden_id = session.get('davet_eden_id')
             davet_kodu = session.get('davet_kodu')
             if davet_eden_id:
@@ -329,13 +329,11 @@ def verify_email():
                     _give_badge_if_not_exists(davet_eden, "DAVET_YAPAN_1", "🤝 İlk Davet",
                                              "İlk arkadaşını davet ettin!", "#6366F1", "🤝")
 
-            # İlk kayıt rozeti
             _give_badge_if_not_exists(new_user, "ILK_KAYIT", "🎉 Üye",
                                      "THKÜ Üniversite Portalına hoş geldin!", "#3B82F6", "🎉")
 
             db.session.commit()
 
-            # Tüm session'ları güvenle temizle
             session.pop('temp_user', None)
             session.pop('verification_code', None)
             session.pop('verification_target_email', None)
@@ -344,7 +342,6 @@ def verify_email():
             
             return redirect(url_for('auth.login'))
         else:
-            # 3. ÖNLEM: Kod yanlışsa brute-force'u önlemek için session'ı patlat ve sıfırla
             session.pop('temp_user', None)
             session.pop('verification_code', None)
             session.pop('verification_target_email', None)
