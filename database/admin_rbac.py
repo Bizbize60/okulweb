@@ -109,6 +109,7 @@ RBAC_ROLE_DEFINITIONS = {
         'label': 'Developer',
         'description': 'Technical access and diagnostics',
         'permissions': [
+            'system.admin',
             'system.logs', 'system.debug', 'system.config', 'system.db',
             'users.view', 'moderation.view', 'content.approve', 'content.reject',
             'audit.view'
@@ -118,6 +119,7 @@ RBAC_ROLE_DEFINITIONS = {
         'label': 'Moderator',
         'description': 'Moderation and content operations only',
         'permissions': [
+            'system.admin',
             'moderation.view', 'moderation.manage', 'content.approve', 'content.reject', 'content.delete',
             'users.view'
         ],
@@ -154,14 +156,16 @@ def ensure_default_roles() -> None:
             db.session.add(role)
             db.session.flush()
 
+        # Eksik izinleri role ekle
+        current_perm_ids = {p.id for p in (role.permissions or [])}
         for key in meta['permissions']:
             perm = permissions.get(key) or Permission.query.filter_by(key=key).first()
-            if perm and perm not in role.permissions:
+            if perm and perm.id not in current_perm_ids:
                 role.permissions.append(perm)
 
         db.session.commit()
 
-    # Backfill current admin emails into Owner role for compatibility
+    # Admin e-postalarını owner rolüyle eşle
     for email in ADMIN_EMAILS:
         user = db.session.query(__import__('database.user', fromlist=['User']).User).filter_by(email=email).first()
         if user is None:
