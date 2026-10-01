@@ -186,7 +186,19 @@ def _serialize_forum_comment(comment, current_user):
         'can_delete': _forum_can_delete(current_user, comment.user_id),
         'children': []
     }
+def assign_role_to_user(user_id, role_name):
+    user = User.query.get(user_id)
+    role = Role.query.filter_by(name=role_name).first()
 
+    if not user or not role:
+        return False
+
+    if role not in user.roles:
+        user.roles.append(role)
+        db.session.commit()
+        return True
+
+    return True
 
 def _build_forum_comment_tree(comments, current_user):
     by_parent = {}
@@ -1482,6 +1494,9 @@ def api_assign_user_role(current_user, user_id):
     if not user_has_permission(current_user, 'role.manage'):
         return jsonify({'message': 'Bu işlem için role.manage izni gereklidir.'}), 403
 
+    # Önce kullanıcının var olup olmadığını kontrol edelim
+    user = User.query.get_or_404(user_id)
+
     data = request.get_json(force=True) or {}
     role_name = (data.get('role_name') or '').strip()
     if not role_name:
@@ -1490,12 +1505,10 @@ def api_assign_user_role(current_user, user_id):
     if not assign_role_to_user(user_id, role_name):
         return jsonify({'message': 'Geçersiz rol adı.'}), 400
 
-    user = User.query.get_or_404(user_id)
     return jsonify({
         'message': f"'{role_name}' rolü kullanıcıya eklendi.",
         'roles': [role.name for role in (user.roles or [])],
     }), 200
-
 
 @api_bp.delete('/api/admin/users/<int:user_id>/roles/<string:role_name>')
 @token_required()
