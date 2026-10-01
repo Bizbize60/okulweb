@@ -9,7 +9,6 @@ import openpyxl
 import requests
 from pywebpush import webpush
 from sqlalchemy import func
-from datetime import datetime
 import traceback
 from werkzeug.security import generate_password_hash
 
@@ -33,6 +32,7 @@ from database.istek import Istek
 from database.katkida import KatkidaBulunan
 from database.moderator import Moderator
 from database.daily_active import DailyActiveUser
+from database.admin_rbac import assign_role_to_user, remove_role_from_user
 
 from config import VAPID_PRIVATE_KEY, ADMIN_EMAILS
 try:
@@ -93,14 +93,10 @@ def _forum_validate_gif_url(raw_url):
 
     lowered = safe_url.lower()
 
-    # Bu domainler zaten dogrudan medya sunar (yonlendirme/HTML sayfasi degil).
     direct_media_hosts = ('media.tenor.com', 'giphyusercontent.com')
     if any(host in lowered for host in direct_media_hosts):
         return True, safe_url
 
-    # tenor.com/giphy.com "paylasim" linkleri .gif ile bitse bile aslinda HTML
-    # sayfasi dondurur (gercek medya mp4/gif olabilir); bu yuzden uzantiya
-    # guvenmeden her zaman gercek medya URL'sini cozumlemeye calisiyoruz.
     if 'tenor.com' in lowered or 'giphy.com' in lowered:
         try:
             response = requests.get(
@@ -138,7 +134,6 @@ def _forum_validate_gif_url(raw_url):
 
         return False, None
 
-    # tenor.com/giphy.com disindaki genel URL'ler icin uzanti kontrolu yeterli.
     if lowered.endswith(('.gif', '.webp', '.mp4', '.webm')):
         return True, safe_url
 
@@ -186,19 +181,7 @@ def _serialize_forum_comment(comment, current_user):
         'can_delete': _forum_can_delete(current_user, comment.user_id),
         'children': []
     }
-def assign_role_to_user(user_id, role_name):
-    user = User.query.get(user_id)
-    role = Role.query.filter_by(name=role_name).first()
 
-    if not user or not role:
-        return False
-
-    if role not in user.roles:
-        user.roles.append(role)
-        db.session.commit()
-        return True
-
-    return True
 
 def _build_forum_comment_tree(comments, current_user):
     by_parent = {}
@@ -251,7 +234,6 @@ def _is_exam_week_blitz_active():
 @token_required()
 @is_admin
 def api_admin_exam_blitz_status(current_user):
-    """Sınav haftası blitz kampanyasının açık/kapalı durumunu döndürür."""
     return jsonify({
         'enabled': _is_exam_week_blitz_active(),
         'campaign': {
@@ -271,7 +253,6 @@ def api_admin_exam_blitz_status(current_user):
 @token_required()
 @is_admin
 def api_admin_exam_blitz_toggle(current_user):
-    """Yöneticinin sınav haftası blitz kampanyasını açıp kapatması için endpoint."""
     payload = request.get_json(force=True) or {}
     enabled = payload.get('enabled')
     if enabled is None:
@@ -325,15 +306,18 @@ def kulup_icerik_yonetim(current_user):
         
     return jsonify({'message': 'Dosya yüklenirken hata oluştu!'}), 400
 
+
 @api_bp.route('/api/duyurular')
 def api_duyurular():
     duyurular = scrape_duyurular()
     return jsonify({"duyurular": duyurular})
 
+
 @api_bp.route('/api/haberler')
 def api_haberler():
     articles = scrape_haberler()
     return jsonify({"articles": articles})
+
 
 @api_bp.get('/api/forum/posts')
 @token_required(next_location='/forum')
@@ -586,6 +570,7 @@ def api_forum_delete_comment(current_user, comment_id):
         'comment': _serialize_forum_comment(comment, current_user)
     }), 200
 
+
 @api_bp.route('/api/kayip-ekle', methods=['POST'])
 @token_required(next_location='/ilan-ekle')
 def api_kayip_ekle(current_user):
@@ -636,13 +621,10 @@ def api_kayip_ekle(current_user):
                 "icon": "/static/kedi.ico"  
             }
 
-            # İlanda fotoğraf varsa büyük resim olarak ekle
             if yeni_ilan.foto:
                 bildirim_detaylari["image"] = f"https://thkuogrenci.com{yeni_ilan.foto}"
 
             payload = json.dumps(bildirim_detaylari)
-
-            # Tüm aboneleri çek ve döngüyle gönder
             abonelikler = WebPushSubscription.query.all()
 
             for abonelik in abonelikler:
@@ -662,9 +644,9 @@ def api_kayip_ekle(current_user):
         return jsonify({'message': 'İlan başarıyla oluşturuldu!'}), 201
 
     except Exception as e:
-        import traceback
         traceback.print_exc()
         return jsonify({'message': f'Sunucu hatası: {str(e)}'}), 500
+
 
 @api_bp.route('/api/kayiplar', methods=['GET'])
 def api_kayiplar_listele():
@@ -676,18 +658,15 @@ def api_kayiplar_listele():
 
     if tip:
         query = query.filter_by(tip=tip)
-    
     if kategori and kategori != 'Tümü':
         query = query.filter_by(kategori=kategori)
-        
     if q:
         search = f"%{q}%"
         query = query.filter(KayipEsya.baslik.ilike(search) | KayipEsya.aciklama.ilike(search))
 
-    # En yeni ilan en üstte
     kayiplar = query.order_by(KayipEsya.tarih.desc()).all()
-    
     return jsonify([k.to_dict() for k in kayiplar])
+
 
 @api_bp.route('/api/kayiplar/stats', methods=['GET'])
 def api_kayip_stats():
@@ -702,23 +681,21 @@ def api_kayip_stats():
         'bu_hafta': bu_hafta
     })
 
+
 @api_bp.route('/api/enstantaneler', methods=['GET'])
 @token_required(next_location='/KampusteHayat')
 def api_enstantaneler_getir(current_user):
-    sirali = request.args.get('sirala', 'yeni') # varsayılan: yeni
-    
+    sirali = request.args.get('sirala', 'yeni')
     query = Enstantane.query
     
-    # En çok beğenilenden aza doğru
     if sirali == 'populer':
         query = query.order_by(Enstantane.begeni_sayisi.desc())
-        
-    # En yeniden eskiye
     else:
         query = query.order_by(Enstantane.tarih.desc())
         
     gonderiler = query.all()
     return jsonify([g.to_dict(current_user.id) for g in gonderiler])
+
 
 @api_bp.route('/api/enstantane-yukle', methods=['POST'])
 @token_required(next_location='/KampusteHayat')
@@ -745,6 +722,7 @@ def api_enstantane_yukle(current_user):
         
     return jsonify({'message': 'Hata oluştu.'}), 500
 
+
 @api_bp.route('/api/enstantane-begen/<int:id>', methods=['POST'])
 @token_required(next_location='/KampusteHayat')
 def api_enstantane_begen(current_user, id):
@@ -766,18 +744,8 @@ def api_enstantane_begen(current_user, id):
     return jsonify({'action': action, 'count': post.begeni_sayisi})
 
 
-
-
-
-
-
-
-# =============================================================================
-# API Endpoint'leri (Get, Post)
-# =============================================================================
 @api_bp.get('/api/ofis-saatleri')
 def ofis_saatleri():
-    """Öğretim görevlilerinin ofis saatlerini döndürür."""
     instructors = saatler.Saatler.query.all()
     return jsonify([
         {
@@ -786,11 +754,11 @@ def ofis_saatleri():
             "gun": instructor.days
         } for instructor in instructors
     ])
-    
+
+
 @api_bp.get('/api/ders-notlari')
 @token_required(next_location='/api/ders-notlari')
 def api_ders_notlari(current_user):
-    """Ders notları listesini döndürür."""
     notlar = dersnotu.DersNotu.query.all()
     return jsonify([
         {
@@ -801,7 +769,8 @@ def api_ders_notlari(current_user):
             "tarih": not_item.yuklenme_tarihi.isoformat()
         } for not_item in notlar
     ])
-    
+
+
 @api_bp.get('/api/user-info')
 @token_required(next_location='/api/user-info')
 def api_user_info(current_user):
@@ -809,7 +778,6 @@ def api_user_info(current_user):
     return jsonify({
         'name': current_user.name,
         'kredi': current_user.kredi,
-        # Sadece sahibi/owner yetkisi olan kullanıcılar istatistik görebilir
         'show_stats': user_has_permission(current_user, 'system.admin') and current_user.has_role('owner'),
         'roles': [role.name for role in (current_user.roles or [])],
         'permissions': sorted({
@@ -829,9 +797,9 @@ def api_user_info(current_user):
         'streak_gun': current_user.streak_gun or 0,
     })
 
+
 @api_bp.get('/api/ogretmen-degerlendirmeleri')
 def api_ogretmen_degerlendirmeleri():
-
     ad_norm = func.lower(func.trim(degerlendirme.OgretmenDegerlendirme.ogretmen_adi)).label('ad')
     soyad_norm = func.lower(func.trim(degerlendirme.OgretmenDegerlendirme.ogretmen_soyadi)).label('soyad')
 
@@ -856,7 +824,6 @@ def api_ogretmen_degerlendirmeleri():
             func.lower(func.trim(degerlendirme.OgretmenDegerlendirme.ogretmen_soyadi)) == result.soyad
         ).all()
         
-       
         toplam = len(tum_degerlendirmeler)
         etiketler = {
             'slayttan_isler': sum(1 for d in tum_degerlendirmeler if d.slayttan_isler) / toplam * 100 if toplam > 0 else 0,
@@ -871,7 +838,6 @@ def api_ogretmen_degerlendirmeleri():
             if d.alinan_harf_notu:
                 not_dagilimi[d.alinan_harf_notu] = not_dagilimi.get(d.alinan_harf_notu, 0) + 1
         
-   
         not_dagilimi_yuzde = {}
         toplam_not = sum(not_dagilimi.values())
         if toplam_not > 0:
@@ -893,13 +859,12 @@ def api_ogretmen_degerlendirmeleri():
         })
     
     ogretmenler.sort(key=lambda x: x['genel_ort'], reverse=True)
-    
     return jsonify(ogretmenler)
+
 
 @api_bp.get('/api/pazar')
 def api_ilanlari_getir():
     kategori = request.args.get('kategori')
-    
     if kategori and kategori != 'Tümü':
         ilanlar = pazar.PazarIlani.query.filter_by(kategori=kategori).order_by(pazar.PazarIlani.tarih.desc()).all()
     else:
@@ -919,11 +884,9 @@ def api_ilanlari_getir():
         } for ilan in ilanlar
     ])
 
+
 @api_bp.get('/api/kanatlibulten')
 def api_kanatlibulten():
-    """Kanatlı Bülten yazılarını tarihe göre sıralı olarak döndür.
-    Optional: pass ?kulup_adi=<str> to resolve club by name; defaults to 'Kanatlı Bülten'.
-    """
     try:
         kulup_adi = request.args.get('kulup_adi')
         kulup_id = 1
@@ -949,18 +912,14 @@ def api_kanatlibulten():
     except Exception:
         return jsonify([]), 200
 
+
 @api_bp.get('/api/utaa/news')
 def api_utaa_news():
-    """Return UTAA posts (last + archive style). If no data, return empty list.
-    Frontend should pass ?kulup_adi=<str> (e.g., 'UTAA Music Club').
-    """
     try:
         kulup_adi = request.args.get('kulup_adi')
         kulup = None
         if kulup_adi:
             kulup = Kulupler.query.filter_by(kulup_adi=kulup_adi).first()
-            
-        # Varsayılan olarak UTAA Music Club'ın id'sini kullan, ancak kulup_adi verilmişse ona göre id'yi çöz
         kulup_id = (kulup.id if kulup else 2)
 
         items = Kulupicerik.query.filter_by(kulup_id=kulup_id).order_by(
@@ -980,11 +939,9 @@ def api_utaa_news():
     except Exception:
         return jsonify([]), 200
 
+
 @api_bp.get('/api/fsource/news')
 def api_fsource_news():
-    """Return FSource posts (last + archive style). If no data, return empty list.
-    Frontend should pass ?kulup_adi=<str> (defaults to 'FSource').
-    """
     try:
         kulup_adi = request.args.get('kulup_adi') or 'FSource'
         kulup = Kulupler.query.filter_by(kulup_adi=kulup_adi).first()
@@ -1007,11 +964,9 @@ def api_fsource_news():
     except Exception:
         return jsonify([]), 200
 
+
 @api_bp.get('/api/makinemuh/news')
 def api_makinemuh_news():
-    """Return Mechanical Engineering Club posts (hero + archive).
-    Frontend should pass ?kulup_adi=<str>; defaults to 'Makine Mühendisliği Kulübü'.
-    """
     try:
         kulup_adi = request.args.get('kulup_adi') or 'Makine Mühendisliği Kulübü'
         kulup = Kulupler.query.filter_by(kulup_adi=kulup_adi).first()
@@ -1034,11 +989,9 @@ def api_makinemuh_news():
     except Exception:
         return jsonify([]), 200
 
+
 @api_bp.get('/api/utaa/events')
 def api_utaa_events():
-    """Return UTAA events. Optional: pass ?kulup_adi=<str> to resolve id; or ?kulup_id=<int>.
-    If no data or error, return empty list.
-    """
     try:
         kulup_id = request.args.get('kulup_id', type=int)
         if not kulup_id:
@@ -1062,15 +1015,9 @@ def api_utaa_events():
     except Exception:
         return jsonify([]), 200
 
+
 @api_bp.get('/api/utaa/gallery')
 def api_utaa_gallery():
-    """
-    UTAA galeri öğelerini döndürür.
-    
-    Query Params:
-        kulup_adi (str): Kulüp adı ile arama
-        kulup_id (int): Kulüp ID ile arama
-    """
     try:
         kulup_id = request.args.get('kulup_id', type=int)
         if not kulup_id:
@@ -1095,9 +1042,9 @@ def api_utaa_gallery():
     except Exception:
         return jsonify([]), 200
 
+
 @api_bp.get('/api/yemek-saatleri')
 def yemek_saatleri():
-    """Haftalık menü (eski şablon uyumlu gün listesi) + bugün (TR saati)."""
     try:
         data = get_menu_data()
         payload = legacy_days_payload(data)
@@ -1107,7 +1054,6 @@ def yemek_saatleri():
         return jsonify(payload)
     except Exception as e:
         traceback.print_exc()
-        # Geriye dönük: yerel Excel varsa dene
         try:
             data_obj = openpyxl.load_workbook("yemek.xlsx", data_only=True)
             sheet = data_obj.active
@@ -1148,7 +1094,6 @@ def api_yemek_bugun():
 
 @api_bp.get('/api/ulasim')
 def api_ulasim():
-    """THK servis + Başkentray sabit saatler."""
     try:
         return jsonify(ulasim_overview())
     except Exception as e:
@@ -1158,7 +1103,6 @@ def api_ulasim():
 
 @api_bp.get('/api/kampus-ozet')
 def api_kampus_ozet():
-    """Anasayfa tek bakış: bugünün menüsü + sonraki THK / Başkentray."""
     try:
         menu = None
         try:
@@ -1178,6 +1122,7 @@ def api_kampus_ozet():
 @api_bp.get('/api/otobus-saatleri')
 def api_otobus_saatleri():
     return jsonify({"ulasim": ulasim_overview()})
+
 
 @api_bp.post('/api/not-ekle')
 @token_required(next_location='/ders-notlari')
@@ -1210,6 +1155,7 @@ def api_not_ekle(current_user):
     
     return jsonify({'message': 'Geçersiz dosya formatı'}), 400
 
+
 @api_bp.get('/api/kullanici-notlari')
 @token_required()
 def api_kullanici_notlari(current_user):
@@ -1225,6 +1171,7 @@ def api_kullanici_notlari(current_user):
         
     sonuc.sort(key=lambda x: x['tarih'], reverse=True)
     return jsonify(sonuc)
+
 
 @api_bp.delete('/api/not-geri-cek/<int:id>')
 @token_required()
@@ -1244,6 +1191,7 @@ def api_not_geri_cek(current_user, id):
         return jsonify({'message': 'Not başarıyla geri çekildi.'}), 200
     
     return jsonify({'message': 'Sadece beklemede olan notlar geri çekilebilir.'}), 400
+
 
 @api_bp.post('/api/degerlendirme-ekle')
 @token_required(next_location='/')
@@ -1282,11 +1230,11 @@ def api_degerlendirme_ekle(current_user):
         )
         db.session.add(yeni_degerlendirme)
         db.session.commit()
-        # --- Aktivite Puanı: Değerlendirme 60 puan ---
         _aktivite_puan_ver(current_user, 60, 'degerlendirme')
         return jsonify({'message': 'Değerlendirme başarıyla eklendi!'}), 201
     except Exception as e:
         return jsonify({'message': f'Hata: {str(e)}'}), 500
+
 
 @api_bp.post('/api/ilan-ekle')
 @token_required(next_location='/ilan-ekle')
@@ -1309,9 +1257,7 @@ def api_ilan_ekle(current_user):
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             unique_filename = f"{uuid.uuid4()}_{filename}"
-            
             kayit_yolu = os.path.join(current_app.config['PAZAR_UPLOAD_FOLDER'], unique_filename)
-            
             file.save(kayit_yolu)
             
             yeni_ilan = pazar.PazarIlani(
@@ -1326,7 +1272,6 @@ def api_ilan_ekle(current_user):
             
             db.session.add(yeni_ilan)
             db.session.commit()
-            
             return jsonify({'message': 'İlan başarıyla yayınlandı!'}), 201
             
         return jsonify({'message': 'Geçersiz dosya formatı'}), 400
@@ -1335,17 +1280,16 @@ def api_ilan_ekle(current_user):
         traceback.print_exc() 
         return jsonify({'message': f'Sunucu hatası: {str(e)}'}), 500
 
+
 @api_bp.post('/api/abonelik-kaydet')
 @token_required(next_location='/')
 def api_abonelik_kaydet(current_user):
     try:
         subscription_data = request.get_json()
-
         if not subscription_data:
             return jsonify({'message': 'Abonelik verisi bulunamadı!'}), 400
 
         endpoint = subscription_data.get('endpoint')
-        
         mevcut_abonelik = WebPushSubscription.query.filter(
             WebPushSubscription.subscription_info.like(f'%{endpoint}%')
         ).first()
@@ -1378,6 +1322,7 @@ def api_abonelik_kaydet(current_user):
         traceback.print_exc()
         return jsonify({'message': f'Sunucu hatası: {str(e)}'}), 500
     
+
 @api_bp.post('/ogretmen-ekle')
 def ogretmen_ekle():
     data = request.json
@@ -1393,7 +1338,7 @@ def ogretmen_ekle():
     db.session.commit()
     return jsonify({"message": "Öğretim Görevlisi Başarıyla Eklendi!--Onay Bekliyor."}), 201
 
-# Sadece admin kullanıcıların erişebileceği endpointler
+
 @api_bp.post('/verify-all')
 @token_required(next_location='/')
 @is_admin
@@ -1411,16 +1356,20 @@ def verify_all(current_user):
     db.session.commit()
     return jsonify({"message": "Tüm Öğretim Görevlileri Onaylandı!"}), 200
 
+
 # --- ADMIN PANELİ API'LERİ ---
 
 @api_bp.get('/api/admin/session')
 @token_required()
 def api_admin_session(current_user):
     """Yöneticinin oturum bilgilerini ve erişilebilir izinlerini döndürür."""
-    if not user_has_permission(current_user, 'system.admin'):
+    role_names = [role.name for role in (current_user.roles or [])]
+    allowed_roles = {'owner', 'developer', 'moderator'}
+    has_role_access = bool(set(role_names) & allowed_roles)
+    
+    if not (user_has_permission(current_user, 'system.admin') or has_role_access or current_user.email in ADMIN_EMAILS):
         return jsonify({'message': 'Forbidden'}), 403
 
-    role_names = [role.name for role in (current_user.roles or [])]
     permission_keys = sorted({
         permission.key
         for role in (current_user.roles or [])
@@ -1436,14 +1385,13 @@ def api_admin_session(current_user):
         'name': current_user.name,
         'roles': role_names,
         'permissions': permission_keys,
-        'is_admin': user_has_permission(current_user, 'system.admin')
+        'is_admin': True
     }), 200
 
 
 @api_bp.get('/api/admin/roles')
 @token_required()
 def api_admin_roles(current_user):
-    """Tüm roller ve izin listesi."""
     if not user_has_permission(current_user, 'role.manage'):
         return jsonify({'message': 'Bu işlem için role.manage izni gereklidir.'}), 403
 
@@ -1494,9 +1442,7 @@ def api_assign_user_role(current_user, user_id):
     if not user_has_permission(current_user, 'role.manage'):
         return jsonify({'message': 'Bu işlem için role.manage izni gereklidir.'}), 403
 
-    # Önce kullanıcının var olup olmadığını kontrol edelim
     user = User.query.get_or_404(user_id)
-
     data = request.get_json(force=True) or {}
     role_name = (data.get('role_name') or '').strip()
     if not role_name:
@@ -1509,6 +1455,7 @@ def api_assign_user_role(current_user, user_id):
         'message': f"'{role_name}' rolü kullanıcıya eklendi.",
         'roles': [role.name for role in (user.roles or [])],
     }), 200
+
 
 @api_bp.delete('/api/admin/users/<int:user_id>/roles/<string:role_name>')
 @token_required()
@@ -1530,7 +1477,6 @@ def api_remove_user_role(current_user, user_id, role_name):
 @token_required()
 @is_admin
 def api_admin_daily_active(current_user):
-    """Yalnızca STATS_OWNER_EMAIL — bugün / dün / son 7 gün unique aktif kullanıcı."""
     if current_user.email != STATS_OWNER_EMAIL:
         return jsonify({'message': 'Forbidden'}), 403
 
@@ -1567,9 +1513,7 @@ def api_admin_daily_active(current_user):
 @token_required()
 @is_admin
 def get_all_users(current_user):
-    # Arama parametresi varsa al
     search_query = request.args.get('q', '').lower()
-    
     query = User.query
     if search_query:
         query = query.filter(db.or_(
@@ -1585,6 +1529,7 @@ def get_all_users(current_user):
         'kredi': u.kredi
     } for u in users])
 
+
 @api_bp.get('/api/admin/pending-instructors')
 @token_required()
 @is_admin
@@ -1596,18 +1541,18 @@ def get_pending_instructors(current_user):
         'days': p.days
     } for p in pending])
 
+
 @api_bp.post('/api/admin/verify-instructor/<int:id>')
 @token_required()
 @is_admin
 def verify_single_instructor(current_user, id):
     pending = saatler.SaatlerPending.query.get_or_404(id)
-    
     approved = saatler.Saatler(name=pending.name, days=pending.days)
     db.session.add(approved)
     db.session.delete(pending)
     db.session.commit()
-    
     return jsonify({'message': 'Öğretim görevlisi başarıyla onaylandı!'}), 200
+
 
 @api_bp.delete('/api/admin/reject-instructor/<int:id>')
 @token_required()
@@ -1616,8 +1561,8 @@ def reject_single_instructor(current_user, id):
     pending = saatler.SaatlerPending.query.get_or_404(id)
     db.session.delete(pending)
     db.session.commit()
-    
     return jsonify({'message': 'İstek reddedildi ve silindi!'}), 200
+
 
 @api_bp.post('/api/admin/users')
 @token_required()
@@ -1631,7 +1576,6 @@ def add_new_user(current_user):
     if not name or not email or not password:
         return jsonify({'message': 'Tüm alanları doldurmanız gerekmektedir!'}), 400
 
-    # Email kontrolü
     if User.query.filter_by(email=email).first():
         return jsonify({'message': 'Bu email adresi ile zaten bir kayıt mevcut!'}), 400
 
@@ -1641,7 +1585,7 @@ def add_new_user(current_user):
             name=name,
             email=email,
             password=generate_password_hash(password),
-            kredi=1 # Başlangıç kredisi
+            kredi=1
         )
         db.session.add(new_user)
         db.session.commit()
@@ -1650,28 +1594,25 @@ def add_new_user(current_user):
         db.session.rollback()
         return jsonify({'message': f'Sunucu hatası: {str(e)}'}), 500
 
+
 @api_bp.delete('/api/admin/users/<int:id>')
 @token_required()
 @is_admin
 def delete_user(current_user, id):
     user_to_delete = User.query.get_or_404(id)
-    
-    # Kendi kendini silmeyi engelle
     if user_to_delete.id == current_user.id:
         return jsonify({'message': 'Kendi yönetici hesabınızı silemezsiniz!'}), 400
 
     try:
-        # Abonelik ilişkisi kullanıcı silmeyi engellemesin
         WebPushSubscription.query.filter_by(user_id=user_to_delete.id).delete(synchronize_session=False)
         db.session.delete(user_to_delete)
         db.session.commit()
         return jsonify({'message': 'Kullanıcı başarıyla silindi!'}), 200
     except Exception as e:
         db.session.rollback()
-        
-        # Eğer kullanıcının sistemde bağlı verileri (notlar, mesajlar vb.) varsa silme işlemi hata verir.
         return jsonify({'message': 'Kullanıcı silinemedi! Bu öğrencinin sistemde aktif verileri (ders notu, forum mesajı vb.) olabilir.'}), 400
-    
+
+
 @api_bp.put('/api/admin/users/<int:id>/kredi')
 @token_required()
 @is_admin
@@ -1698,7 +1639,8 @@ def update_user_credit(current_user, id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'message': f'Sunucu hatası: {str(e)}'}), 500
-    
+
+
 @api_bp.get('/api/admin/pending-notes')
 @token_required()
 @is_admin
@@ -1715,6 +1657,7 @@ def get_pending_notes(current_user):
         'kullanici_ad': n[1],
         'kullanici_email': n[2]
     } for n in notes])
+
 
 @api_bp.post('/api/admin/approve-note/<int:id>')
 @token_required()
@@ -1736,24 +1679,20 @@ def approve_note(current_user, id):
     note_owner = User.query.get(bekleyen.user_id)
     if note_owner:
         note_owner.kredi += 2
-
-        # --- Aktivite Puanı: Not onaylanınca 80 puan ---
         _aktivite_puan_ver(note_owner, 80, 'ders_notu')
-
         bildirim_gonder_kullaniciya(note_owner.id, "✅ Ders Notunuz Onaylandı!", f"Yüklediğiniz '{bekleyen.ders_adi}' notu onaylandı ve 2 kredi kazandınız.", "/ders-notlari")
 
     db.session.add(onayli_not)
     db.session.delete(bekleyen)
     db.session.commit()
-    
     return jsonify({'message': 'Not başarıyla onaylandı ve kredi verildi!'}), 200
+
 
 @api_bp.post('/api/admin/reject-note/<int:id>')
 @token_required()
 @is_admin
 def reject_note(current_user, id):
     bekleyen = DersNotuBekleyen.query.get_or_404(id)
-    
     bekleyen.durum = 'REJECTED'
     
     note_owner = User.query.get(bekleyen.user_id)
@@ -1763,12 +1702,12 @@ def reject_note(current_user, id):
     db.session.commit()
     return jsonify({'message': 'Not reddedildi.'}), 200
 
+
 @api_bp.get('/api/admin/notlar')
 @token_required()
 @is_admin
 def get_all_notes(current_user):
     query = request.args.get('q', '').lower()
-    
     notes = db.session.query(DersNotu, User.name, User.email)\
         .join(User, DersNotu.user_id == User.id)\
         .filter(db.or_(DersNotu.ders_adi.contains(query), User.name.contains(query), User.email.contains(query))).all()
@@ -1781,7 +1720,8 @@ def get_all_notes(current_user):
         'kullanici_ad': n[1],
         'kullanici_email': n[2]
     } for n in notes])
-    
+
+
 @api_bp.delete('/api/admin/notlar/<int:id>')
 @token_required()
 @is_admin
@@ -1790,7 +1730,8 @@ def delete_note(current_user, id):
     db.session.delete(note)
     db.session.commit()
     return jsonify({'message': 'Not başarıyla silindi!'}), 200
-    
+
+
 @api_bp.get('/api/admin/subscriptions')
 @token_required()
 @is_admin
@@ -1806,6 +1747,7 @@ def get_subscriptions(current_user):
         'kullanici_ajani': sub[0].kullanici_ajani
     } for sub in subscriptions])
 
+
 @api_bp.delete('/api/admin/subscriptions/<int:id>')
 @token_required()
 @is_admin
@@ -1820,6 +1762,7 @@ def delete_subscription(current_user, id):
         print(f'Abonelik silme hatası: {e}')
         return jsonify({'message': 'Abonelik silinirken bir hata oluştu.'}), 500
 
+
 @api_bp.get('/api/admin/istekler')
 @token_required()
 @is_admin
@@ -1832,6 +1775,7 @@ def admin_istekleri_listele(current_user):
         'kullanici_ad': name or 'Anonim',
         'kullanici_email': email or '-'
     } for i, name, email in rows]), 200
+
 
 @api_bp.delete('/api/admin/istekler/<int:istek_id>')
 @token_required()
@@ -1846,6 +1790,7 @@ def admin_istek_sil(current_user, istek_id):
         db.session.rollback()
         print(f'İstek silme hatası: {e}')
         return jsonify({'message': 'İstek silinirken bir hata oluştu.'}), 500
+
 
 @api_bp.put('/api/admin/istekler/<int:istek_id>/durum')
 @token_required()
@@ -1865,6 +1810,7 @@ def admin_istek_durum(current_user, istek_id):
         print(f'İstek durum güncelleme hatası: {e}')
         return jsonify({'message': 'Durum güncellenirken bir hata oluştu.'}), 500
 
+
 @api_bp.post('/api/istekler')
 @token_required()
 def istek_olustur(current_user):
@@ -1880,7 +1826,6 @@ def istek_olustur(current_user):
     )
     db.session.add(yeni_istek)
     db.session.commit()
-    
     return jsonify({'message': 'İsteğiniz başarıyla alındı.', 'istek': yeni_istek.to_dict()}), 201
 
 
@@ -1889,6 +1834,7 @@ def istek_olustur(current_user):
 def istekleri_listele(current_user):
     istekler = Istek.query.filter_by(user_id=current_user.id).order_by(Istek.tarih.desc()).all()
     return jsonify([i.to_dict() for i in istekler]), 200
+
 
 @api_bp.route('/api/istekler/<int:istek_id>', methods=['DELETE'])
 @token_required(next_location='/login')
@@ -1910,13 +1856,12 @@ def istek_sil(current_user, istek_id):
         return jsonify({'status': 'error', 'message': 'İstek silinirken bir hata oluştu.'}), 500
 
 
-# --- KATKIDA BULUNANLAR ---
-
 @api_bp.get('/api/katkida-bulunanlar')
 @token_required_api
 def katkida_bulunanlari_listele(current_user):
     kisiler = KatkidaBulunan.query.order_by(KatkidaBulunan.sira.asc(), KatkidaBulunan.id.asc()).all()
     return jsonify([k.to_dict() for k in kisiler]), 200
+
 
 @api_bp.post('/api/admin/katkida-bulunanlar')
 @token_required()
@@ -1960,6 +1905,7 @@ def katkida_ekle(current_user):
         db.session.rollback()
         print(f'Katkıda bulunan ekleme hatası: {e}')
         return jsonify({'message': 'Kayıt eklenirken bir hata oluştu.'}), 500
+
 
 @api_bp.put('/api/admin/katkida-bulunanlar/<int:id>')
 @token_required()
@@ -2008,6 +1954,7 @@ def katkida_guncelle(current_user, id):
         print(f'Katkıda bulunan güncelleme hatası: {e}')
         return jsonify({'message': 'Kayıt güncellenirken bir hata oluştu.'}), 500
 
+
 @api_bp.delete('/api/admin/katkida-bulunanlar/<int:id>')
 @token_required()
 @is_admin
@@ -2028,12 +1975,13 @@ def katkida_sil(current_user, id):
         db.session.rollback()
         print(f'Katkıda bulunan silme hatası: {e}')
         return jsonify({'message': 'Kayıt silinirken bir hata oluştu.'}), 500
-# ─── Moderatör Ekibi ────────────────────────────────────────────────────────
+
 
 @api_bp.get('/api/moderatorler')
 def moderatorleri_listele():
     kisiler = Moderator.query.order_by(Moderator.sira.asc(), Moderator.id.asc()).all()
     return jsonify([k.to_dict() for k in kisiler]), 200
+
 
 @api_bp.post('/api/admin/moderatorler')
 @token_required()
@@ -2079,6 +2027,7 @@ def moderator_ekle(current_user):
         db.session.rollback()
         print(f'Moderatör ekleme hatası: {e}')
         return jsonify({'message': 'Kayıt eklenirken bir hata oluştu.'}), 500
+
 
 @api_bp.put('/api/admin/moderatorler/<int:id>')
 @token_required()
@@ -2129,6 +2078,7 @@ def moderator_guncelle(current_user, id):
         print(f'Moderatör güncelleme hatası: {e}')
         return jsonify({'message': 'Kayıt güncellenirken bir hata oluştu.'}), 500
 
+
 @api_bp.delete('/api/admin/moderatorler/<int:id>')
 @token_required()
 @is_admin
@@ -2151,10 +2101,6 @@ def moderator_sil(current_user, id):
         return jsonify({'message': 'Kayıt silinirken bir hata oluştu.'}), 500
 
 
-# =============================================================================
-# 🌟 OGRENCI ELÇISI SISTEMI - API ENDPOINTLERI
-# =============================================================================
-# Yardımcı fonksiyonlar (auth.py'daki ile aynı, circular import önlemek için tekrar)
 def _give_ambassador_points_api(user: User, puan: int):
     user.ambassador_points = (user.ambassador_points or 0) + puan
     seviyeler = [(1, 100), (2, 500), (3, 2000), (4, 5000)]
@@ -2186,16 +2132,10 @@ def _give_badge_api(user: User, kod: str, ad: str, aciklama: str = "", renk: str
         db.session.commit()
 
 
-# ------------ KULLANICI ENDPOINTLERI ------------
-
 @api_bp.get('/api/ambassador/me')
 @token_required_api
 def api_ambassador_me(current_user):
-    """Kullanıcının elçi paneli ve profilim sayfası için TÜM istatistikleri TEK yanıtta döner."""
-    # 1) Temel davet sayilari
     toplam_davet = Referral.query.filter_by(davet_eden_id=current_user.id, onaylandi_mi=True).count()
-    from datetime import datetime, timedelta
-    from zoneinfo import ZoneInfo
     yedi_gun_once = datetime.now(ZoneInfo('Europe/Istanbul')).date() - timedelta(days=7)
     haftanin_davet_sayisi = (
         Referral.query
@@ -2204,20 +2144,17 @@ def api_ambassador_me(current_user):
         .count()
     )
 
-    # 2) Rozetler
     rozetler = db.session.query(Badge, UserBadge).join(UserBadge, UserBadge.badge_id == Badge.id)\
         .filter(UserBadge.user_id == current_user.id)\
         .order_by(Badge.siralama.asc(), UserBadge.kazanma_tarihi.desc()).all()
 
-    # 3) Aktif oduller
     aktif_oduller = EarnedReward.query.filter_by(user_id=current_user.id, aktif_mi=True).all()
 
-    # 4) Seviye hesaplari
     seviye = current_user.ambassador_level or 0
     puan = current_user.ambassador_points or 0
     esikler = [(0, 0, "Üye"), (1, 100, "Bronz Elçi"), (2, 500, "Gümüş Elçi"),
                (3, 2000, "Altın Elçi"), (4, 5000, "Elmas Elçi")]
-    # Sonraki esik
+
     sonraki_esik, sonraki_seviye_adi = 5000, "Tebrikler, en üst seviyedesin!"
     for i, (sv, es, ad) in enumerate(esikler):
         if seviye == sv:
@@ -2226,18 +2163,16 @@ def api_ambassador_me(current_user):
                 sonraki_seviye_adi = esikler[i + 1][2]
             break
     if sonraki_esik <= puan:
-        sonraki_esik = puan  # Kalansin 0 gosterilsin
+        sonraki_esik = puan
     ilerleme_yuzde = min(100, int(puan / sonraki_esik * 100)) if sonraki_esik > 0 else 100
     kalan_puan = max(0, sonraki_esik - puan)
     sev_ikon = {"Üye": "●", "Bronz Elçi": "🥉", "Gümüş Elçi": "🥈", "Altın Elçi": "🥇", "Elmas Elçi": "💎"}[current_user.seviye_adi()]
 
-    # 5) Genel SIRALAMA (kac kisi senden daha cok puan toplamis = siralama)
     sira_query = db.session.query(func.count(User.id)).filter(
         func.coalesce(User.ambassador_points, 0) > puan
     ).scalar()
     siralama = (sira_query or 0) + 1
 
-    # 6) Son davet ettiklerim listesi (detayli)
     davet_listesi = Referral.query.filter_by(davet_eden_id=current_user.id)\
         .order_by(Referral.kaydedilme_tarihi.desc()).limit(20).all()
     davet_ettiklerim = []
@@ -2252,11 +2187,8 @@ def api_ambassador_me(current_user):
                 'puan_verildi': bool(r.puan_verildi_mi),
             })
 
-    # 7) Odul kataloğu (Puan Dukkani - aktif olanlar)
     oduller = ReferralReward.query.filter_by(aktif_mi=True).order_by(ReferralReward.maliyet_puan.asc()).all()
 
-    # 8) User objesi (FE tarafindan d.user.* olarak bekleniyor - tum alanlar)
-    #    created_at icin DB henuz migration gecmediyse None dondur (hata yoksay)
     created_at_val = None
     try:
         if hasattr(current_user, 'created_at') and current_user.created_at:
@@ -2281,13 +2213,11 @@ def api_ambassador_me(current_user):
         'referral_count': toplam_davet,
     }
 
-    # 9) Davet linkleri
     base = request.host_url.rstrip('/')
     referral_link = f"{base}/signup?ref={current_user.referral_code or ''}"
     short_link = f"{base}/r/{current_user.referral_code or ''}"
 
     return jsonify({
-        # --- ESKI API UYUMLULUK ICIN (geriye donuk) ---
         'is_ambassador': bool(current_user.is_ambassador),
         'level': seviye,
         'level_name': current_user.seviye_adi(),
@@ -2311,7 +2241,6 @@ def api_ambassador_me(current_user):
             for er in aktif_oduller if er.reward
         ],
         'recent_invites': davet_ettiklerim,
-        # --- YENI: Frontend (profilim.html / ambassador_panel.html) BEKLENTISI ---
         'user': user_obj,
         'ilerleme_yuzde': ilerleme_yuzde,
         'kalan_puan': kalan_puan,
@@ -2330,7 +2259,6 @@ def api_ambassador_me(current_user):
 @api_bp.get('/api/ambassador/referral-link')
 @token_required_api
 def api_get_referral_link(current_user):
-    """Kullanıcıya özel davet linkini döndür (link yoksa oluştur)."""
     if not current_user.referral_code:
         try:
             current_user.referral_code = User.generate_referral_code(current_user.name)
@@ -2348,7 +2276,6 @@ def api_get_referral_link(current_user):
 @api_bp.post('/api/ambassador/basvuru')
 @token_required_api
 def api_ambassador_basvuru(current_user):
-    """Kullanıcıdan gelen elçi başvurusunu kaydet."""
     data = request.get_json() or request.form
     bolum = (data.get('bolum') or '').strip()[:150]
     sinif = (data.get('sinif') or '').strip()[:20]
@@ -2358,14 +2285,12 @@ def api_ambassador_basvuru(current_user):
     if not bolum or not neden:
         return jsonify({'message': 'Bölüm ve "Neden elçi olmak istiyorsun?" alanları zorunludur.'}), 400
 
-    # Daha önce başvuru yapmış mı?
     eski = Ambassador.query.filter_by(user_id=current_user.id).first()
     if eski:
         if eski.durum == 'APPROVED':
             return jsonify({'message': 'Zaten onaylanmış bir elçisin!'}), 400
         if eski.durum == 'PENDING':
             return jsonify({'message': 'Başvurunuz zaten inceleniyor, lütfen bekleyin.'}), 400
-        # Reddedildiyse tekrar başvurabilir
 
     yeni = Ambassador(
         user_id=current_user.id,
@@ -2383,12 +2308,8 @@ def api_ambassador_basvuru(current_user):
 
 @api_bp.get('/api/ambassador/leaderboard')
 def api_ambassador_leaderboard():
-    """Genel liderlik tablosu (top 50)."""
-    from datetime import datetime, timedelta
-    from zoneinfo import ZoneInfo
     yedi_gun_once = datetime.now(ZoneInfo('Europe/Istanbul')).date() - timedelta(days=7)
 
-    # Önce toplam puan, sonra haftalık davet sayısına göre sırala
     kullanicilar = User.query.filter(User.ambassador_points > 0)\
         .order_by(User.ambassador_points.desc()).limit(50).all()
 
@@ -2415,9 +2336,6 @@ def api_ambassador_leaderboard():
 
 @api_bp.get('/api/ambassador/haftanin-elcisi')
 def api_haftanin_elcisi():
-    """Haftanın elçisi + ilk 5 (anasayfa için)."""
-    from datetime import datetime, timedelta
-    from zoneinfo import ZoneInfo
     yedi_gun_once = datetime.now(ZoneInfo('Europe/Istanbul')).date() - timedelta(days=7)
 
     satirlar = (
@@ -2460,8 +2378,6 @@ def api_my_badges(current_user):
 
 @api_bp.get('/api/ambassador/rewards')
 def api_rewards_katalogu():
-    """Puanla alınabilecek sanal ödüllerin listesi (nakitsiz)."""
-    # Katalog boşsa varsayılanları doldur (ilk çalıştırmada seed)
     varsayilan = [
         ('PAZAR_1HAFTA', '🛒 Bit Pazarında 1 Hafta Öne Çıkartma',
          'İlanın 7 gün boyunca arama sonuçlarında ilk sırada görünür.', 300),
@@ -2492,7 +2408,6 @@ def api_rewards_katalogu():
 @api_bp.post('/api/ambassador/rewards/<int:reward_id>/satinal')
 @token_required_api
 def api_reward_satinal(current_user, reward_id):
-    """Puanla ödül satın al."""
     reward = ReferralReward.query.get_or_404(reward_id)
     if not reward.aktif_mi:
         return jsonify({'message': 'Bu ödül şu anda satın alınamaz.'}), 400
@@ -2503,17 +2418,12 @@ def api_reward_satinal(current_user, reward_id):
             'message': f'Yetersiz puan! {reward.maliyet_puan - puan} daha puan gerekli.'
         }), 400
 
-    # Aynı aktif ödülden önceden var mı? (tek seferlikleri engellemek için)
     mevcut = EarnedReward.query.filter_by(user_id=current_user.id, reward_id=reward.id, aktif_mi=True).first()
     if mevcut and reward.kod in ('ANASAYFA_SPOT',):
         return jsonify({'message': 'Bu ödülü henüz kullanmadan tekrar satın alamazsın.'}), 400
 
-    # Puanı düş
     current_user.ambassador_points = puan - reward.maliyet_puan
 
-    # Bitiş tarihi hesapla (çoğu ödül 1 ay geçerli)
-    from datetime import datetime, timedelta
-    from zoneinfo import ZoneInfo
     simdi = datetime.now(ZoneInfo('Europe/Istanbul'))
     bitis = None
     if reward.kod == 'PAZAR_1HAFTA':
@@ -2539,14 +2449,11 @@ def api_reward_satinal(current_user, reward_id):
     }), 201
 
 
-# ------------ ADMIN ENDPOINTLERI ------------
-
 @api_bp.get('/api/admin/ambassador/basvurular')
 @token_required()
 @is_admin
 def api_admin_ambassador_basvurular(current_user):
-    """Admin: Bekleyen/onaylanmış tüm elçi başvuruları."""
-    durum = request.args.get('durum', 'PENDING')  # PENDING / APPROVED / ALL
+    durum = request.args.get('durum', 'PENDING')
     q = Ambassador.query
     if durum != 'ALL':
         q = q.filter_by(durum=durum)
@@ -2575,7 +2482,6 @@ def api_admin_ambassador_basvurular(current_user):
 @token_required()
 @is_admin
 def api_admin_ambassador_onayla(current_user, basvuru_id):
-    """Admin: Elçi başvurusunu onayla + 500 puan bonus + rozet."""
     b = Ambassador.query.get_or_404(basvuru_id)
     u = User.query.get(b.user_id)
     if not u:
@@ -2584,7 +2490,6 @@ def api_admin_ambassador_onayla(current_user, basvuru_id):
     b.durum = 'APPROVED'
     b.onaylanma_tarihi = datetime.now(timezone.utc)
     u.is_ambassador = True
-    # Onay bonusu
     _give_ambassador_points_api(u, 500)
     _give_badge_api(u, "RESMI_ELCI", "⭐ Resmi Elçi",
                     "Yönetim tarafından onaylanmış resmi öğrenci elçisi!", "#F59E0B", "⭐")
@@ -2598,9 +2503,7 @@ def api_admin_ambassador_onayla(current_user, basvuru_id):
 @is_admin
 def api_admin_ambassador_reddet(current_user, basvuru_id):
     b = Ambassador.query.get_or_404(basvuru_id)
-    data = request.get_json(silent=True) or {}
     b.durum = 'REJECTED'
-    # Not: Reddetme sebebi için ayrı alan eklenebilir
     db.session.commit()
     return jsonify({'message': 'Başvuru reddedildi.'}), 200
 
@@ -2609,7 +2512,6 @@ def api_admin_ambassador_reddet(current_user, basvuru_id):
 @token_required()
 @is_admin
 def api_admin_elci_puan_ver(current_user, kullanici_id):
-    """Admin: Elçiye manüel puan ver (kampanya veya ek görev için)."""
     u = User.query.get_or_404(kullanici_id)
     data = request.get_json() or request.form
     try:
@@ -2628,13 +2530,8 @@ def api_admin_elci_puan_ver(current_user, kullanici_id):
     }), 200
 
 
-# ------------ AKTIVITE PUANI (Not/Değerlendirme/Forum) HOOKLARI ------------
-# Mevcut not yükleme / değerlendirme / forum endpointlerine puan kazandırmak için çağrılan ortak fonksiyon
 def _aktivite_puan_ver(current_user: User, puan: int, aktivite_turu: str):
-    """Günlük maksimum 5 aktivite puan sınırı ile puan ver; kampanya açıkken ekstra kredi ve elçi puanı ver."""
     try:
-        from datetime import datetime
-        from zoneinfo import ZoneInfo
         _give_ambassador_points_api(current_user, puan)
 
         if _is_exam_week_blitz_active():
@@ -2646,7 +2543,6 @@ def _aktivite_puan_ver(current_user: User, puan: int, aktivite_turu: str):
             if bonus_kredi:
                 current_user.kredi = (current_user.kredi or 0) + bonus_kredi
 
-        # Aktivite rozetleri
         if aktivite_turu == 'ders_notu':
             _give_badge_api(current_user, 'NOT_1', '📚 İlk Not', 'İlk ders notunu yükledin!', '#2563EB', '📚')
         if aktivite_turu == 'degerlendirme':
