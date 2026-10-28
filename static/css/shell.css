@@ -2,49 +2,27 @@
    Scoped under body.app-shell so existing page CSS (ui.css) is left alone. */
 
 :root {
-  --app-bg: #f4f4f5;
-  --app-elevated: #ffffff;
-  --app-ink: #18181b;
-  --app-ink-soft: #3f3f46;
-  --app-muted: #71717a;
-  --app-line: #e4e4e7;
-  --app-line-strong: #d4d4d8;
-  --app-accent: #3730a3;
-  --app-accent-hover: #312e81;
-  --app-accent-soft: #eef2ff;
-  --app-accent-ink: #312e81;
-  --app-on-accent: #ffffff;
-  --app-amber: #92400e;
-  --app-amber-bg: #fffbeb;
-  --app-shadow: 0 16px 40px rgba(24, 24, 27, 0.08);
+  --app-bg: #090d16;
+  --app-elevated: #111827;
+  --app-ink: #f1f5f9;
+  --app-ink-soft: #e2e8f0;
+  --app-muted: #94a3b8;
+  --app-line: rgba(255, 255, 255, 0.08);
+  --app-line-strong: rgba(255, 255, 255, 0.14);
+  --app-accent: #818cf8;
+  --app-accent-hover: #a5b4fc;
+  --app-accent-soft: rgba(99, 102, 241, 0.15);
+  --app-accent-ink: #818cf8;
+  --app-on-accent: #1e1b4b;
+  --app-amber: #fbbf24;
+  --app-amber-bg: rgba(245, 158, 11, 0.1);
+  --app-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
   --app-radius: 14px;
   --app-header-h: 64px;
   --app-tab-h: 62px;
   --app-font: "Plus Jakarta Sans", "Segoe UI", sans-serif;
-  --app-focus: 0 0 0 3px rgba(55, 48, 163, 0.28);
-  color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --app-bg: #09090b;
-    --app-elevated: #18181b;
-    --app-ink: #fafafa;
-    --app-ink-soft: #e4e4e7;
-    --app-muted: #a1a1aa;
-    --app-line: #27272a;
-    --app-line-strong: #3f3f46;
-    --app-accent: #a5b4fc;
-    --app-accent-hover: #c7d2fe;
-    --app-accent-soft: rgba(165, 180, 252, 0.14);
-    --app-accent-ink: #e0e7ff;
-    --app-on-accent: #1e1b4b;
-    --app-amber: #fcd34d;
-    --app-amber-bg: rgba(251, 191, 36, 0.1);
-    --app-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
-    --app-focus: 0 0 0 3px rgba(165, 180, 252, 0.35);
-    color-scheme: dark;
-  }
+  --app-focus: 0 0 0 3px rgba(99, 102, 241, 0.35);
+  color-scheme: dark;
 }
 
 .app-shell,
@@ -62,7 +40,7 @@ body.app-shell {
   font-family: var(--app-font);
   font-size: 16px;
   line-height: 1.5;
-  background: var(--app-bg);
+  background: #090d16;
   color: var(--app-ink);
   -webkit-font-smoothing: antialiased;
 }
@@ -121,9 +99,9 @@ body.app-shell.app-lock {
   gap: 10px;
   flex-wrap: wrap;
   padding: 8px 16px;
-  background: var(--app-amber-bg);
-  color: var(--app-ink-soft);
-  border-bottom: 1px solid var(--app-line);
+  background: rgba(245, 158, 11, 0.1);
+  color: #fbbf24;
+  border-bottom: 1px solid rgba(245, 158, 11, 0.2);
   font-size: 0.78rem;
   text-align: center;
 }
@@ -147,9 +125,10 @@ body.app-shell.app-lock {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: color-mix(in srgb, var(--app-elevated) 88%, transparent);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--app-line);
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .app-header__inner {
@@ -167,7 +146,7 @@ body.app-shell.app-lock {
   align-items: center;
   gap: 10px;
   min-width: 0;
-  color: inherit;
+  color: #e2e8f0;
   text-decoration: none;
   flex-shrink: 0;
 }
@@ -185,11 +164,12 @@ body.app-shell.app-lock {
   font-size: 0.98rem;
   letter-spacing: -0.02em;
   line-height: 1.15;
+  color: #e2e8f0;
 }
 
 .app-brand small {
   display: block;
-  color: var(--app-muted);
+  color: #94a3b8;
   font-size: 0.72rem;
   font-weight: 500;
 }
@@ -223,7 +203,7 @@ body.app-shell.app-lock {
   border: 0;
   border-radius: 10px;
   background: transparent;
-  color: var(--app-ink-soft);
+  color: #cbd5e1;
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 600;
@@ -235,15 +215,15 @@ body.app-shell.app-lock {
 .app-tools-btn:hover,
 .app-menu__link:hover,
 .app-menu__button:hover {
-  background: var(--app-accent-soft);
-  color: var(--app-accent-ink);
+  background: rgba(255, 255, 255, 0.06);
+  color: #e2e8f0;
 }
 
 .app-nav__link.is-active,
 .app-tools-btn.is-active {
-  background: var(--app-accent-soft);
-  color: var(--app-accent-ink);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--app-accent) 28%, transparent);
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+  box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.25);
 }
 
 .app-header__tools {
@@ -274,8 +254,8 @@ body.app-shell.app-lock {
   padding: 0 14px;
   border-radius: 999px;
   border: 1px solid var(--app-line-strong);
-  background: var(--app-elevated);
-  color: var(--app-ink);
+  background: rgba(15, 23, 42, 0.6);
+  color: #e2e8f0;
   text-decoration: none;
   font-size: 0.88rem;
   font-weight: 600;
@@ -573,7 +553,7 @@ body.app-shell.app-lock {
     grid-template-columns: repeat(5, 1fr);
     height: calc(var(--app-tab-h) + env(safe-area-inset-bottom));
     padding-bottom: env(safe-area-inset-bottom);
-    background: color-mix(in srgb, var(--app-elevated) 92%, transparent);
+    background: rgba(15, 23, 42, 0.92);
     backdrop-filter: blur(16px);
     border-top: 1px solid var(--app-line);
   }

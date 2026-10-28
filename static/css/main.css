@@ -1,58 +1,33 @@
-/* THKÜ Öğrenci Portalı — sayfa tasarım sistemi
-   Kabuk (shell.css) ile birlikte, ondan sonra yüklenir.
-   Canlı sayfalar hâlâ ui.css kullanır; bu dosya dönüşümden önce hazırdır. */
+/* THKÜ Öğrenci Portalı — sayfa tasarım sistemi (dark slate) */
 
 :root {
-  --ds-bg: #f8fafc;
-  --ds-surface: #ffffff;
-  --ds-ink: #0f172a;
-  --ds-muted: #64748b;
-  --ds-line: #e2e8f0;
-  --ds-line-strong: #cbd5e1;
-  --ds-soft: #f1f5f9;
-  --ds-accent: #3730a3;
-  --ds-accent-hover: #312e81;
-  --ds-accent-soft: #eef2ff;
-  --ds-on-accent: #ffffff;
-  --ds-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 10px 28px rgba(15, 23, 42, 0.06);
-  --ds-shadow-hover: 0 8px 24px rgba(15, 23, 42, 0.08);
-  --ds-radius: 12px;
-  --ds-ok: #047857;
-  --ds-ok-bg: #ecfdf5;
-  --ds-warn: #b45309;
-  --ds-warn-bg: #fffbeb;
-  color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --ds-bg: #0f172a;
-    --ds-surface: #1e293b;
-    --ds-ink: #f8fafc;
-    --ds-muted: #94a3b8;
-    --ds-line: #334155;
-    --ds-line-strong: #475569;
-    --ds-soft: #1e293b;
-    --ds-accent: #a5b4fc;
-    --ds-accent-hover: #c7d2fe;
-    --ds-accent-soft: rgba(165, 180, 252, 0.14);
-    --ds-on-accent: #1e1b4b;
-    --ds-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px rgba(0, 0, 0, 0.28);
-    --ds-shadow-hover: 0 10px 28px rgba(0, 0, 0, 0.4);
-    --ds-ok: #6ee7b7;
-    --ds-ok-bg: rgba(16, 185, 129, 0.14);
-    --ds-warn: #fcd34d;
-    --ds-warn-bg: rgba(251, 191, 36, 0.12);
-    color-scheme: dark;
-  }
+  --ds-bg: #090d16;
+  --ds-surface: #111827;
+  --ds-ink: #f1f5f9;
+  --ds-muted: #94a3b8;
+  --ds-line: rgba(255, 255, 255, 0.08);
+  --ds-line-strong: rgba(255, 255, 255, 0.14);
+  --ds-soft: #1e293b;
+  --ds-accent: #818cf8;
+  --ds-accent-hover: #a5b4fc;
+  --ds-accent-soft: rgba(99, 102, 241, 0.15);
+  --ds-on-accent: #1e1b4b;
+  --ds-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  --ds-shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.38);
+  --ds-radius: 16px;
+  --ds-ok: #6ee7b7;
+  --ds-ok-bg: rgba(16, 185, 129, 0.14);
+  --ds-warn: #fbbf24;
+  --ds-warn-bg: rgba(245, 158, 11, 0.12);
+  color-scheme: dark;
 }
 
 /* Kart */
 .card {
-  background: var(--ds-surface);
-  color: var(--ds-ink);
-  border: 1px solid var(--ds-line);
-  border-radius: var(--ds-radius);
+  background: #111827;
+  color: #f1f5f9;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
   box-shadow: var(--ds-shadow);
   padding: 1.5rem;
   transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
@@ -74,7 +49,7 @@ a.card {
 
 @media (hover: hover) {
   .card:hover {
-    border-color: var(--ds-line-strong);
+    border-color: rgba(255, 255, 255, 0.14);
     box-shadow: var(--ds-shadow-hover);
     transform: translateY(-2px);
   }
@@ -93,8 +68,8 @@ a.card {
   padding: 0.5rem 1rem;
   border-radius: 10px;
   border: 1px solid transparent;
-  background: var(--ds-soft);
-  color: var(--ds-ink);
+  background: #1e293b;
+  color: #f1f5f9;
   font: inherit;
   font-size: 0.92rem;
   font-weight: 600;
@@ -115,40 +90,40 @@ a.card {
 }
 
 .btn-primary {
-  background: var(--ds-accent);
-  border-color: var(--ds-accent);
-  color: var(--ds-on-accent);
+  background: #6366f1;
+  border-color: #6366f1;
+  color: #f8fafc;
 }
 
 .btn-secondary {
-  background: var(--ds-soft);
-  border-color: var(--ds-line);
-  color: var(--ds-ink);
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
 }
 
 .btn-outline {
   background: transparent;
-  border-color: var(--ds-line-strong);
-  color: var(--ds-ink);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: #e2e8f0;
 }
 
 @media (hover: hover) {
   .btn:hover,
   .btn-secondary:hover {
-    background: var(--ds-line);
-    border-color: var(--ds-line-strong);
+    background: #334155;
+    border-color: rgba(255, 255, 255, 0.16);
   }
 
   .btn-primary:hover {
-    background: var(--ds-accent-hover);
-    border-color: var(--ds-accent-hover);
-    color: var(--ds-on-accent);
+    background: #818cf8;
+    border-color: #818cf8;
+    color: #0f172a;
   }
 
   .btn-outline:hover {
-    background: var(--ds-accent-soft);
-    border-color: var(--ds-accent);
-    color: var(--ds-accent);
+    background: rgba(99, 102, 241, 0.12);
+    border-color: #818cf8;
+    color: #c7d2fe;
   }
 }
 
@@ -157,7 +132,7 @@ a.card {
 .btn-secondary:focus-visible,
 .btn-outline:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px var(--ds-accent-soft);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.35);
 }
 
 .btn:disabled,
@@ -203,9 +178,9 @@ a.card {
   max-width: 100%;
   padding: 0.2rem 0.65rem;
   border-radius: 999px;
-  border: 1px solid var(--ds-line);
-  background: var(--ds-soft);
-  color: var(--ds-muted);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+  color: #cbd5e1;
   font-size: 0.75rem;
   font-weight: 600;
   line-height: 1.3;
