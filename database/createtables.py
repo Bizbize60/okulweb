@@ -28,6 +28,7 @@ from database.katkida import KatkidaBulunan
 from database.moderator import Moderator
 from database.daily_active import DailyActiveUser
 from database.admin_rbac import Role, Permission, UserRole, RolePermission, ModerationCase, ModerationAction, AdminAuditLog
+from database.credit_audit import UserCreditChangeLog
 
 with app.app_context():
     db.create_all()

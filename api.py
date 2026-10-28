@@ -45,6 +45,7 @@ from yemek_menu import get_menu_data, get_today_menu, legacy_days_payload
 from ulasim import ulasim_overview
 from zoneinfo import ZoneInfo
 from database.admin_rbac import Role, Permission
+from database.credit_audit import UserCreditChangeLog
 
 KATKIDA_UPLOAD_FOLDER = os.path.join('uploads', 'katkida')
 os.makedirs(KATKIDA_UPLOAD_FOLDER, exist_ok=True)
@@ -1631,14 +1632,75 @@ def update_user_credit(current_user, id):
         return jsonify({'message': 'Geçerli bir sayı giriniz!'}), 400
 
     user = User.query.get_or_404(id)
+    eski_kredi = user.kredi if user.kredi is not None else 0
+    if eski_kredi == yeni_kredi:
+        return jsonify({'message': f'Kredi zaten {yeni_kredi} olarak kayıtlı.'}), 200
+
     user.kredi = yeni_kredi
-    
+    db.session.add(UserCreditChangeLog(
+        target_user_id=user.id,
+        actor_user_id=current_user.id,
+        old_kredi=eski_kredi,
+        new_kredi=yeni_kredi,
+    ))
+
     try:
         db.session.commit()
         return jsonify({'message': f'Kredi başarıyla {yeni_kredi} olarak güncellendi!'}), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({'message': f'Sunucu hatası: {str(e)}'}), 500
+
+
+@api_bp.get('/api/admin/credit-audit')
+@token_required()
+@is_admin
+def list_credit_audit_logs(current_user):
+    page = request.args.get('page', 1, type=int)
+    page_size = request.args.get('page_size', 50, type=int)
+    page = max(page, 1)
+    page_size = min(max(page_size, 1), 100)
+
+    query = UserCreditChangeLog.query.order_by(UserCreditChangeLog.created_at.desc())
+    total = query.count()
+    rows = query.offset((page - 1) * page_size).limit(page_size).all()
+    tz = ZoneInfo('Europe/Istanbul')
+
+    def _dt_str(value):
+        if not value:
+            return ''
+        dt = value if value.tzinfo else value.replace(tzinfo=timezone.utc)
+        return dt.astimezone(tz).strftime('%d.%m.%Y %H:%M')
+
+    items = []
+    for row in rows:
+        target = row.target_user
+        actor = row.actor_user
+        items.append({
+            'id': row.id,
+            'created_at': _dt_str(row.created_at),
+            'target_user_id': row.target_user_id,
+            'target_name': target.name if target else '',
+            'target_email': target.email if target else '',
+            'actor_user_id': row.actor_user_id,
+            'actor_name': actor.name if actor else '',
+            'actor_email': actor.email if actor else '',
+            'old_kredi': row.old_kredi,
+            'new_kredi': row.new_kredi,
+            'delta': row.new_kredi - row.old_kredi,
+        })
+
+    return jsonify({
+        'items': items,
+        'pagination': {
+            'page': page,
+            'page_size': page_size,
+            'total_items': total,
+            'total_pages': max(1, (total + page_size - 1) // page_size),
+            'has_prev': page > 1,
+            'has_next': page * page_size < total,
+        },
+    }), 200
 
 
 @api_bp.get('/api/admin/pending-notes')

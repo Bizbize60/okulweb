@@ -9,6 +9,7 @@ from backend import app, seed_default_market_listings
 from database.initdb import db
 from database.user import User
 from database.admin_rbac import Role, Permission, UserRole
+from database.credit_audit import UserCreditChangeLog
 from api import _aktivite_puan_ver
 from database.pazar import PazarIlani
 
@@ -87,6 +88,38 @@ class AdminRbacApiTests(unittest.TestCase):
         self.assertIn("const rolesTableBody = document.getElementById('rolesTableBody');", template)
         self.assertIn("const roleUserSelect = document.getElementById('roleUserSelect');", template)
         self.assertIn("const userRoleList = document.getElementById('userRoleList');", template)
+
+    def test_admin_credit_update_writes_audit_log(self):
+        self._auth_cookie('owner@localhost')
+
+        with self.app.app_context():
+            target = User(
+                public_id='target-public-id',
+                name='Target User',
+                email='target@localhost',
+                password='pw',
+                kredi=2,
+            )
+            db.session.add(target)
+            db.session.commit()
+            target_id = target.id
+
+        res = self.client.put(f'/api/admin/users/{target_id}/kredi', json={'kredi': 7})
+        self.assertEqual(res.status_code, 200)
+
+        with self.app.app_context():
+            target = User.query.get(target_id)
+            self.assertEqual(target.kredi, 7)
+            logs = UserCreditChangeLog.query.filter_by(target_user_id=target_id).all()
+            self.assertEqual(len(logs), 1)
+            self.assertEqual(logs[0].old_kredi, 2)
+            self.assertEqual(logs[0].new_kredi, 7)
+
+        audit_res = self.client.get('/api/admin/credit-audit')
+        self.assertEqual(audit_res.status_code, 200)
+        payload = audit_res.get_json()
+        self.assertTrue(payload['items'])
+        self.assertEqual(payload['items'][0]['new_kredi'], 7)
 
     def test_exam_blitz_toggle_enables_campaign_bonus(self):
         self._auth_cookie('owner@localhost')
