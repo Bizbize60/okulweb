@@ -1,0 +1,203 @@
+{# Sayfa envanteri: primary (üst bar), tool_groups (Araçlar), hesap (profil / giriş / kayıt / çıkış).
+   /verify ve /r/<kod> kalıcı menüde yok: ilki oturumluk doğrulama adımı, ikincisi /signup yönlendirmesi. #}
+{% macro link(item, cls) -%}
+{%- set ep = item[0] -%}
+{%- set label = item[1] -%}
+{%- set icon = item[2] -%}
+{%- set full = item[3] if item|length > 3 else label -%}
+{%- set on = request.endpoint == ep -%}
+<a href="{{ url_for(ep) }}" class="{{ cls }}{% if on %} is-active{% endif %}" title="{{ full }}"{% if on %} aria-current="page"{% endif %}>
+  <i data-lucide="{{ icon }}" aria-hidden="true"></i><span>{{ label }}</span>
+</a>
+{%- endmacro %}
+
+{% set primary = [
+  ['pages.main_page', 'Ana Sayfa', 'house'],
+  ['pages.forum_sayfa', 'Forum', 'messages-square', 'Forum / Topluluk'],
+  ['pages.ders_notlari_page', 'Ders Notları', 'library'],
+  ['pages.yemekhane_sayfa', 'Yemekhane', 'utensils'],
+  ['pages.otobus_saatleri_sayfa', 'Ulaşım', 'bus', 'Ring, otobüs ve servis saatleri']
+] %}
+
+{% set tabbar = [
+  ['pages.main_page', 'Ana', 'house', 'Ana Sayfa'],
+  ['pages.yemekhane_sayfa', 'Yemek', 'utensils', 'Yemekhane'],
+  ['pages.otobus_saatleri_sayfa', 'Ulaşım', 'bus', 'Ring, otobüs ve servis saatleri'],
+  ['pages.ders_notlari_page', 'Notlar', 'library', 'Ders Notları']
+] %}
+
+{% set tool_groups = [
+  {
+    'title': 'Günlük yaşam',
+    'links': [
+      ['pages.enstantaneler_sayfa', 'Kampüste Hayat', 'camera'],
+      ['pages.kayiplar_page', 'Kayıp Eşya', 'umbrella'],
+      ['pages.bit_pazari_sayfa', 'Bit Pazarı', 'shopping-bag'],
+      ['pages.ilan_ekle_sayfa', 'İlan Ver', 'plus'],
+      ['pages.kroki_page', 'Kampüs Krokisi', 'map'],
+      ['pages.ofis_saatleri_page', 'Ofis Saatleri', 'calendar-clock'],
+      ['pages.haberler_page', 'Haberler', 'newspaper'],
+      ['pages.duyurular_page', 'Duyurular', 'megaphone']
+    ]
+  },
+  {
+    'title': 'Akademik',
+    'links': [
+      ['pages.not_ekle_sayfa', 'Not Ekle', 'file-plus'],
+      ['pages.ogretmen_listesi_sayfa', 'Öğretmen Listesi', 'graduation-cap'],
+      ['pages.ogretmen_degerlendirme_sayfa', 'Öğretmen Değerlendirme', 'star']
+    ]
+  },
+  {
+    'title': 'Topluluk',
+    'links': [
+      ['pages.ogrenci_elcisi_tanitimi', 'Öğrenci Elçisi', 'sparkles'],
+      ['pages.elci_paneli_sayfa', 'Elçi Paneli', 'layout-dashboard'],
+      ['pages.elci_liderlik_tablosu', 'Liderlik Tablosu', 'trophy'],
+      ['pages.istekler_page', 'İstekler', 'lightbulb'],
+      ['pages.katkida_bulunanlar_page', 'Katkıda Bulunanlar', 'users'],
+      ['pages.moderatorler_page', 'Moderatörler', 'shield']
+    ]
+  },
+  {
+    'title': 'Kulüpler',
+    'links': [
+      ['pages.kanatli_bulten_sayfa', 'Kanatlı Bülten', 'plane'],
+      ['pages.utaa_music_club_page', 'UTAA Music Club', 'music'],
+      ['pages.fsource_page', 'FSource', 'code-2'],
+      ['pages.makine_muh_page', 'Makine Mühendisliği', 'cog'],
+      ['pages.turk_tarih_page', 'Türk Tarih Topluluğu', 'landmark']
+    ]
+  },
+  {
+    'title': 'Yönetim',
+    'links': [
+      ['pages.kulup_yonetimi_sayfa', 'Kulüp Yönetimi', 'settings'],
+      ['pages.admin_page', 'Admin', 'shield-check']
+    ]
+  }
+] %}
+
+{% set ns = namespace(tools=false) %}
+{% for group in tool_groups %}
+  {% for entry in group.links %}
+    {% if request.endpoint == entry[0] %}{% set ns.tools = true %}{% endif %}
+  {% endfor %}
+{% endfor %}
+
+<header class="app-header">
+  <div class="app-header__inner">
+    <a class="app-brand" href="{{ url_for('pages.main_page') }}">
+      <img src="{{ url_for('static', filename='kedi.ico') }}" alt="" width="36" height="36">
+      <span>
+        <strong>THKÜ Öğrenci</strong>
+        <small>Gayriresmi topluluk</small>
+      </span>
+    </a>
+
+    <nav class="app-nav" aria-label="Ana menü">
+      {% for entry in primary %}
+        {{ link(entry, 'app-nav__link') }}
+      {% endfor %}
+
+      <div class="app-dropdown" id="appTools">
+        <button type="button" class="app-tools-btn{% if ns.tools %} is-active{% endif %}" id="appToolsBtn" aria-expanded="false" aria-controls="appToolsMenu">
+          <i data-lucide="layout-grid" aria-hidden="true"></i>
+          <span>Araçlar</span>
+          <i data-lucide="chevron-down" aria-hidden="true"></i>
+        </button>
+        <div class="app-mega" id="appToolsMenu">
+          {% for column in [
+            [tool_groups[0]],
+            [tool_groups[1], tool_groups[3]],
+            [tool_groups[2], tool_groups[4]]
+          ] %}
+            <div class="app-mega__col">
+              {% for group in column %}
+                <section aria-label="{{ group.title }}">
+                  <p class="app-mega__title">{{ group.title }}</p>
+                  {% for entry in group.links %}
+                    {{ link(entry, 'app-menu__link') }}
+                  {% endfor %}
+                </section>
+              {% endfor %}
+            </div>
+          {% endfor %}
+          <p class="app-mega__note">Kulüp yönetimi ve admin, ilgili yetkisi olan hesaplara açıktır.</p>
+        </div>
+      </div>
+    </nav>
+
+    <div class="app-header__tools">
+      <div class="app-auth app-auth-guest">
+        <a class="app-btn{% if request.endpoint == 'auth.login' %} is-active{% endif %}" href="{{ url_for('auth.login') }}" aria-label="Giriş"{% if request.endpoint == 'auth.login' %} aria-current="page"{% endif %}>
+          <i data-lucide="log-in" aria-hidden="true"></i><span>Giriş</span>
+        </a>
+        <a class="app-btn app-btn--solid{% if request.endpoint == 'auth.register' %} is-active{% endif %}" href="{{ url_for('auth.register') }}" aria-label="Kayıt ol"{% if request.endpoint == 'auth.register' %} aria-current="page"{% endif %}>
+          <i data-lucide="user-plus" aria-hidden="true"></i><span>Kayıt Ol</span>
+        </a>
+      </div>
+      <div class="app-auth app-auth-user">
+        <a class="app-profile{% if request.endpoint == 'pages.profilim_sayfa' %} is-active{% endif %}" href="{{ url_for('pages.profilim_sayfa') }}" aria-label="Profilim"{% if request.endpoint == 'pages.profilim_sayfa' %} aria-current="page"{% endif %}>
+          <i data-lucide="user-round" aria-hidden="true"></i>
+          <span class="app-profile__name" data-shell-username>{{ shell_name }}</span>
+        </a>
+        <form class="app-logout" method="post" action="{{ url_for('auth.logout') }}">
+          <button type="submit" class="app-btn" aria-label="Çıkış">
+            <i data-lucide="log-out" aria-hidden="true"></i><span>Çıkış</span>
+          </button>
+        </form>
+      </div>
+      <button type="button" class="app-iconbtn" id="appMenuBtn" aria-expanded="false" aria-controls="appDrawer" aria-label="Menüyü aç">
+        <span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="app-backdrop" id="appBackdrop" hidden></div>
+<aside class="app-drawer" id="appDrawer" aria-hidden="true" aria-label="Kampüs menüsü">
+  <div class="app-drawer__head">
+    <strong>Kampüs menüsü</strong>
+    <button type="button" class="app-drawer__close" id="appDrawerClose" aria-label="Menüyü kapat">&times;</button>
+  </div>
+  <div class="app-drawer__body">
+    <section aria-label="Sık kullanılan">
+      <p class="app-drawer__title">Sık kullanılan</p>
+      {% for entry in primary %}
+        {{ link(entry, 'app-menu__link') }}
+      {% endfor %}
+    </section>
+    {% for group in tool_groups %}
+      <section aria-label="{{ group.title }}">
+        <p class="app-drawer__title">{{ group.title }}</p>
+        {% for entry in group.links %}
+          {{ link(entry, 'app-menu__link') }}
+        {% endfor %}
+      </section>
+    {% endfor %}
+    <div class="app-drawer__account">
+      <div class="app-auth-user">
+        {{ link(['pages.profilim_sayfa', 'Profilim', 'user-round'], 'app-menu__link') }}
+        <form class="app-logout" method="post" action="{{ url_for('auth.logout') }}">
+          <button type="submit" class="app-menu__button">
+            <i data-lucide="log-out" aria-hidden="true"></i><span>Çıkış</span>
+          </button>
+        </form>
+      </div>
+      <div class="app-auth-guest">
+        {{ link(['auth.login', 'Giriş', 'log-in'], 'app-menu__link') }}
+        {{ link(['auth.register', 'Kayıt Ol', 'user-plus'], 'app-menu__link') }}
+      </div>
+    </div>
+  </div>
+</aside>
+
+<nav class="app-tabbar" aria-label="Mobil kısayollar">
+  {% for entry in tabbar %}
+    {{ link(entry, 'app-tabbar__link') }}
+  {% endfor %}
+  <button type="button" class="app-tabbar__btn{% if ns.tools %} is-active{% endif %}" id="appTabMenu" aria-expanded="false" aria-controls="appDrawer">
+    <i data-lucide="menu" aria-hidden="true"></i><span>Menü</span>
+  </button>
+</nav>

@@ -1,19 +1,11 @@
-<!DOCTYPE html>
-<html lang="tr">
+{% extends "base.html" %}
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>[GAYRİRESMİ] THKÜ Öğrenci Portalı — THK Üniversitesi ile bağı yoktur</title>
-  <meta name="description" content="Bu site bağımsız öğrenciler tarafından yapılmış gayriresmi bir projedir. THK Üniversitesi ile hiçbir resmi, hukuki veya kurumsal bağı bulunmamaktadır.">
-  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='kedi.ico') }}">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <!-- THKU UI Global (reusable components + accessibility) -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/ui.css') }}">
-  <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+{% block title %}[GAYRİRESMİ] THKÜ Öğrenci Portalı — THK Üniversitesi ile bağı yoktur{% endblock %}
+
+{% block head %}
+<meta name="description" content="Bu site bağımsız öğrenciler tarafından yapılmış gayriresmi bir projedir. THK Üniversitesi ile hiçbir resmi, hukuki veya kurumsal bağı bulunmamaktadır.">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
       --bg-base: #050506;
@@ -610,12 +602,6 @@
     .club-arrow { color: var(--fg-muted); transition: all .2s; }
     .club-card:hover .club-arrow { color: var(--fg); transform: translateX(3px); }
 
-    /* ── EKİP KARTLARI ──────────────────────────── */
-    .team-card { transition: transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s, border-color .3s; }
-    .team-card:hover { transform: translateY(-6px); border-color: var(--border-hover); box-shadow: 0 16px 36px rgba(0,0,0,.35); }
-    .team-card:hover .team-avatar { transform: scale(1.1) rotate(-4deg); }
-    .team-avatar { transition: transform .3s cubic-bezier(.34,1.56,.64,1); }
-
     /* ── FOOTER ─────────────────────────────────── */
     .footer { padding: 40px 24px; border-top: 1px solid var(--border); }
     .footer-content { max-width: 640px; margin: 0 auto; text-align: center; }
@@ -691,21 +677,44 @@
     .amb-rname{flex:1;font-size:.85rem;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
     .amb-rpuan{font-size:.78rem;font-weight:700;color:var(--warn);}
     .amb-empty{color:var(--fg-muted);font-size:.85rem;padding:8px 0;text-align:center;}
-  </style>
-</head>
 
-<body>
-  <!-- ÖN YÜKLEYİCİ (PRELOADER) -->
-  <div id="cat-loader" role="status" aria-live="polite" aria-label="Sayfa yükleniyor">
-    <div class="cat-spinner">
-      <img src="{{ url_for('static', filename='kedi.ico') }}" alt="" aria-hidden="true">
-      <div class="cat-shadow"></div>
-    </div>
-    <h2 class="loader-text">THKÜ Öğrenci Portalı</h2>
-    <div class="loader-progress"><span></span></div>
-  </div>
+.home-page .hero {
+  min-height: auto;
+  padding: 2.5rem 1.5rem 3rem;
+}
+.home-page .quick-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 720px) {
+  .home-page .quick-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 1100px) {
+  .home-page .quick-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+.home-page .quick-card {
+  border-radius: 12px;
+  border: 1px solid var(--ds-line, #e2e8f0);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+.home-page .clubs-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 720px) {
+  .home-page .clubs-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 
-  <!-- BACKGROUND -->
+</style>
+{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block content %}
+<div class="home-page">
+<!-- BACKGROUND -->
   <div class="bg">
     <div class="bg-grid"></div>
     <div class="blob blob-1"></div>
@@ -738,25 +747,6 @@
     </div>
   </div>
 
-  <!-- GAYRİRESMİ BANT -->
-  <div class="unofficial-bar">
-    <span>⚠️</span>
-    <span>Bu site THK Üniversitesi'nin <span class="bar-emphasis">RESMİ sitesi DEĞİLDİR</span>.&nbsp; Öğrenciler tarafından, öğrenciler için yapılmış bağımsız bir projedir.</span>
-    <span>·</span>
-    <a href="https://www.thk.edu.tr" target="_blank" rel="noopener noreferrer">Resmi Site →</a>
-  </div>
-
-  <!-- REUSABLE NAVBAR -->
-  <div id="navbarRoot"></div>
-  <script src="{{ url_for('static', filename='js/components.js') }}" defer></script>
-  <script>
-    window.addEventListener('DOMContentLoaded', function(){
-      var opts = { is_logged_in: {% if is_logged_in %}true{% else %}false{% endif %}, active: 'home' };
-      if (window.THKU_UI && window.THKU_UI.Navbar) window.THKU_UI.Navbar.render('#navbarRoot', opts);
-      if (window.THKU_UI && window.THKU_UI.Footer)  window.THKU_UI.Footer.render('#footerRoot');
-    });
-  </script>
-
   <!-- HERO -->
   <section class="hero">
     <div class="hero-content">
@@ -782,12 +772,14 @@
     </div>
   </section>
 
-  <!-- KAMPÜS VİTRİN -->
+  <!-- KAMPÜS VİTRİN: Kullanıcıların en çok ihtiyaç duyduğu 4 alan + Hızlı Erişim -->
   <main id="main-content" role="main" style="padding-top: 28px;">
     <div class="container">
-      <section aria-label="Kampüs Vitrini" class="reveal-on-scroll" style="margin-top:-34px; position:relative; z-index:3;">
-        <div class="home-widgets w-3col" style="display:grid;">
-          <a href="/yemekhane" class="widget w-yemekhane" aria-label="Yemekhane menüsü">
+      <!-- 1) EN UST: 3'lu WIDGET (Yemekhane + Otobüs + HElçi + Top5)  -->
+      <section aria-label="Kampüs Vitrini" style="margin-top:-34px; position:relative; z-index:3;">
+        <div class="home-widgets w-3col grid-container" style="display:grid;">
+          <!-- WIDGET 1: Yemekhane (bugun) — GERCEK DATA JS ile doldurulur -->
+          <a href="/yemekhane" class="card widget w-yemekhane" aria-label="Yemekhane menüsü">
             <div class="widget-head">
               <h3 class="widget-title"><span class="wi" aria-hidden="true">🍽️</span> Bugün Yemekhanede</h3>
               <span id="yemekBadge" class="wl-badge" style="background: rgba(16,185,129,.14); color: #10B981; padding: 3px 9px; border-radius: 999px; font-size:.73rem; font-weight:600; border:1px solid rgba(16,185,129,.28);">Yükleniyor...</span>
@@ -799,7 +791,8 @@
             </ul>
           </a>
 
-          <a href="/otobus-saatleri" class="widget w-otobus" aria-label="Otobüs saatleri">
+          <!-- WIDGET 2: Otobüs (sonraki saat) — GERCEK DATA JS ile doldurulur -->
+          <a href="/otobus-saatleri" class="card widget w-otobus" aria-label="Otobüs saatleri">
             <div class="widget-head">
               <h3 class="widget-title"><span class="wi" aria-hidden="true">🚌</span> Sonraki Otobüs</h3>
               <span id="otobusBadge" class="wl-badge" style="background: rgba(59,130,246,.14); color:#60A5FA; padding:3px 9px; border-radius:999px; font-size:.73rem; font-weight:600; border:1px solid rgba(59,130,246,.28);">Canlı</span>
@@ -811,7 +804,8 @@
             </ul>
           </a>
 
-          <div class="widget w-elci" aria-label="Haftanın elçisi">
+          <!-- WIDGET 3: HAFTA ELÇISI (varsa) veya Genel Top 5 -->
+          <div class="card widget w-elci" aria-label="Haftanın elçisi">
             <div class="widget-head">
               <h3 class="widget-title"><span class="wi" aria-hidden="true">👑</span> Bu Haftanın Elçisi</h3>
               <a href="/liderlik-tablosu" style="font-size:.78rem; color:#F59E0B; text-decoration:underline; text-underline-offset:3px; min-height:44px; display:inline-flex; align-items:center; padding: 0 6px;">Tüm sıralama →</a>
@@ -823,6 +817,7 @@
                 <div class="elci-meta-name">{{ haftanin_elcisi.name }}</div>
                 <div class="elci-meta-sub">
                   {{ haftanin_elcisi.seviye_adi or 'Üye' }} · ✨ {{ haftanin_elcisi.hafta_davet or 0 }} davet · ⭐ {{ haftanin_elcisi.ambassador_points or 0 }} puan
+                  {% if haftanin_elcisi.is_ambassador %}· <span style="color:#F59E0B;">⭐ Resmi</span>{% endif %}
                 </div>
               </div>
               <a href="/ogrenci-elcisi" class="btn btn-outline" style="min-height: 38px; padding: 0 12px; font-size: .8rem; align-self: center;">📋 Başvur</a>
@@ -837,89 +832,121 @@
         </div>
       </section>
 
-      <!-- HIZLI ERISIM KARTLARI -->
-      <section aria-label="Hızlı Erişim" class="reveal-on-scroll" style="margin-top:48px;">
+      <!-- 2) HIZLI ERISIM KARTLARI (8 adet) - Kullanıcılar 1 tikla erisin -->
+      <section aria-label="Hızlı Erişim" style="margin-top:48px;">
         <div class="section-title">
           <div>
             <h2>⚡ Hızlı Erişim</h2>
             <p class="hero-subtitle" style="margin:6px 0 0; max-width:56ch;">En çok kullanılan özelliklere tek tıkla ulaş — arama yapmana gerek yok.</p>
           </div>
         </div>
-        <div class="quick-grid">
-          <a href="/ders-notlari" class="quick-card reveal-on-scroll" data-reveal-delay="1">
+        <div class="quick-grid grid-container">
+          <a href="/ders-notlari" class="card quick-card">
             <div class="quick-icon" style="background:rgba(59,130,246,.14);color:#3B82F6;">📚</div>
             <div class="quick-title">Ders Notları</div>
             <div class="quick-desc">Yükle, indir, paylaş — Ücretsiz</div>
           </a>
-          <a href="/ogretmen-listesi" class="quick-card reveal-on-scroll" data-reveal-delay="2">
+          <a href="/ogretmen-listesi" class="card quick-card">
             <div class="quick-icon" style="background:rgba(249,115,22,.14);color:#F97316;">👨‍🏫</div>
             <div class="quick-title">Öğretmenler</div>
             <div class="quick-desc">Ders notu ort. + değerlendirme</div>
           </a>
-          <a href="/forum" class="quick-card reveal-on-scroll" data-reveal-delay="3">
+          <a href="/forum" class="card quick-card">
             <div class="quick-icon" style="background:rgba(16,185,129,.14);color:#10B981;">💬</div>
             <div class="quick-title">Forum</div>
             <div class="quick-desc">Soru sor, bilgi paylaş, sohbet et</div>
           </a>
-          <a href="/yemekhane" class="quick-card reveal-on-scroll" data-reveal-delay="4">
+          <a href="/yemekhane" class="card quick-card">
             <div class="quick-icon" style="background:rgba(236,72,153,.14);color:#EC4899;">🍽️</div>
             <div class="quick-title">Yemekhane</div>
             <div class="quick-desc">Haftalık menü, kalori, vejetaryen</div>
           </a>
-          <a href="/otobus-saatleri" class="quick-card reveal-on-scroll" data-reveal-delay="5">
+          <a href="/otobus-saatleri" class="card quick-card">
             <div class="quick-icon" style="background:rgba(139,92,246,.14);color:#8B5CF6;">🚌</div>
             <div class="quick-title">Ulaşım</div>
             <div class="quick-desc">Otobüs saatleri, durağını gör</div>
           </a>
-          <a href="/bit-pazari" class="quick-card reveal-on-scroll" data-reveal-delay="6">
+          <a href="/bit-pazari" class="card quick-card">
             <div class="quick-icon" style="background:rgba(245,158,11,.14);color:#F59E0B;">🛍️</div>
             <div class="quick-title">Bit Pazarı</div>
             <div class="quick-desc">2.el alışveriş, ilan oluştur</div>
           </a>
-          <a href="/kayiplar" class="quick-card reveal-on-scroll" data-reveal-delay="7">
+          <a href="/kayiplar" class="card quick-card">
             <div class="quick-icon" style="background:rgba(14,165,233,.14);color:#0EA5E9;">☂️</div>
             <div class="quick-title">Kayıp Eşya</div>
             <div class="quick-desc">Kaybettiklerini bul, bulanları ilan et</div>
           </a>
-          <a href="/kroki" class="quick-card reveal-on-scroll" data-reveal-delay="1">
+          <a href="/kroki" class="card quick-card">
             <div class="quick-icon" style="background:rgba(99,102,241,.14);color:#6366F1;">🗺️</div>
             <div class="quick-title">Kroki</div>
             <div class="quick-desc">Kampüs haritası, binanı bul</div>
           </a>
         </div>
       </section>
+
+      <!-- 3) TOP 5 ELCI SIRALAMASI (eger varsa, widget 2. satir) -->
+      {% if top_elciler and top_elciler|length > 0 %}
+      <section aria-label="En aktif 5 öğrenci" style="margin-top:48px;">
+        <div class="section-title">
+          <div>
+            <h2>🏆 Top 5 Öğrenci Elçisi</h2>
+            <p class="hero-subtitle" style="margin:6px 0 0;">Haftalık en çok arkadaşını davet eden, en aktif öğrenciler — sen de aralarında olabilirsin! 💪</p>
+          </div>
+          <a href="/liderlik-tablosu" class="btn btn-outline" style="min-height:40px; font-size:.85rem;">Tam sıralamayı gör →</a>
+        </div>
+        <div class="widget w-top5" style="padding:16px 20px;">
+          <ul class="top5-list">
+          {% for u in top_elciler[:5] %}
+            <li class="top5-row">
+              <div class="top5-rank" aria-label="{{ loop.index }}. sıra">{{ loop.index }}</div>
+              <div>
+                <div class="top5-name">{{ u.name }}</div>
+                <div class="top5-level">
+                  {{ u.seviye_adi or 'Üye' }}
+                  {% if u.is_ambassador %}· <span style="color:#F59E0B;">⭐ Resmi Elçi</span>{% endif %}
+                  · {{ u.hafta_davet or 0 }} davet / bu hafta
+                </div>
+              </div>
+              <div class="top5-pts" title="Toplam aktivite puanı">{{ (u.ambassador_points or 0) | int }}</div>
+              <div class="wl-badge" style="background: rgba(139, 92, 246,.10); color:#A78BFA; padding: 3px 8px; border-radius: 999px; font-size: .72rem; font-weight: 600; border:1px solid rgba(139, 92, 246,.2);">Puan</div>
+            </li>
+          {% endfor %}
+          </ul>
+        </div>
+      </section>
+      {% endif %}
     </div>
   </main>
 
   <!-- KULÜPLER -->
-  <section class="clubs-section reveal-on-scroll">
+  <section class="clubs-section">
     <div class="features-header">
       <span class="section-tag">Öğrenci Kulüpleri</span>
       <h2 class="section-title">Kulüpleri keşfet</h2>
       <p class="section-subtitle">THKÜ'nün aktif öğrenci kulüplerine göz atın ve etkinliklerden haberdar olun.</p>
     </div>
-    <div class="clubs-grid">
-      <a href="/kulupler/kanatlibulten" class="club-card reveal-on-scroll" data-reveal-delay="1">
+    <div class="clubs-grid grid-container">
+      <a href="/kulupler/kanatlibulten" class="club-card">
         <div class="club-avatar kanatli">📰</div>
         <div class="club-info"><div class="club-name">Kanatlı Bülten</div><div class="club-desc">Üniversite haber ve dergi kulübü</div></div>
         <svg class="club-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
       </a>
-      <a href="/kulupler/utaa-music-club" class="club-card reveal-on-scroll" data-reveal-delay="2">
+      <a href="/kulupler/utaa-music-club" class="club-card">
         <div class="club-avatar utaa">🎵</div>
         <div class="club-info"><div class="club-name">UTAA Music Club</div><div class="club-desc">Müzik ve performans kulübü</div></div>
         <svg class="club-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
       </a>
-      <a href="/kulupler/fsource" class="club-card reveal-on-scroll" data-reveal-delay="3">
+      <a href="/kulupler/fsource" class="club-card">
         <div class="club-avatar fsource">💻</div>
         <div class="club-info"><div class="club-name">FSource</div><div class="club-desc">Yazılım ve teknoloji kulübü</div></div>
         <svg class="club-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
       </a>
-      <a href="/kulupler/makine-muhendisligi" class="club-card reveal-on-scroll" data-reveal-delay="4">
+      <a href="/kulupler/makine-muhendisligi" class="club-card">
         <div class="club-avatar makine">⚙️</div>
         <div class="club-info"><div class="club-name">Makine Mühendisliği</div><div class="club-desc">Mühendislik ve inovasyon kulübü</div></div>
         <svg class="club-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
       </a>
-      <a href="/kulupler/turk-tarih-toplulugu" class="club-card reveal-on-scroll" data-reveal-delay="5">
+      <a href="/kulupler/turk-tarih-toplulugu" class="club-card">
         <div class="club-avatar tarih">📜</div>
         <div class="club-info"><div class="club-name">Türk Tarih Topluluğu</div><div class="club-desc">Tarih ve kültür araştırma kulübü</div></div>
         <svg class="club-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
@@ -927,43 +954,387 @@
     </div>
   </section>
 
-  <!-- GELİŞTİRİCİLER & MODERATÖRLER BÖLÜMÜ -->
-  <section class="team-section reveal-on-scroll" style="padding: 60px 24px 80px; border-top: 1px solid var(--border); background: rgba(0,0,0,0.2);">
-    <div class="features-header">
-      <span class="section-tag">Ekip & Güvenlik</span>
-      <h2 class="section-title">Geliştiriciler & Moderatörler</h2>
-      <p class="section-subtitle">Bu platformu hayata geçiren ve topluluğu düzenli tutan gönüllü ekip.</p>
-    </div>
-    <div class="team-grid" style="max-width: 960px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px;">
-      <div class="team-card reveal-on-scroll" data-reveal-delay="1" style="background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 24px; text-align: center;">
-        <div class="team-avatar" style="width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 16px; background: linear-gradient(135deg, var(--accent), #8b5cf6); display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff;">💻</div>
-        <h3 class="team-name" style="font-weight: 700; font-size: 1.1rem; margin-bottom: 6px; color: #fff;">Platform Geliştiricileri</h3>
-        <div class="team-role" style="font-size: .82rem; font-weight: 600; color: var(--warn); text-transform: uppercase; margin-bottom: 12px;">Kurucu Ekip</div>
-        <p class="team-desc" style="font-size: .85rem; color: var(--fg-muted); line-height: 1.5;">THKÜ öğrencileri tarafından bağımsız olarak kodlanan mimari ve arayüz altyapısı.</p>
-      </div>
-      <div class="team-card reveal-on-scroll" data-reveal-delay="2" style="background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 24px; text-align: center;">
-        <div class="team-avatar" style="width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 16px; background: linear-gradient(135deg, var(--accent), #8b5cf6); display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff;">🛡️</div>
-        <h3 class="team-name" style="font-weight: 700; font-size: 1.1rem; margin-bottom: 6px; color: #fff;">Moderatör Ekibi</h3>
-        <div class="team-role" style="font-size: .82rem; font-weight: 600; color: var(--warn); text-transform: uppercase; margin-bottom: 12px;">Topluluk Rehberleri</div>
-        <p class="team-desc" style="font-size: .85rem; color: var(--fg-muted); line-height: 1.5;">Forum düzenini sağlayan, ders notlarını denetleyen ve paylaşımların güvenliğini koordine eden ekip.</p>
-      </div>
-    </div>
-  </section>
+<!-- Floating İstek/Öneri Butonu -->
+<a href="/istekler" class="floating-feedback-btn" title="İstek veya Öneri Bildir">
+    <span class="icon">💡</span>
+    <span class="text">İstek / Öneri</span>
+</a>
 
-  <!-- REUSABLE FOOTER -->
-  <div id="footerRoot"></div>
+<style>
+.floating-feedback-btn {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    color: #ffffff;
+    padding: 12px 20px;
+    border-radius: 50px;
+    box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(8px);
+}
 
-  <!-- Floating İstek/Öneri Butonu -->
-  <a href="/istekler" class="floating-feedback-btn" title="İstek veya Öneri Bildir">
-      <span class="icon">💡</span>
-      <span class="text">İstek / Öneri</span>
-  </a>
+.floating-feedback-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 15px 30px rgba(99, 102, 241, 0.6);
+    color: #ffffff;
+}
 
-  <script>
-    const isLoggedIn = {{ 'true' if is_logged_in else 'false' }};
+.floating-feedback-btn .icon {
+    font-size: 18px;
+}
+
+@media (max-width: 576px) {
+    .floating-feedback-btn .text {
+        display: none;
+    }
+    .floating-feedback-btn {
+        padding: 12px;
+        border-radius: 50%;
+    }
+}
+</style>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const isLoggedIn = {{ 'true' if is_logged_in else 'false' }};
+    const showContributors = {{ 'true' if show_contributors else 'false' }};
+
+    const escapeHTML = s => {
+      if (!s) return '';
+      return String(s).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+    };
+
+    // Yasal uyarı popup
     document.getElementById('legalAcceptBtn').addEventListener('click', () => {
       document.getElementById('legalOverlay').classList.add('hidden');
     });
-  </script>
-</body>
-</html>
+
+    // Mobil menü
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu   = document.getElementById('mobileMenu');
+    const menuIcon     = document.getElementById('menuIcon');
+    const closeIcon    = document.getElementById('closeIcon');
+    mobileMenuBtn?.addEventListener('click', () => {
+      const open = mobileMenu.classList.toggle('active');
+      menuIcon.style.display  = open ? 'none'  : 'block';
+      closeIcon.style.display = open ? 'block' : 'none';
+      document.body.style.overflow = open ? 'hidden' : '';
+    });
+    mobileMenu?.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      mobileMenu.classList.remove('active');
+      menuIcon.style.display = 'block'; closeIcon.style.display = 'none';
+      document.body.style.overflow = '';
+    }));
+
+    // Bento card mouse glow efekti
+    document.querySelectorAll('.bento-card').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', `${((e.clientX - r.left) / r.width)  * 100}%`);
+        card.style.setProperty('--my', `${((e.clientY - r.top)  / r.height) * 100}%`);
+      });
+    });
+
+    const getSafeContributorGithubUrl = (url) => {
+      if (typeof url !== 'string') return '';
+      const value = url.trim();
+      if (!value) return '';
+      try {
+        const parsed = new URL(value);
+        if (!['http:', 'https:'].includes(parsed.protocol)) return '';
+        if (parsed.hostname !== 'github.com' && parsed.hostname !== 'www.github.com') return '';
+        return parsed.toString();
+      } catch (e) {
+        return '';
+      }
+    };
+
+    const getSafeContributorPhotoUrl = (url) => {
+      if (typeof url !== 'string') return '';
+      const value = url.trim();
+      if (!value) return '';
+
+      let normalized = value;
+      try {
+        normalized = decodeURIComponent(value);
+      } catch (e) {
+        normalized = value;
+      }
+
+      return normalized.startsWith('/uploads/katkida/') ? normalized : '';
+    };
+
+    const renderContributorsPreview = async () => {
+      const section = document.getElementById('contributorsSection');
+      const grid = document.getElementById('contributorsGrid');
+      if (!section || !grid) return;
+
+      try {
+        const res = await fetch('/api/katkida-bulunanlar');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        const contributors = Array.isArray(data) ? data.filter(Boolean).slice(0, 4) : [];
+
+        if (!contributors.length) {
+          section.style.display = 'none';
+          return;
+        }
+
+        section.style.display = 'block';
+        grid.innerHTML = contributors.map(k => {
+          const fullName = `${(k.ad || '').trim()} ${(k.soyad || '').trim()}`.trim();
+          const photo = getSafeContributorPhotoUrl(k.fotograf_url);
+          const github = getSafeContributorGithubUrl(k.github_url);
+          const initials = fullName ? fullName.split(/\s+/).slice(0, 2).map(part => part[0] || '').join('').toUpperCase() : '👤';
+
+          return `
+            <article class="contributor-card">
+              ${photo
+                ? `<img class="contributor-photo" src="${escapeHTML(photo)}" alt="${escapeHTML(fullName)}">`
+                : `<div class="contributor-photo contributor-placeholder">${escapeHTML(initials)}</div>`}
+              <h3 class="contributor-name">${escapeHTML(fullName || 'Katkıda Bulunan')}</h3>
+              <p class="contributor-role">${escapeHTML(k.aciklama || 'Katkı sağlayıcı')}</p>
+              ${github ? `<a class="contributor-link" href="${escapeHTML(github)}" target="_blank" rel="noopener noreferrer">GitHub profili</a>` : ''}
+            </article>`;
+        }).join('');
+      } catch (e) {
+        section.style.display = 'none';
+      }
+    };
+
+    // Giriş durumu kontrolü
+    const checkLoginStatus = async () => {
+      if (!isLoggedIn) return;
+      const logoutForm = `
+        <form method="POST" action="/logout" style="margin:0;width:100%;">
+          <button type="submit" class="btn btn-logout" style="width:100%;">Çıkış Yap</button>
+        </form>`;
+      const authButtons = document.getElementById('authButtons');
+      const mobileAuth  = document.getElementById('mobileAuth');
+      if (authButtons) authButtons.innerHTML = logoutForm;
+      if (mobileAuth)  mobileAuth.innerHTML  = logoutForm;
+
+      const mobileLoggedInLinks = document.getElementById('mobileLoggedInLinks');
+      if (mobileLoggedInLinks) mobileLoggedInLinks.style.display = 'block';
+
+      const heroActions = document.getElementById('heroActions');
+      if (heroActions) {
+        heroActions.innerHTML = `
+          <a href="/ders-notlari" class="btn btn-primary">Ders Notlarına Git →</a>
+          <a href="/forum" class="btn btn-secondary">Foruma Katıl</a>
+          <a href="https://www.thk.edu.tr" target="_blank" rel="noopener noreferrer" class="official-link-hero">🏛️ Resmi Site: thk.edu.tr</a>
+        `;
+      }
+
+      if (showContributors) {
+        await renderContributorsPreview();
+      }
+    };
+
+    // Haber ve duyuru kartları
+    const heroSection = document.querySelector('.hero');
+    const fetchAndRenderNews = async () => {
+      try {
+        const [newsRes, duyuruRes] = await Promise.all([
+          fetch('/api/haberler').catch(() => ({ ok: false })),
+          fetch('/api/duyurular').catch(() => ({ ok: false }))
+        ]);
+        const newsData   = newsRes.ok   ? await newsRes.json()   : { articles: [] };
+        const duyuruData = duyuruRes.ok ? await duyuruRes.json() : { duyurular: [] };
+        const news   = newsData.articles?.[0];
+        const duyuru = duyuruData.duyurular?.[0];
+        if (!news && !duyuru) return;
+
+        const container = document.createElement('div');
+        container.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px;max-width:960px;margin:-32px auto 52px;padding:0 24px;position:relative;z-index:2;';
+
+        let html = '';
+        if (news) {
+          let img = news.thumbnail || 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=800';
+          img = img.startsWith('/images/') ? 'https://www.thk.edu.tr' + img : img;
+          html += `
+            <article style="background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;transition:transform .3s" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='none'">
+              <a href="${escapeHTML(news.link)}" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;height:100%;">
+                <div style="height:200px;overflow:hidden;background:#0a0a0c;display:flex;align-items:center;justify-content:center;">
+                  <img src="${escapeHTML(img)}" alt="${escapeHTML(news.title)}" style="max-width:100%;max-height:100%;object-fit:contain;">
+                </div>
+                <div style="padding:20px;flex:1;display:flex;flex-direction:column;">
+                  <div style="font-size:.7rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;display:flex;justify-content:space-between;">
+                    HABERLER<span>${escapeHTML(news.source||'')}</span>
+                  </div>
+                  <h3 style="font-size:1.05rem;font-weight:600;margin-bottom:10px;line-height:1.4;">${escapeHTML(news.title)}</h3>
+                  <div style="margin-top:auto;padding-top:14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:.875rem;font-weight:500;">Devamını Oku →</span>
+                    <object><a href="/haberler" style="padding:5px 11px;background:rgba(255,255,255,.05);border-radius:6px;color:var(--fg-muted);text-decoration:none;font-size:.8rem;">Tümü</a></object>
+                  </div>
+                </div>
+              </a>
+            </article>`;
+        }
+        if (duyuru) {
+          html += `
+            <article style="background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;transition:transform .3s" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='none'">
+              <a href="${escapeHTML(duyuru.link)}" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;height:100%;">
+                <div style="padding:24px;flex:1;display:flex;flex-direction:column;justify-content:center;">
+                  <div style="font-size:.7rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;display:flex;justify-content:space-between;">
+                    DUYURULAR<span>${escapeHTML(duyuru.date||'')}</span>
+                  </div>
+                  <h3 style="font-size:1.05rem;font-weight:600;margin-bottom:10px;line-height:1.4;">${escapeHTML(duyuru.title)}</h3>
+                  <p style="font-size:.875rem;color:var(--fg-muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">${escapeHTML(duyuru.description||'Duyuru detayları için tıklayınız.')}</p>
+                  <div style="margin-top:auto;padding-top:14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:.875rem;font-weight:500;">Detaylar →</span>
+                    <object><a href="/duyurular" style="padding:5px 11px;background:rgba(255,255,255,.05);border-radius:6px;color:var(--fg-muted);text-decoration:none;font-size:.8rem;">Tümü</a></object>
+                  </div>
+                </div>
+              </a>
+            </article>`;
+        }
+        container.innerHTML = html;
+        heroSection?.after(container);
+      } catch (e) { console.error('Veri çekme hatası:', e); }
+    };
+
+    const loadDailyGlance = async () => {
+      const wrap = document.getElementById('dailyGlance');
+      // Widget rootlar
+      const yList = document.getElementById('yemekWidgetList');
+      const yBadge = document.getElementById('yemekBadge');
+      const oList = document.getElementById('otobusWidgetList');
+      const oBadge = document.getElementById('otobusBadge');
+      try {
+        const res = await fetch('/api/kampus-ozet');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (wrap) wrap.style.display = 'block';
+
+        // ---------------- 1) YEMEKHANE: GLANCE + WIDGET ----------------
+        const yemek = data.yemek;
+        const yTitle = document.getElementById('glanceYemekTitle');
+        const yBody = document.getElementById('glanceYemekBody');
+        const yChips = document.getElementById('glanceYemekChips');
+        if (yemek && yemek.items && yemek.items.length) {
+          if (yTitle) yTitle.textContent = `${yemek.weekday || 'Bugün'} · ${yemek.date_display || ''}`;
+          if (yBody) yBody.textContent = yemek.items.map(i => i.name).join(' · ');
+          if (yChips) {
+            yChips.innerHTML = '';
+            if (yemek.total_kcal != null) {
+              yChips.innerHTML = `<span class="glance-chip accent">${yemek.total_kcal} kcal</span>`;
+            }
+          }
+          // WIDGET GUNCELLE (ANA SAYFA UST KISIM)
+          if (yList && yBadge) {
+            yBadge.textContent = yemek.weekday ? yemek.weekday.slice(0,3) : 'Öğle';
+            const iconlar = ['🍲','🍛','🥗','🍰','🥤']; // sıra ile: çorba/ana/yan/tatlı/içecek
+            const max = Math.min(4, yemek.items.length);
+            let liHtml = '';
+            for (let i = 0; i < max; i++) {
+              const it = yemek.items[i];
+              const etiket = iconlar[i] || '🍽️';
+              const kcal = it.kcal != null ? `${it.kcal} kcal` : 'Menü →';
+              const labelCss = it.kcal != null
+                ? 'background:rgba(16,185,129,.10);color:#6EE7B7;'
+                : 'background:rgba(16,185,129,.10);color:#34D399;';
+              liHtml += `<li><span>${etiket} ${escapeHTML(it.name)}</span><span class="wl-badge" style="${labelCss}">${escapeHTML(kcal)}</span></li>`;
+            }
+            // 4. satıra toplam kcal ekle
+            if (yemek.total_kcal != null) {
+              liHtml += `<li><span>⚡ Toplam</span><span class="wl-badge" style="background:rgba(16,185,129,.14);color:#10B981;">${yemek.total_kcal} kcal</span></li>`;
+            }
+            yList.innerHTML = liHtml;
+          }
+        } else {
+          if (yTitle) yTitle.textContent = 'Bugün menü yok';
+          if (yBody) yBody.textContent = 'Hafta sonu veya tatil olabilir — haftalık liste için tıkla.';
+          if (yList && yBadge) {
+            yBadge.textContent = 'Tatil';
+            yList.innerHTML = `
+              <li><span>🏖️ Bugün yemek servisi yok</span><span class="wl-badge" style="background:rgba(16,185,129,.10);color:#34D399;">Hafta</span></li>
+              <li><span>📅 Haftanın diğer günleri</span><span class="wl-badge" style="background:rgba(16,185,129,.10);color:#34D399;">Görüntüle →</span></li>
+              <li><span>🍽️ Yarınki menüyü takip et</span><span class="wl-badge" style="background:rgba(16,185,129,.10);color:#34D399;">Detay</span></li>
+            `;
+          }
+        }
+
+        // ---------------- 2) ULAŞIM: GLANCE + WIDGET ----------------
+        const ulasim = data.ulasim || {};
+        const uTitle = document.getElementById('glanceUlasimTitle');
+        const uBody = document.getElementById('glanceUlasimBody');
+        const uChips = document.getElementById('glanceUlasimChips');
+        const next = ulasim.sonraki_thk;
+        const tumServisler = ulasim.thk_servis || [];
+        if (next) {
+          if (uTitle) uTitle.textContent = `THK servis ${next.kalkis}`;
+          if (uBody) uBody.textContent = `${next.dakika_kaldi} dk sonra · ${next.kalkis_yeri} → ${next.varis_yeri}`;
+        } else {
+          if (uTitle) uTitle.textContent = 'THK servis bitti';
+          if (uBody) uBody.textContent = 'Bugünkü kalkışlar tamamlandı. Başkentray & EGO için tıkla.';
+        }
+        if (uChips) {
+          uChips.innerHTML = '';
+          const br = ulasim.baskentray || {};
+          const hava = br.kayas_sincan_hava;
+          if (hava && hava.sonraki && hava.sonraki[0]) {
+            uChips.innerHTML += `<span class="glance-chip">Hava Durağı ${hava.sonraki[0].saat}</span>`;
+          }
+          const sk = br.sincan_kayas;
+          if (sk && sk.sonraki && sk.sonraki[0]) {
+            uChips.innerHTML += `<span class="glance-chip">Sincan→Kayaş ${sk.sonraki[0].saat}</span>`;
+          }
+          uChips.innerHTML += `<span class="glance-chip accent">15 dk kala bildirim</span>`;
+        }
+        // WIDGET GUNCELLE (ANA SAYFA UST KISIM)
+        if (oList && oBadge) {
+          const yaklasan = (tumServisler.filter(s => s.dakika_kaldi != null && s.dakika_kaldi >= 0)).slice(0, 3);
+          if (yaklasan.length === 0) {
+            // Yaklaşan servis yok ama baskentray göster
+            const br = ulasim.baskentray || {};
+            const hava = br.kayas_sincan_hava?.sonraki?.[0];
+            const sk = br.sincan_kayas?.sonraki?.[0];
+            oBadge.textContent = 'Başkentray';
+            let html = '';
+            if (hava) html += `<li><span>🚇 Hava Durağı</span><span class="wl-badge" style="background:rgba(59,130,246,.10);color:#60A5FA;">${escapeHTML(hava.saat || '')}</span></li>`;
+            if (sk)   html += `<li><span>🚇 Sincan→Kayaş</span><span class="wl-badge" style="background:rgba(59,130,246,.10);color:#60A5FA;">${escapeHTML(sk.saat || '')}</span></li>`;
+            html += `<li><span>📍 Tüm duraklar & hat</span><span class="wl-badge" style="background:rgba(59,130,246,.10);color:#60A5FA;">Harita →</span></li>`;
+            if (!html) html = `<li><span>😴 Bugün servis bitti</span><span class="wl-badge" style="background:rgba(59,130,246,.10);color:#60A5FA;">Yarın</span></li>`;
+            oList.innerHTML = html;
+          } else {
+            oBadge.textContent = yaklasan[0].dakika_kaldi + ' dk';
+            let html = '';
+            yaklasan.forEach((s, idx) => {
+              const dak = s.dakika_kaldi;
+              const badgeStyle = dak <= 10
+                ? 'background:rgba(239,68,68,.12);color:#FCA5A5;'   // kırmızı (çok yakın)
+                : dak <= 25
+                  ? 'background:rgba(245,158,11,.12);color:#FCD34D;' // turuncu (yaklaşıyor)
+                  : 'background:rgba(59,130,246,.10);color:#60A5FA;';
+              const ikon = idx === 0 ? '⏰' : idx === 1 ? '🚎' : '🚌';
+              const rota = `${s.kalkis_yeri || 'Durak'} → ${s.varis_yeri || 'Kampüs'}`;
+              const saat = `${s.kalkis || ''} · ${dak} dk`;
+              html += `<li><span>${ikon} ${escapeHTML(rota)}</span><span class="wl-badge" style="${badgeStyle}">${escapeHTML(saat)}</span></li>`;
+            });
+            oList.innerHTML = html;
+          }
+        }
+      } catch (e) {
+        console.error('Günlük özet hatası:', e);
+        // Hata olursa widget içeriğini bozma, statik kalabilir
+      }
+    };
+
+    window.addEventListener('DOMContentLoaded', () => {
+      checkLoginStatus();
+      fetchAndRenderNews();
+      loadDailyGlance();
+    });
+</script>
+{% endblock %}

@@ -1,437 +1,389 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kampus Forumu</title>
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='kedi.ico') }}">
-    <style>
-        :root {
-            --bg-1: #eef6ff;
-            --bg-2: #fffaf0;
-            --text: #1f2937;
-            --muted: #6b7280;
-            --brand: #0f766e;
-            --brand-dark: #115e59;
-            --card: #ffffff;
-            --line: #dbe4ef;
-            --danger: #b91c1c;
-            --danger-bg: #fee2e2;
-            --ok: #065f46;
-            --ok-bg: #d1fae5;
-            --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
-        }
+{% extends "base.html" %}
 
-        * { box-sizing: border-box; }
+{% block title %}Kampüs Forumu · THKÜ Öğrenci{% endblock %}
 
-        body {
-            margin: 0;
-            min-height: 100vh;
-            color: var(--text);
-            font-family: "Space Grotesk", "Segoe UI", sans-serif;
-            background:
-                radial-gradient(circle at 10% 5%, #dbeafe 0, #dbeafe 20%, transparent 45%),
-                radial-gradient(circle at 90% 20%, #fde68a 0, #fde68a 14%, transparent 35%),
-                linear-gradient(160deg, var(--bg-1), var(--bg-2));
-            animation: fade-in 380ms ease;
-        }
+{% block head %}
+<style>
+  .forum-page {
+    max-width: 1024px;
+    margin: 0 auto;
+    padding: 1.75rem 1.25rem 2.5rem;
+  }
 
-        @keyframes fade-in {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+  .forum-page .forum-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    padding: 1.5rem;
+  }
 
-        .page {
-            max-width: 1024px;
-            margin: 28px auto;
-            padding: 0 16px 40px;
-        }
+  .forum-page .forum-hero h1 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: clamp(1.45rem, 3vw, 2rem);
+    letter-spacing: -0.02em;
+    color: var(--ds-ink);
+  }
 
-        .hero {
-            display: flex;
-            justify-content: space-between;
-            gap: 14px;
-            align-items: center;
-            margin-bottom: 16px;
-        }
+  .forum-page .forum-hero p {
+    margin: 0.35rem 0 0;
+    color: var(--ds-muted);
+    font-size: 0.95rem;
+    max-width: 42ch;
+  }
 
-        .hero h1 {
-            margin: 0;
-            font-size: clamp(1.5rem, 3vw, 2.2rem);
-            letter-spacing: -0.02em;
-        }
+  .forum-page .forum-composer {
+    margin-bottom: 1.25rem;
+  }
 
-        .hero p {
-            margin: 6px 0 0;
-            color: var(--muted);
-            font-size: 0.95rem;
-        }
+  .forum-page .forum-composer h2 {
+    margin: 0 0 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.05rem;
+    color: var(--ds-ink);
+  }
 
-        .back-link {
-            text-decoration: none;
-            color: white;
-            background: var(--brand);
-            padding: 10px 14px;
-            border-radius: 12px;
-            font-weight: 600;
-        }
+  .forum-page .field {
+    margin-bottom: 0.85rem;
+  }
 
-        .back-link:hover { background: var(--brand-dark); }
+  .forum-page .field label {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: var(--ds-ink);
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
 
-        .panel {
-            background: var(--card);
-            border: 1px solid var(--line);
-            border-radius: 16px;
-            box-shadow: var(--shadow);
-        }
+  .forum-page input,
+  .forum-page textarea {
+    width: 100%;
+    border: 1px solid var(--ds-line);
+    border-radius: 10px;
+    padding: 0.65rem 0.75rem;
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: var(--ds-ink);
+    background: var(--ds-bg);
+  }
 
-        .composer {
-            padding: 18px;
-            margin-bottom: 18px;
-        }
+  .forum-page input:focus,
+  .forum-page textarea:focus {
+    border-color: var(--ds-accent);
+    outline: none;
+    box-shadow: 0 0 0 3px var(--ds-accent-soft);
+    background: var(--ds-surface);
+  }
 
-        .composer h2 {
-            margin: 0 0 12px;
-            font-size: 1.1rem;
-        }
+  .forum-page textarea {
+    min-height: 92px;
+    resize: vertical;
+  }
 
-        .field { margin-bottom: 12px; }
+  .forum-page .row {
+    display: flex;
+    gap: 0.85rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
 
-        .field label {
-            display: block;
-            margin-bottom: 6px;
-            color: #334155;
-            font-size: 0.92rem;
-            font-weight: 600;
-        }
+  .forum-page .toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--ds-muted);
+    font-size: 0.9rem;
+  }
 
-        input, textarea {
-            width: 100%;
-            border: 1px solid #cbd5e1;
-            border-radius: 10px;
-            padding: 11px 12px;
-            font-family: inherit;
-            font-size: 0.95rem;
-            color: var(--text);
-            background: #f8fafc;
-        }
+  .forum-page .btn-soft {
+    border: 1px solid var(--ds-line-strong);
+    background: var(--ds-surface);
+    color: var(--ds-ink);
+    padding: 0.45rem 0.75rem;
+    font-size: 0.86rem;
+  }
 
-        input:focus, textarea:focus {
-            border-color: var(--brand);
-            outline: none;
-            background: white;
-        }
+  .forum-page .btn-soft.active {
+    color: var(--ds-on-accent);
+    background: var(--ds-accent);
+    border-color: var(--ds-accent);
+  }
 
-        textarea {
-            min-height: 92px;
-            resize: vertical;
-        }
+  .forum-page .btn-danger {
+    background: var(--ds-surface);
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+    padding: 0.4rem 0.65rem;
+    font-size: 0.82rem;
+  }
 
-        .row {
-            display: flex;
-            gap: 14px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
+  .forum-page #alertContainer {
+    margin-bottom: 0.75rem;
+  }
 
-        .toggle {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: #334155;
-            font-size: 0.92rem;
-        }
+  .forum-page .alert {
+    padding: 0.65rem 0.75rem;
+    border-radius: 10px;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    border: 1px solid var(--ds-line);
+  }
 
-        .btn {
-            border: none;
-            border-radius: 11px;
-            padding: 10px 16px;
-            font-weight: 700;
-            cursor: pointer;
-            font-family: inherit;
-            transition: transform 0.2s ease, opacity 0.2s ease;
-        }
+  .forum-page .alert-success {
+    color: var(--ds-ok);
+    background: var(--ds-ok-bg);
+    border-color: transparent;
+  }
 
-        .btn:hover { transform: translateY(-1px); }
-        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .forum-page .alert-error {
+    color: #b91c1c;
+    background: #fef2f2;
+    border-color: #fecaca;
+  }
 
-        .btn-primary { background: var(--brand); color: white; }
-        .btn-primary:hover { background: var(--brand-dark); }
+  .forum-page .post-list {
+    display: grid;
+    gap: 1rem;
+  }
 
-        .btn-soft {
-            border: 1px solid #cbd5e1;
-            background: #fff;
-            color: #334155;
-            padding: 8px 12px;
-            font-size: 0.86rem;
-        }
+  .forum-page .post {
+    padding: 1.25rem;
+    border: 1px solid var(--ds-line);
+    border-radius: var(--ds-radius);
+    background: var(--ds-surface);
+    box-shadow: var(--ds-shadow);
+  }
 
-        .btn-soft.active {
-            color: white;
-            background: #1e293b;
-            border-color: #1e293b;
-        }
+  .forum-page .post-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.65rem;
+    margin-bottom: 0.65rem;
+  }
 
-        .btn-danger {
-            background: #fff;
-            color: var(--danger);
-            border: 1px solid #fecaca;
-            padding: 7px 10px;
-            font-size: 0.82rem;
-        }
+  .forum-page .post-topic {
+    margin: 0;
+    font-size: 1.05rem;
+    color: var(--ds-ink);
+  }
 
-        #alertContainer {
-            margin-bottom: 12px;
-        }
+  .forum-page .meta {
+    color: var(--ds-muted);
+    font-size: 0.84rem;
+  }
 
-        .alert {
-            padding: 10px 12px;
-            border-radius: 10px;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-        }
+  .forum-page .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    border: 1px solid var(--ds-line);
+    background: var(--ds-accent-soft);
+    color: var(--ds-accent-ink);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
 
-        .alert-success {
-            color: var(--ok);
-            background: var(--ok-bg);
-            border: 1px solid #6ee7b7;
-        }
+  .forum-page .post-content {
+    white-space: pre-wrap;
+    line-height: 1.55;
+    margin-bottom: 0.65rem;
+    color: var(--ds-ink);
+  }
 
-        .alert-error {
-            color: var(--danger);
-            background: var(--danger-bg);
-            border: 1px solid #fca5a5;
-        }
+  .forum-page .gif-wrap img,
+  .forum-page .gif-wrap video {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: 420px;
+    object-fit: contain;
+    border-radius: 12px;
+    border: 1px solid var(--ds-line);
+    background: var(--ds-soft);
+  }
 
-        .post-list {
-            display: grid;
-            gap: 14px;
-        }
+  .forum-page .post-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+  }
 
-        .post {
-            padding: 16px;
-            border: 1px solid var(--line);
-            border-radius: 14px;
-            background: white;
-        }
+  .forum-page .score {
+    font-weight: 700;
+    color: var(--ds-ink);
+    padding: 0.4rem 0.75rem;
+    background: var(--ds-soft);
+    border: 1px solid var(--ds-line);
+    border-radius: 9px;
+    font-size: 0.88rem;
+  }
 
-        .post-head {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
+  .forum-page .comment-zone {
+    border-top: 1px solid var(--ds-line);
+    padding-top: 0.75rem;
+  }
 
-        .post-topic {
-            margin: 0;
-            font-size: 1.05rem;
-        }
+  .forum-page .comment-title {
+    margin: 0 0 0.5rem;
+    color: var(--ds-ink);
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
 
-        .meta {
-            color: var(--muted);
-            font-size: 0.84rem;
-        }
+  .forum-page .comment {
+    border-left: 2px solid var(--ds-accent-soft);
+    margin: 0.5rem 0;
+    padding: 0.5rem 0.65rem;
+    background: var(--ds-bg);
+    border-radius: 0 10px 10px 0;
+  }
 
-        .pill {
-            background: #ecfeff;
-            color: #0e7490;
-            border: 1px solid #bae6fd;
-            padding: 3px 8px;
-            border-radius: 999px;
-            font-size: 0.75rem;
-            font-weight: 700;
-        }
+  .forum-page .comment.deleted {
+    opacity: 0.75;
+  }
 
-        .post-content {
-            white-space: pre-wrap;
-            line-height: 1.55;
-            margin-bottom: 10px;
-        }
+  .forum-page .comment-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+    color: var(--ds-muted);
+    font-size: 0.76rem;
+  }
 
-        .gif-wrap {
-            margin-bottom: 10px;
-        }
+  .forum-page .comment-body {
+    margin: 0 0 0.35rem;
+    white-space: pre-wrap;
+    font-size: 0.9rem;
+    color: var(--ds-ink);
+  }
 
-        .gif-wrap img,
-        .gif-wrap video {
-            display: block;
-            width: auto;
-            max-width: 100%;
-            height: auto;
-            max-height: 420px;
-            object-fit: contain;
-            border-radius: 12px;
-            border: 1px solid #dbeafe;
-            background: #0f172a0d;
-        }
+  .forum-page .comment-tools {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
 
-        .post-actions {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: 12px;
-        }
+  .forum-page .reply-box {
+    margin-top: 0.5rem;
+    display: none;
+  }
 
-        .score {
-            font-weight: 700;
-            color: #0f172a;
-            padding: 7px 12px;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 9px;
-        }
+  .forum-page .reply-box.visible {
+    display: block;
+  }
 
-        .comment-zone {
-            border-top: 1px solid #edf2f7;
-            padding-top: 10px;
-        }
+  .forum-page .empty {
+    color: var(--ds-muted);
+    text-align: center;
+    padding: 1.5rem;
+    border: 1px dashed var(--ds-line-strong);
+    border-radius: var(--ds-radius);
+    background: var(--ds-bg);
+  }
 
-        .comment-title {
-            margin: 0 0 8px;
-            color: #334155;
-            font-size: 0.9rem;
-            font-weight: 700;
-        }
+  .forum-page .pager {
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
 
-        .comment {
-            border-left: 2px solid #dbeafe;
-            margin: 8px 0;
-            padding: 8px 10px;
-            background: #f8fafc;
-            border-radius: 0 10px 10px 0;
-        }
+  .forum-page .pager-status {
+    color: var(--ds-muted);
+    font-size: 0.88rem;
+    font-weight: 600;
+    margin-right: 0.35rem;
+  }
 
-        .comment.deleted {
-            opacity: 0.75;
-        }
+  .forum-page .shimmer {
+    opacity: 0;
+    animation: forum-in 300ms ease forwards;
+  }
 
-        .comment-meta {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 4px;
-            color: #64748b;
-            font-size: 0.76rem;
-        }
+  @keyframes forum-in {
+    to { opacity: 1; }
+  }
 
-        .comment-body {
-            margin: 0 0 6px;
-            white-space: pre-wrap;
-            font-size: 0.9rem;
-            color: #334155;
-        }
+  @media (max-width: 768px) {
+    .forum-page .forum-hero {
+      flex-direction: column;
+    }
+  }
+</style>
+{% endblock %}
 
-        .comment-tools {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
+{% block content %}
+<div class="forum-page">
+  <header class="card forum-hero">
+    <div>
+      <h1><i data-lucide="messages-square" aria-hidden="true"></i> Ogrenci Forumu</h1>
+      <p>Dersler, kampus hayati ve tavsiyeler icin modern tartisma alani.</p>
+    </div>
+    <span class="badge badge-active"><i data-lucide="users" aria-hidden="true"></i> Topluluk</span>
+  </header>
 
-        .reply-box {
-            margin-top: 8px;
-            display: none;
-        }
+  <div id="alertContainer"></div>
 
-        .reply-box.visible { display: block; }
+  <section class="card forum-composer">
+    <h2><i data-lucide="pen-line" aria-hidden="true"></i> Yeni Gonderi</h2>
+    <form id="postForm">
+      <div class="field">
+        <label for="konu">Konu</label>
+        <input id="konu" maxlength="200" required placeholder="Orn: Calculus vizesine nasil hazirlaniyorsunuz?">
+      </div>
+      <div class="field">
+        <label for="mesaj_icerigi">Mesaj</label>
+        <textarea id="mesaj_icerigi" maxlength="2000" placeholder="Sorunu veya gorusunu yaz..."></textarea>
+      </div>
+      <div class="field">
+        <label for="gif_url">GIF URL (istege bagli)</label>
+        <input id="gif_url" placeholder="https://media.tenor.com/...">
+      </div>
+      <div class="row">
+        <label class="toggle">
+          <input id="isim_gorunsun" type="checkbox" checked>
+          Adim gorunsun
+        </label>
+        <button class="btn btn-primary" type="submit" id="postSubmitBtn">
+          <i data-lucide="send" aria-hidden="true"></i> Gonder
+        </button>
+      </div>
+    </form>
+  </section>
 
-        .empty {
-            color: #64748b;
-            text-align: center;
-            padding: 24px;
-            border: 1px dashed #cbd5e1;
-            border-radius: 12px;
-            background: #f8fafc;
-        }
+  <section class="card">
+    <div id="postList" class="post-list">
+      <div class="empty">Yukleniyor...</div>
+    </div>
+    <div class="pager">
+      <span id="pagerStatus" class="pager-status">Sayfa 1 / 1</span>
+      <button id="prevPageBtn" class="btn btn-secondary btn-soft" type="button">
+        <i data-lucide="chevron-left" aria-hidden="true"></i> Onceki
+      </button>
+      <button id="nextPageBtn" class="btn btn-secondary btn-soft" type="button">
+        Sonraki <i data-lucide="chevron-right" aria-hidden="true"></i>
+      </button>
+    </div>
+  </section>
+</div>
+{% endblock %}
 
-        .pager {
-            margin-top: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .pager-status {
-            color: #475569;
-            font-size: 0.88rem;
-            font-weight: 600;
-            margin-right: 6px;
-        }
-
-        .shimmer {
-            opacity: 0;
-            animation: in 300ms ease forwards;
-        }
-
-        @keyframes in {
-            to { opacity: 1; }
-        }
-
-        @media (max-width: 768px) {
-            .hero {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .back-link {
-                width: 100%;
-                text-align: center;
-            }
-        }
-    </style>
-</head>
-<body>
-    <main class="page">
-        <section class="hero">
-            <div>
-                <h1>Ogrenci Forumu</h1>
-                <p>Dersler, kampus hayati ve tavsiyeler icin modern tartisma alani.</p>
-            </div>
-            <a href="/" class="back-link">Ana Sayfaya Don</a>
-        </section>
-
-        <div id="alertContainer"></div>
-
-        <section class="panel composer">
-            <h2>Yeni Gonderi</h2>
-            <form id="postForm">
-                <div class="field">
-                    <label for="konu">Konu</label>
-                    <input id="konu" maxlength="200" required placeholder="Orn: Calculus vizesine nasil hazirlaniyorsunuz?">
-                </div>
-                <div class="field">
-                    <label for="mesaj_icerigi">Mesaj</label>
-                    <textarea id="mesaj_icerigi" maxlength="2000" placeholder="Sorunu veya gorusunu yaz..."></textarea>
-                </div>
-                <div class="field">
-                    <label for="gif_url">GIF URL (istege bagli)</label>
-                    <input id="gif_url" placeholder="https://media.tenor.com/...">
-                </div>
-                <div class="row">
-                    <label class="toggle">
-                        <input id="isim_gorunsun" type="checkbox" checked>
-                        Adim gorunsun
-                    </label>
-                    <button class="btn btn-primary" type="submit" id="postSubmitBtn">Gonder</button>
-                </div>
-            </form>
-        </section>
-
-        <section class="panel" style="padding:16px;">
-            <div id="postList" class="post-list">
-                <div class="empty">Yukleniyor...</div>
-            </div>
-            <div class="pager">
-                <span id="pagerStatus" class="pager-status">Sayfa 1 / 1</span>
-                <button id="prevPageBtn" class="btn btn-soft" type="button">Onceki</button>
-                <button id="nextPageBtn" class="btn btn-soft" type="button">Sonraki</button>
-            </div>
-        </section>
-    </main>
-
-    <script>
+{% block scripts %}
+<script>
         const postList = document.getElementById('postList');
         const postForm = document.getElementById('postForm');
         const postSubmitBtn = document.getElementById('postSubmitBtn');
@@ -739,6 +691,5 @@
         });
 
         document.addEventListener('DOMContentLoaded', loadPosts);
-    </script>
-</body>
-</html>
+</script>
+{% endblock %}

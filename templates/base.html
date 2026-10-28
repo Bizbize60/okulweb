@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
+  <title>{% block title %}THKÜ Öğrenci Portalı{% endblock %}</title>
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='kedi.ico') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/shell.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  {% block head %}{% endblock %}
+</head>
+{% set shell_logged_in = (current_user if (current_user is defined and current_user) else (user if (user is defined and user) else none)) or (is_logged_in is defined and is_logged_in) %}
+{% set shell_name = (current_user.name.split()[0]) if (current_user is defined and current_user and current_user.name) else ((user.name.split()[0]) if (user is defined and user and user.name) else 'Profil') %}
+<body class="app-shell {{ 'is-auth' if shell_logged_in else 'is-guest' }}" data-auth="{{ '1' if shell_logged_in else '0' }}">
+  <a class="app-skip" href="#icerik">İçeriğe geç</a>
+
+  <div class="app-notice" role="note">
+    <i data-lucide="info" aria-hidden="true"></i>
+    <p>Bu site THK Üniversitesi'nin resmi sitesi değildir. Öğrenciler tarafından yürütülen bağımsız bir topluluk projesidir.</p>
+    <a href="https://www.thk.edu.tr" target="_blank" rel="noopener noreferrer">Resmi site</a>
+  </div>
+
+  {% include "components/navbar.html" %}
+
+  <main id="icerik" class="app-main">
+    {% block content %}{% endblock %}
+  </main>
+
+  {% block footer %}
+  <footer class="app-footer">
+    <div class="app-footer__inner">
+      <div>
+        <strong>THKÜ Öğrenci Portalı</strong>
+        <p>Kampüs hayatını tek yerde toplayan bağımsız öğrenci topluluğu. thkuogrenci.com</p>
+      </div>
+      <p>THK Üniversitesi ile resmi, kurumsal veya hukuki bir bağı yoktur.</p>
+    </div>
+  </footer>
+  {% endblock %}
+
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+  <script>
+    (function () {
+      var shell = document.querySelector('.app-shell');
+      if (!shell) return;
+
+      var menuBtn = document.getElementById('appMenuBtn');
+      var tabMenu = document.getElementById('appTabMenu');
+      var drawer = document.getElementById('appDrawer');
+      var backdrop = document.getElementById('appBackdrop');
+      var closeBtn = document.getElementById('appDrawerClose');
+      var dropdown = document.getElementById('appTools');
+      var trigger = document.getElementById('appToolsBtn');
+      var opener = null;
+      var desktop = window.matchMedia('(min-width: 1200px)');
+
+      function setDrawer(open) {
+        if (!drawer) return;
+        drawer.classList.toggle('is-open', open);
+        drawer.setAttribute('aria-hidden', open ? 'false' : 'true');
+        if (backdrop) backdrop.hidden = !open;
+        if (menuBtn) menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (tabMenu) tabMenu.setAttribute('aria-expanded', open ? 'true' : 'false');
+        shell.classList.toggle('app-lock', open);
+        if (open && closeBtn) closeBtn.focus();
+        if (!open && opener) opener.focus();
+      }
+
+      function setDropdown(open) {
+        if (!dropdown || !trigger) return;
+        dropdown.classList.toggle('is-open', open);
+        trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+      }
+
+      function toggleFrom(button) {
+        opener = button;
+        setDrawer(!drawer.classList.contains('is-open'));
+      }
+
+      if (menuBtn) menuBtn.addEventListener('click', function () { toggleFrom(menuBtn); });
+      if (tabMenu) tabMenu.addEventListener('click', function () { toggleFrom(tabMenu); });
+      if (closeBtn) closeBtn.addEventListener('click', function () { setDrawer(false); });
+      if (backdrop) backdrop.addEventListener('click', function () { setDrawer(false); });
+
+      if (trigger) {
+        trigger.addEventListener('click', function (event) {
+          event.stopPropagation();
+          setDropdown(!dropdown.classList.contains('is-open'));
+        });
+      }
+
+      document.addEventListener('click', function (event) {
+        if (dropdown && !dropdown.contains(event.target)) setDropdown(false);
+      });
+
+      document.addEventListener('keydown', function (event) {
+        if (event.key !== 'Escape') return;
+        setDropdown(false);
+        if (drawer && drawer.classList.contains('is-open')) setDrawer(false);
+      });
+
+      if (desktop.addEventListener) {
+        desktop.addEventListener('change', function (event) {
+          if (event.matches) setDrawer(false);
+        });
+      }
+
+      function applyAuth(on, data) {
+        shell.classList.toggle('is-auth', !!on);
+        shell.classList.toggle('is-guest', !on);
+        shell.setAttribute('data-auth', on ? '1' : '0');
+        if (!data || !data.name) return;
+        var first = String(data.name).trim().split(/\s+/)[0] || 'Profil';
+        shell.querySelectorAll('[data-shell-username]').forEach(function (node) {
+          node.textContent = first;
+        });
+      }
+
+      var hinted = shell.getAttribute('data-auth') === '1';
+      fetch('/api/user-info', {
+        credentials: 'same-origin',
+        headers: { 'Accept': 'application/json' }
+      }).then(function (response) {
+        var type = response.headers.get('content-type') || '';
+        if (!response.ok || type.indexOf('application/json') === -1) throw new Error('guest');
+        return response.json();
+      }).then(function (data) {
+        applyAuth(true, data);
+      }).catch(function () {
+        if (!hinted) applyAuth(false, null);
+      });
+
+      if (window.lucide) window.lucide.createIcons();
+    })();
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

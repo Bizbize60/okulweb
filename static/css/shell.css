@@ -1,0 +1,633 @@
+/* THKÜ Öğrenci Portalı — app shell
+   Scoped under body.app-shell so existing page CSS (ui.css) is left alone. */
+
+:root {
+  --app-bg: #f4f4f5;
+  --app-elevated: #ffffff;
+  --app-ink: #18181b;
+  --app-ink-soft: #3f3f46;
+  --app-muted: #71717a;
+  --app-line: #e4e4e7;
+  --app-line-strong: #d4d4d8;
+  --app-accent: #3730a3;
+  --app-accent-hover: #312e81;
+  --app-accent-soft: #eef2ff;
+  --app-accent-ink: #312e81;
+  --app-on-accent: #ffffff;
+  --app-amber: #92400e;
+  --app-amber-bg: #fffbeb;
+  --app-shadow: 0 16px 40px rgba(24, 24, 27, 0.08);
+  --app-radius: 14px;
+  --app-header-h: 64px;
+  --app-tab-h: 62px;
+  --app-font: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+  --app-focus: 0 0 0 3px rgba(55, 48, 163, 0.28);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --app-bg: #09090b;
+    --app-elevated: #18181b;
+    --app-ink: #fafafa;
+    --app-ink-soft: #e4e4e7;
+    --app-muted: #a1a1aa;
+    --app-line: #27272a;
+    --app-line-strong: #3f3f46;
+    --app-accent: #a5b4fc;
+    --app-accent-hover: #c7d2fe;
+    --app-accent-soft: rgba(165, 180, 252, 0.14);
+    --app-accent-ink: #e0e7ff;
+    --app-on-accent: #1e1b4b;
+    --app-amber: #fcd34d;
+    --app-amber-bg: rgba(251, 191, 36, 0.1);
+    --app-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
+    --app-focus: 0 0 0 3px rgba(165, 180, 252, 0.35);
+    color-scheme: dark;
+  }
+}
+
+.app-shell,
+.app-shell *,
+.app-shell *::before,
+.app-shell *::after {
+  box-sizing: border-box;
+}
+
+body.app-shell {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--app-font);
+  font-size: 16px;
+  line-height: 1.5;
+  background: var(--app-bg);
+  color: var(--app-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+body.app-shell.app-lock {
+  overflow: hidden;
+}
+
+.app-shell :focus-visible {
+  outline: none;
+  box-shadow: var(--app-focus);
+}
+
+.app-shell .app-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.app-skip {
+  position: absolute;
+  left: 12px;
+  top: -40px;
+  z-index: 100;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--app-accent);
+  color: var(--app-on-accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.app-skip:focus {
+  top: 12px;
+}
+
+.app-shell [data-lucide],
+.app-shell svg.lucide {
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.75;
+  flex-shrink: 0;
+}
+
+/* Notice */
+.app-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 16px;
+  background: var(--app-amber-bg);
+  color: var(--app-ink-soft);
+  border-bottom: 1px solid var(--app-line);
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+.app-notice p {
+  margin: 0;
+}
+
+.app-notice a {
+  color: var(--app-amber);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.app-notice a:hover {
+  text-decoration: underline;
+}
+
+/* Header */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: color-mix(in srgb, var(--app-elevated) 88%, transparent);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--app-line);
+}
+
+.app-header__inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: var(--app-header-h);
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.app-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.app-brand img {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--app-accent-soft);
+}
+
+.app-brand strong {
+  display: block;
+  font-size: 0.98rem;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.app-brand small {
+  display: block;
+  color: var(--app-muted);
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+
+.app-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  margin-left: 8px;
+}
+
+.app-nav__link,
+.app-tools-btn,
+.app-btn,
+.app-profile,
+.app-tabbar__link,
+.app-tabbar__btn,
+.app-menu__link,
+.app-menu__button {
+  font-family: inherit;
+}
+
+.app-nav__link,
+.app-tools-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--app-ink-soft);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.app-nav__link:hover,
+.app-tools-btn:hover,
+.app-menu__link:hover,
+.app-menu__button:hover {
+  background: var(--app-accent-soft);
+  color: var(--app-accent-ink);
+}
+
+.app-nav__link.is-active,
+.app-tools-btn.is-active {
+  background: var(--app-accent-soft);
+  color: var(--app-accent-ink);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--app-accent) 28%, transparent);
+}
+
+.app-header__tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.app-auth {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-shell.is-guest .app-auth-user,
+.app-shell.is-auth .app-auth-guest {
+  display: none;
+}
+
+.app-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--app-line-strong);
+  background: var(--app-elevated);
+  color: var(--app-ink);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.app-btn:hover {
+  border-color: var(--app-accent);
+  color: var(--app-accent-ink);
+}
+
+.app-btn--solid {
+  background: var(--app-accent);
+  border-color: var(--app-accent);
+  color: var(--app-on-accent);
+}
+
+.app-btn--solid:hover {
+  background: var(--app-accent-hover);
+  border-color: var(--app-accent-hover);
+  color: var(--app-on-accent);
+}
+
+.app-btn.is-active {
+  box-shadow: inset 0 0 0 1px var(--app-accent);
+}
+
+.app-profile {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 180px;
+  height: 38px;
+  padding: 0 12px 0 8px;
+  border-radius: 999px;
+  background: var(--app-accent-soft);
+  color: var(--app-accent-ink);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+.app-profile.is-active {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--app-accent) 40%, transparent);
+}
+
+.app-profile__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 11ch;
+}
+
+.app-logout {
+  margin: 0;
+}
+
+.app-iconbtn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--app-line);
+  border-radius: 10px;
+  background: var(--app-elevated);
+  color: var(--app-ink);
+  cursor: pointer;
+}
+
+.app-iconbtn span,
+.app-iconbtn span::before,
+.app-iconbtn span::after {
+  display: block;
+  width: 16px;
+  height: 1.5px;
+  border-radius: 2px;
+  background: currentColor;
+  position: relative;
+}
+
+.app-iconbtn span::before,
+.app-iconbtn span::after {
+  content: "";
+  position: absolute;
+  left: 0;
+}
+
+.app-iconbtn span::before { top: -5px; }
+.app-iconbtn span::after { top: 5px; }
+
+/* Mega menu */
+.app-dropdown {
+  position: relative;
+}
+
+.app-mega {
+  display: none;
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: min(860px, calc(100vw - 32px));
+  max-height: min(80vh, 720px);
+  overflow: auto;
+  padding: 14px;
+  border: 1px solid var(--app-line);
+  border-radius: 16px;
+  background: var(--app-elevated);
+  box-shadow: var(--app-shadow);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px 18px;
+  z-index: 60;
+}
+
+.app-dropdown.is-open .app-mega {
+  display: grid;
+}
+
+.app-mega__title,
+.app-drawer__title {
+  margin: 4px 8px 6px;
+  color: var(--app-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.app-menu__link,
+.app-menu__button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--app-ink);
+  text-align: left;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.app-menu__link.is-active,
+.app-menu__button.is-active {
+  background: var(--app-accent-soft);
+  color: var(--app-accent-ink);
+}
+
+.app-mega__note {
+  grid-column: 1 / -1;
+  margin: 4px 8px 0;
+  color: var(--app-muted);
+  font-size: 0.75rem;
+}
+
+/* Drawer */
+.app-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 75;
+  background: rgba(24, 24, 27, 0.42);
+}
+
+.app-backdrop[hidden] {
+  display: none;
+}
+
+.app-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 80;
+  width: min(420px, 92vw);
+  display: flex;
+  flex-direction: column;
+  background: var(--app-elevated);
+  color: var(--app-ink);
+  transform: translateX(-105%);
+  visibility: hidden;
+  pointer-events: none;
+  transition: transform 0.22s ease;
+  box-shadow: var(--app-shadow);
+}
+
+.app-drawer.is-open {
+  transform: translateX(0);
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.app-drawer__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 16px 8px;
+}
+
+.app-drawer__head strong {
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+}
+
+.app-drawer__close {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--app-line);
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.app-drawer__body {
+  overflow: auto;
+  padding: 4px 12px calc(20px + env(safe-area-inset-bottom));
+}
+
+.app-drawer__account {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--app-line);
+}
+
+/* Mobile tab bar */
+.app-tabbar {
+  display: none;
+}
+
+.app-main {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+}
+
+.app-footer {
+  border-top: 1px solid var(--app-line);
+  padding: 22px 20px 28px;
+  color: var(--app-muted);
+  font-size: 0.82rem;
+}
+
+.app-footer__inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.app-footer strong {
+  color: var(--app-ink);
+  font-size: 0.92rem;
+}
+
+.app-footer p {
+  margin: 4px 0 0;
+}
+
+@media (max-width: 1199px) {
+  .app-nav,
+  .app-auth .app-btn span,
+  .app-profile__name,
+  .app-brand small {
+    display: none;
+  }
+
+  .app-iconbtn {
+    display: inline-flex;
+  }
+
+  .app-auth .app-btn,
+  .app-profile {
+    width: 38px;
+    padding: 0;
+  }
+
+  .app-tabbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    height: calc(var(--app-tab-h) + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+    background: color-mix(in srgb, var(--app-elevated) 92%, transparent);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid var(--app-line);
+  }
+
+  .app-tabbar__link,
+  .app-tabbar__btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-height: 44px;
+    border: 0;
+    background: transparent;
+    color: var(--app-muted);
+    text-decoration: none;
+    font-size: 0.68rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .app-tabbar__link.is-active,
+  .app-tabbar__btn.is-active {
+    color: var(--app-accent-ink);
+  }
+
+  body.app-shell {
+    padding-bottom: calc(var(--app-tab-h) + env(safe-area-inset-bottom));
+  }
+}
+
+@media (min-width: 1200px) {
+  .app-drawer,
+  .app-backdrop {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-drawer,
+  .app-nav__link,
+  .app-btn,
+  .app-menu__link {
+    transition: none;
+  }
+}
+
+@media print {
+  .app-notice,
+  .app-header,
+  .app-tabbar,
+  .app-drawer,
+  .app-backdrop,
+  .app-footer {
+    display: none !important;
+  }
+}

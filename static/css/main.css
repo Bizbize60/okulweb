@@ -1,0 +1,239 @@
+/* THKÜ Öğrenci Portalı — sayfa tasarım sistemi
+   Kabuk (shell.css) ile birlikte, ondan sonra yüklenir.
+   Canlı sayfalar hâlâ ui.css kullanır; bu dosya dönüşümden önce hazırdır. */
+
+:root {
+  --ds-bg: #f8fafc;
+  --ds-surface: #ffffff;
+  --ds-ink: #0f172a;
+  --ds-muted: #64748b;
+  --ds-line: #e2e8f0;
+  --ds-line-strong: #cbd5e1;
+  --ds-soft: #f1f5f9;
+  --ds-accent: #3730a3;
+  --ds-accent-hover: #312e81;
+  --ds-accent-soft: #eef2ff;
+  --ds-on-accent: #ffffff;
+  --ds-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 10px 28px rgba(15, 23, 42, 0.06);
+  --ds-shadow-hover: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --ds-radius: 12px;
+  --ds-ok: #047857;
+  --ds-ok-bg: #ecfdf5;
+  --ds-warn: #b45309;
+  --ds-warn-bg: #fffbeb;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ds-bg: #0f172a;
+    --ds-surface: #1e293b;
+    --ds-ink: #f8fafc;
+    --ds-muted: #94a3b8;
+    --ds-line: #334155;
+    --ds-line-strong: #475569;
+    --ds-soft: #1e293b;
+    --ds-accent: #a5b4fc;
+    --ds-accent-hover: #c7d2fe;
+    --ds-accent-soft: rgba(165, 180, 252, 0.14);
+    --ds-on-accent: #1e1b4b;
+    --ds-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px rgba(0, 0, 0, 0.28);
+    --ds-shadow-hover: 0 10px 28px rgba(0, 0, 0, 0.4);
+    --ds-ok: #6ee7b7;
+    --ds-ok-bg: rgba(16, 185, 129, 0.14);
+    --ds-warn: #fcd34d;
+    --ds-warn-bg: rgba(251, 191, 36, 0.12);
+    color-scheme: dark;
+  }
+}
+
+/* Kart */
+.card {
+  background: var(--ds-surface);
+  color: var(--ds-ink);
+  border: 1px solid var(--ds-line);
+  border-radius: var(--ds-radius);
+  box-shadow: var(--ds-shadow);
+  padding: 1.5rem;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.card > :first-child {
+  margin-top: 0;
+}
+
+.card > :last-child {
+  margin-bottom: 0;
+}
+
+a.card {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  .card:hover {
+    border-color: var(--ds-line-strong);
+    box-shadow: var(--ds-shadow-hover);
+    transform: translateY(-2px);
+  }
+}
+
+/* Butonlar */
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 40px;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: var(--ds-soft);
+  color: var(--ds-ink);
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.btn svg,
+.btn-primary svg,
+.btn-secondary svg,
+.btn-outline svg {
+  width: 1.05em;
+  height: 1.05em;
+  flex-shrink: 0;
+}
+
+.btn-primary {
+  background: var(--ds-accent);
+  border-color: var(--ds-accent);
+  color: var(--ds-on-accent);
+}
+
+.btn-secondary {
+  background: var(--ds-soft);
+  border-color: var(--ds-line);
+  color: var(--ds-ink);
+}
+
+.btn-outline {
+  background: transparent;
+  border-color: var(--ds-line-strong);
+  color: var(--ds-ink);
+}
+
+@media (hover: hover) {
+  .btn:hover,
+  .btn-secondary:hover {
+    background: var(--ds-line);
+    border-color: var(--ds-line-strong);
+  }
+
+  .btn-primary:hover {
+    background: var(--ds-accent-hover);
+    border-color: var(--ds-accent-hover);
+    color: var(--ds-on-accent);
+  }
+
+  .btn-outline:hover {
+    background: var(--ds-accent-soft);
+    border-color: var(--ds-accent);
+    color: var(--ds-accent);
+  }
+}
+
+.btn:focus-visible,
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.btn-outline:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--ds-accent-soft);
+}
+
+.btn:disabled,
+.btn-primary:disabled,
+.btn-secondary:disabled,
+.btn-outline:disabled,
+.btn[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Izgara */
+.grid-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.grid-container > * {
+  min-width: 0;
+}
+
+@media (min-width: 720px) {
+  .grid-container {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .grid-container {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Etiketler */
+.badge,
+.badge-active,
+.badge-muted {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  max-width: 100%;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid var(--ds-line);
+  background: var(--ds-soft);
+  color: var(--ds-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.badge-active {
+  background: var(--ds-ok-bg);
+  border-color: transparent;
+  color: var(--ds-ok);
+}
+
+.badge-muted {
+  background: transparent;
+  color: var(--ds-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .btn,
+  .btn-primary,
+  .btn-secondary,
+  .btn-outline {
+    transition: none;
+  }
+
+  .card:hover {
+    transform: none;
+  }
+}
