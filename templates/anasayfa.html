@@ -808,6 +808,138 @@
   padding-right: 24px;
 }
 
+.home-page .staj-home {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 28px;
+  align-items: center;
+  margin-top: 28px;
+  padding: 22px 24px;
+  background:
+    linear-gradient(180deg, rgba(94, 106, 210, 0.1), rgba(16, 185, 129, 0.04)),
+    #111827;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+  position: relative;
+  overflow: hidden;
+}
+
+.home-page .staj-home::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #5E6AD2, #34d399);
+}
+
+.home-page .staj-home-kicker {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6ee7b7;
+}
+
+.home-page .staj-home-pill {
+  letter-spacing: 0.02em;
+  text-transform: none;
+  font-weight: 500;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  padding: 3px 9px;
+}
+
+.home-page .staj-home h2 {
+  margin: 0 0 8px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: #f1f5f9;
+}
+
+.home-page .staj-home-copy > p:last-child {
+  margin: 0;
+  max-width: 68ch;
+  color: #94a3b8;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.home-page .staj-home-action {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  width: max-content;
+  max-width: 100%;
+}
+
+.home-page .staj-home-action a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: #d1fae5;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.32);
+  transition: background 0.2s, transform 0.2s;
+}
+
+.home-page .staj-home-action a:hover {
+  background: rgba(16, 185, 129, 0.2);
+  transform: translateY(-1px);
+}
+
+.home-page .staj-home-domain {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.home-page .staj-home-note {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: left;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: #64748b;
+}
+
+@media (max-width: 800px) {
+  .home-page .staj-home {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 18px 16px;
+  }
+
+  .home-page .staj-home-action {
+    width: 100%;
+  }
+
+  .home-page .staj-home-action a {
+    white-space: normal;
+  }
+}
+
 </style>
 {% endblock %}
 
@@ -931,6 +1063,24 @@
             {% endif %}
           </div>
         </div>
+      </section>
+
+      <section class="staj-home" aria-label="Staj arayanlar için LeadMiner">
+        <div class="staj-home-copy">
+          <p class="staj-home-kicker">
+            <span>Staj arayanlara</span>
+            <span class="staj-home-pill">Ayrı hizmet</span>
+          </p>
+          <h2>Staj ararken sadece ilanları beklemeyin.</h2>
+          <p>Teknoparklarda faaliyet gösteren şirketleri keşfedin. İlgilendiğiniz firmaların web sitelerini inceleyip staj başvurusu için iletişim kanallarını bulun. ODTÜ Teknokent, OSTİM Teknopark ve diğer açık rehberlerden başlayabilirsiniz.</p>
+        </div>
+        <div class="staj-home-action">
+          <a href="https://leadminersaas.com" target="_blank" rel="sponsored noopener noreferrer">
+            Teknopark firmalarını keşfet <span aria-hidden="true">↗</span>
+          </a>
+          <p class="staj-home-domain">leadminersaas.com</p>
+        </div>
+        <p class="staj-home-note">LeadMiner ayrı bir hizmettir. Öğrenci platformunun ücretsiz kullanımını etkilemez. Üniversiteyle bağlantılı değildir.</p>
       </section>
 
       <!-- 2) HIZLI ERISIM KARTLARI (8 adet) - Kullanıcılar 1 tikla erisin -->
