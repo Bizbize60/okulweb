@@ -220,6 +220,158 @@
       color: var(--accent3);
     }
 
+    .staj-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 22px 28px;
+      align-items: center;
+      margin-bottom: 24px;
+      padding: 22px 24px 20px 26px;
+      background:
+        linear-gradient(180deg, rgba(79, 142, 247, 0.07), rgba(56, 217, 169, 0.035)),
+        rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .staj-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, var(--accent), var(--accent2));
+    }
+
+    .staj-kicker {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 0.72em;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent2);
+    }
+
+    .staj-pill {
+      letter-spacing: 0.02em;
+      text-transform: none;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 3px 9px;
+    }
+
+    .staj-title {
+      font-size: 1.12em;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1.35;
+      margin-bottom: 8px;
+    }
+
+    .staj-lead {
+      font-size: 0.84em;
+      line-height: 1.65;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      max-width: 68ch;
+    }
+
+    .staj-steps {
+      display: grid;
+      gap: 10px;
+    }
+
+    .staj-step {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .staj-num {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+      margin-top: 1px;
+      border-radius: 7px;
+      display: grid;
+      place-items: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72em;
+      color: var(--accent);
+      background: rgba(79, 142, 247, 0.12);
+      border: 1px solid rgba(79, 142, 247, 0.2);
+    }
+
+    .staj-step strong {
+      display: block;
+      font-size: 0.82em;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .staj-step p {
+      font-size: 0.78em;
+      line-height: 1.55;
+      color: var(--text-muted);
+    }
+
+    .staj-side {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+    }
+
+    .staj-cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: 0.82em;
+      font-weight: 600;
+      white-space: nowrap;
+      color: #d8fff2;
+      background: rgba(56, 217, 169, 0.12);
+      border: 1px solid rgba(56, 217, 169, 0.32);
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .staj-cta:hover {
+      background: rgba(56, 217, 169, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .staj-domain {
+      text-align: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72em;
+      color: var(--text-dim);
+    }
+
+    .staj-note {
+      grid-column: 1 / -1;
+      margin: 0;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.74em;
+      line-height: 1.5;
+      color: var(--text-dim);
+    }
+
     .search-wrapper {
       margin-bottom: 28px;
       position: relative;
@@ -494,6 +646,16 @@
         grid-template-columns: 1fr 1fr;
         gap: 12px;
       }
+
+      .staj-card {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        padding: 18px 16px 16px 18px;
+      }
+
+      .staj-cta {
+        white-space: normal;
+      }
     }
 
     @media (max-width: 480px) {
@@ -548,6 +710,41 @@
         Not: Her indirme <strong style="color: #cfe0fb;">1 kredi</strong> harcar; kredini not yükleyerek kazanabilirsin.
       </p>
     </div>
+
+    <aside class="staj-card" aria-label="Staj arayanlar için LeadMiner">
+      <div>
+        <div class="staj-kicker">
+          <span>Staj arayanlara</span>
+          <span class="staj-pill">Ayrı hizmet</span>
+        </div>
+        <h2 class="staj-title">Staj ararken sadece ilanları beklemeyin.</h2>
+        <p class="staj-lead">Teknoparklarda faaliyet gösteren şirketleri keşfedin. İlgilendiğiniz firmaların web sitelerini inceleyip staj başvurusu için iletişim kanallarını bulun.</p>
+        <div class="staj-steps">
+          <div class="staj-step">
+            <span class="staj-num">1</span>
+            <div>
+              <strong>Firma rehberlerinden başlayın</strong>
+              <p>ODTÜ Teknokent, OSTİM Teknopark ve diğer açık firma rehberleri.</p>
+            </div>
+          </div>
+          <div class="staj-step">
+            <span class="staj-num">2</span>
+            <div>
+              <strong>İletişim bilgilerini bulun</strong>
+              <p>LeadMiner, açık firma rehberlerini tarayarak bulunan kurumsal e-postaları listelemenize yardımcı olur.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="staj-side">
+        <a class="staj-cta" href="https://leadminersaas.com" target="_blank" rel="sponsored noopener noreferrer">
+          Teknopark firmalarını keşfet
+          <span aria-hidden="true">↗</span>
+        </a>
+        <p class="staj-domain">leadminersaas.com</p>
+      </div>
+      <p class="staj-note">LeadMiner ayrı bir hizmettir. Öğrenci platformunun ücretsiz kullanımını etkilemez. Üniversiteyle bağlantılı değildir.</p>
+    </aside>
 
     <div class="search-wrapper">
       <span class="search-icon">🔍</span>
