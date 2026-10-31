@@ -59,22 +59,54 @@
 
     /* ── YASAL UYARI POPUP ──────────────────────── */
     .legal-overlay {
-      position: fixed; inset: 0; z-index: 9999;
+      position: fixed; inset: 0; z-index: 10050;
       background: rgba(2,2,3,0.92);
       backdrop-filter: blur(12px);
-      display: flex; align-items: center; justify-content: center;
-      padding: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding:
+        max(12px, env(safe-area-inset-top))
+        max(12px, env(safe-area-inset-right))
+        max(12px, env(safe-area-inset-bottom))
+        max(12px, env(safe-area-inset-left));
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
       animation: fadeIn .25s ease;
     }
     .legal-overlay.hidden { display: none; }
+    body.legal-overlay-open {
+      overflow: hidden;
+    }
+    body.legal-overlay-open .floating-feedback-btn {
+      display: none !important;
+    }
     .legal-modal {
-      max-width: 560px; width: 100%;
+      width: min(560px, 100%);
+      max-height: min(680px, calc(100dvh - 24px));
+      margin: auto;
+      display: flex;
+      flex-direction: column;
       background: #0d0d10;
       border: 1px solid var(--warn-border);
       border-radius: 20px;
-      padding: 36px 32px 28px;
       box-shadow: 0 0 0 1px var(--warn-border), 0 32px 64px rgba(0,0,0,.6), 0 0 80px rgba(245,158,11,.06);
       animation: slideUp .3s cubic-bezier(.16,1,.3,1);
+      overflow: hidden;
+    }
+    .legal-modal-body {
+      overflow-y: auto;
+      padding: 28px 24px 12px;
+      min-height: 0;
+      flex: 1 1 auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .legal-modal-actions {
+      flex-shrink: 0;
+      padding: 12px 16px calc(14px + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--border);
+      background: #0d0d10;
     }
     .legal-icon {
       width: 52px; height: 52px;
@@ -106,18 +138,40 @@
     .legal-official-icon { font-size: 20px; flex-shrink: 0; }
     .legal-official-text { flex: 1; }
     .legal-official-label { font-size: .75rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 2px; }
-    .legal-official-url { font-size: .9rem; color: var(--fg); font-weight: 500; }
+    .legal-official-url { font-size: .9rem; color: var(--fg); font-weight: 500; word-break: break-word; }
     .legal-accept {
-      width: 100%; padding: 13px 24px;
+      width: 100%; padding: 14px 18px;
+      min-height: 48px;
       background: var(--accent); color: #fff;
       border: none; border-radius: 10px;
       font-size: .95rem; font-weight: 600;
       cursor: pointer; font-family: inherit;
       box-shadow: 0 4px 16px rgba(94,106,210,.35);
       transition: all .2s ease;
+      line-height: 1.35;
     }
+    .legal-accept-short { display: none; }
     .legal-accept:hover { background: var(--accent-bright); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(94,106,210,.45); }
     .legal-accept:active { transform: scale(.98); }
+
+    @media (max-width: 520px) {
+      .legal-modal {
+        max-height: calc(100dvh - 16px);
+        border-radius: 16px;
+      }
+      .legal-modal-body {
+        padding: 20px 16px 10px;
+      }
+      .legal-modal-actions {
+        padding: 10px 12px calc(12px + env(safe-area-inset-bottom));
+      }
+      .legal-title { font-size: 1rem; }
+      .legal-text { font-size: 0.84rem; line-height: 1.65; }
+      .legal-official { padding: 12px; gap: 10px; margin-bottom: 0; }
+      .legal-accept-long { display: none; }
+      .legal-accept-short { display: inline; }
+      .legal-accept { font-size: 0.92rem; }
+    }
 
     /* ── GAYRİRESMİ BANT ────────────────────────── */
     .unofficial-bar {
@@ -680,7 +734,34 @@
 
 .home-page .hero {
   min-height: auto;
-  padding: 48px 20px;
+  padding: 32px 16px 40px;
+}
+
+@media (max-width: 1199px) {
+  .home-page {
+    padding-bottom: 8px;
+  }
+
+  .home-page .container {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .home-page .section-title {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 12px;
+  }
+
+  .home-page .section-title .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .home-page .floating-feedback-btn {
+    bottom: calc(18px + var(--app-tab-h, 62px) + env(safe-area-inset-bottom));
+    right: 14px;
+  }
 }
 
 .home-page .container {
@@ -958,25 +1039,32 @@
   <!-- YASAL UYARI POPUP -->
   <div class="legal-overlay" id="legalOverlay">
     <div class="legal-modal" role="dialog" aria-modal="true" aria-labelledby="legalTitle">
-      <div class="legal-icon">⚠️</div>
-      <div class="legal-title" id="legalTitle">⚠️ Önemli Yasal Uyarı — Lütfen Okumadan Geçme</div>
-      <p class="legal-text">
-        Bu site <strong>thkuogrenci.com</strong>'dur ve tamamen <strong>bağımsız öğrenciler tarafından</strong> gönüllülük esasıyla geliştirilmiştir.<br><br>
-        <strong>Türk Hava Kurumu Üniversitesi (THKÜ)</strong> bu siteyi <strong>kurmamış, yönetmemiş, onaylamamış veya desteklememiştir.</strong><br><br>
-        Sitedeki hiçbir içerik (ders notları, yorumlar, ilanlar, duyurular vb.) üniversiteyi temsil etmez ve resmi kaynak sayılamaz. Buraya yüklenen içerikler kullanıcılara aittir; site yöneticileri bu içeriklerden sorumlu tutulamaz.<br><br>
-        Resmi akademik bilgi, kayıt, sınav ve idari işlemler için yalnızca üniversitenin resmi kanalları kullanılmalıdır.
-      </p>
-      <div class="legal-divider"></div>
-      <p style="font-size:.78rem;color:var(--fg-muted);margin-bottom:12px;font-weight:500;">Üniversitenin resmi web sitesi:</p>
-      <a href="https://www.thk.edu.tr" target="_blank" rel="noopener noreferrer" class="legal-official">
-        <span class="legal-official-icon">🏛️</span>
-        <div class="legal-official-text">
-          <div class="legal-official-label">Resmi Site</div>
-          <div class="legal-official-url">Anasayfa | THK Üniversitesi — thk.edu.tr</div>
-        </div>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-      </a>
-      <button class="legal-accept" id="legalAcceptBtn">Anladım — Bu site gayriresmidir, devam ediyorum</button>
+      <div class="legal-modal-body">
+        <div class="legal-icon">⚠️</div>
+        <div class="legal-title" id="legalTitle">⚠️ Önemli Yasal Uyarı — Lütfen Okumadan Geçme</div>
+        <p class="legal-text">
+          Bu site <strong>thkuogrenci.com</strong>'dur ve tamamen <strong>bağımsız öğrenciler tarafından</strong> gönüllülük esasıyla geliştirilmiştir.<br><br>
+          <strong>Türk Hava Kurumu Üniversitesi (THKÜ)</strong> bu siteyi <strong>kurmamış, yönetmemiş, onaylamamış veya desteklememiştir.</strong><br><br>
+          Sitedeki hiçbir içerik (ders notları, yorumlar, ilanlar, duyurular vb.) üniversiteyi temsil etmez ve resmi kaynak sayılamaz. Buraya yüklenen içerikler kullanıcılara aittir; site yöneticileri bu içeriklerden sorumlu tutulamaz.<br><br>
+          Resmi akademik bilgi, kayıt, sınav ve idari işlemler için yalnızca üniversitenin resmi kanalları kullanılmalıdır.
+        </p>
+        <div class="legal-divider"></div>
+        <p style="font-size:.78rem;color:var(--fg-muted);margin-bottom:12px;font-weight:500;">Üniversitenin resmi web sitesi:</p>
+        <a href="https://www.thk.edu.tr" target="_blank" rel="noopener noreferrer" class="legal-official">
+          <span class="legal-official-icon">🏛️</span>
+          <div class="legal-official-text">
+            <div class="legal-official-label">Resmi Site</div>
+            <div class="legal-official-url">Anasayfa | THK Üniversitesi — thk.edu.tr</div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </a>
+      </div>
+      <div class="legal-modal-actions">
+        <button type="button" class="legal-accept" id="legalAcceptBtn">
+          <span class="legal-accept-long">Anladım — Bu site gayriresmidir, devam ediyorum</span>
+          <span class="legal-accept-short">Anladım, devam et</span>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -1266,8 +1354,30 @@ const isLoggedIn = {{ 'true' if is_logged_in else 'false' }};
     };
 
     // Yasal uyarı popup
-    document.getElementById('legalAcceptBtn').addEventListener('click', () => {
-      document.getElementById('legalOverlay').classList.add('hidden');
+    const legalOverlay = document.getElementById('legalOverlay');
+    const legalAcceptBtn = document.getElementById('legalAcceptBtn');
+    const LEGAL_ACCEPT_KEY = 'thku_legal_accept_v1';
+
+    const closeLegalOverlay = () => {
+      legalOverlay?.classList.add('hidden');
+      document.body.classList.remove('legal-overlay-open');
+    };
+
+    if (legalOverlay) {
+      if (localStorage.getItem(LEGAL_ACCEPT_KEY) === '1') {
+        closeLegalOverlay();
+      } else {
+        document.body.classList.add('legal-overlay-open');
+      }
+    }
+
+    legalAcceptBtn?.addEventListener('click', () => {
+      try {
+        localStorage.setItem(LEGAL_ACCEPT_KEY, '1');
+      } catch (e) {
+        /* private mode */
+      }
+      closeLegalOverlay();
     });
 
     // Mobil menü
