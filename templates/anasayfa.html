@@ -118,6 +118,10 @@
       padding: 24px 22px 12px;
       flex: 1 1 auto;
       min-height: 0;
+      -webkit-overflow-scrolling: touch;
+    }
+    .survey-overlay {
+      overscroll-behavior: contain;
     }
     .survey-title {
       font-size: 1.05rem;
@@ -226,6 +230,53 @@
       box-shadow: 0 4px 16px rgba(94,106,210,.35);
     }
     .survey-submit:disabled { cursor: not-allowed; }
+    .survey-submit-short { display: none; }
+
+    @media (max-width: 520px) {
+      .survey-overlay {
+        align-items: flex-start;
+      }
+      .survey-modal {
+        max-height: calc(100dvh - 16px);
+        border-radius: 16px;
+        margin-top: 0;
+      }
+      .survey-modal-body {
+        padding: 18px 14px 10px;
+      }
+      .survey-title { font-size: 0.98rem; }
+      .survey-lead {
+        font-size: 0.82rem;
+        line-height: 1.62;
+        margin-bottom: 14px;
+      }
+      .survey-textarea {
+        min-height: 100px;
+        font-size: 16px; /* iOS zoom önleme */
+      }
+      .survey-ads-question {
+        padding: 12px;
+        margin-top: 16px;
+      }
+      .survey-ads-btns {
+        flex-direction: column;
+      }
+      .survey-ads-btn {
+        flex: none;
+        width: 100%;
+        min-width: 0;
+      }
+      .survey-modal-actions {
+        padding: 10px 12px calc(12px + env(safe-area-inset-bottom));
+      }
+      .survey-submit {
+        font-size: 0.92rem;
+        min-height: 48px;
+      }
+      .survey-submit-long { display: none; }
+      .survey-submit-short { display: inline; }
+    }
+
     .legal-modal {
       width: min(560px, 100%);
       max-height: min(680px, calc(100dvh - 24px));
@@ -1243,7 +1294,10 @@
         <p class="survey-error" id="surveyError" role="alert"></p>
       </div>
       <div class="survey-modal-actions">
-        <button type="button" class="survey-submit" id="surveySubmitBtn" disabled>Gönder ve siteye devam et</button>
+        <button type="button" class="survey-submit" id="surveySubmitBtn" disabled>
+          <span class="survey-submit-long">Gönder ve siteye devam et</span>
+          <span class="survey-submit-short">Gönder</span>
+        </button>
       </div>
     </div>
   </div>
@@ -1570,6 +1624,8 @@ const isLoggedIn = {{ 'true' if is_logged_in else 'false' }};
     const surveyError = document.getElementById('surveyError');
     const surveyAdsBtns = document.querySelectorAll('.survey-ads-btn');
     let surveyAdsChoice = null;
+    const SURVEY_SUBMIT_DEFAULT_HTML =
+      '<span class="survey-submit-long">Gönder ve siteye devam et</span><span class="survey-submit-short">Gönder</span>';
 
     const girisAnketiLsKey = () => (
       currentUserId ? `thku_giris_anketi_v1:u${currentUserId}` : null
