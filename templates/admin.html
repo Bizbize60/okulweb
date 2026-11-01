@@ -577,6 +577,15 @@
             <div class="header">
                 <h1>Kullanıcı İstek / Şikayetleri</h1>
             </div>
+            <div id="isteklerStats" style="display:none; margin-bottom:16px; padding:16px 18px; border-radius:12px; border:1px solid var(--border); background:#f8fafc; line-height:1.7;"></div>
+            <div style="margin-bottom:16px; display:flex; flex-wrap:wrap; gap:12px; align-items:center;">
+                <label for="istekFilterKategori" style="font-size:0.9rem; font-weight:600; color:var(--text-muted);">Filtre:</label>
+                <select id="istekFilterKategori" class="search-box" style="width:auto; min-width:200px; margin-bottom:0;">
+                    <option value="all">Tümü</option>
+                    <option value="Giriş Anketi">Giriş Anketi</option>
+                    <option value="other">Diğer istekler</option>
+                </select>
+            </div>
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
@@ -585,6 +594,7 @@
                             <th>Gönderen</th>
                             <th>Başlık</th>
                             <th>Kategori</th>
+                            <th>Google Ads</th>
                             <th>Durum</th>
                             <th>Tarih</th>
                             <th>İşlem</th>
@@ -592,7 +602,7 @@
                     </thead>
                     <tbody id="isteklerTableBody">
                         <tr>
-                            <td colspan="7" class="empty-state">Yükleniyor...</td>
+                            <td colspan="8" class="empty-state">Yükleniyor...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -1035,6 +1045,9 @@
         const ambassadorTableBody = document.getElementById('ambassadorTableBody');
         const ambassadorStatusFilter = document.getElementById('ambassadorStatusFilter');
         let istekCache = [];
+        const istekFilterKategori = document.getElementById('istekFilterKategori');
+        const isteklerStats = document.getElementById('isteklerStats');
+        const GIRIS_ANKETI_KATEGORI = 'Giriş Anketi';
         let katkidaCache = [];
         let moderatorCache = [];
 
@@ -1590,18 +1603,49 @@
             }
         };
 
-        const loadIstekler = async () => {
-            try {
-                const res = await fetch('/api/admin/istekler');
-                const data = await res.json();
-                istekCache = data;
+        const renderIsteklerStats = (rows) => {
+            if (!isteklerStats) return;
+            const anketler = rows.filter(i => i.kategori === GIRIS_ANKETI_KATEGORI);
+            if (!anketler.length) {
+                isteklerStats.style.display = 'none';
+                return;
+            }
+            const evet = anketler.filter(i => i.google_ads_oy === 'Evet').length;
+            const hayir = anketler.filter(i => i.google_ads_oy === 'Hayır').length;
+            isteklerStats.style.display = 'block';
+            isteklerStats.innerHTML = `
+                <strong>Giriş anketi özeti:</strong>
+                ${anketler.length} yanıt ·
+                <span class="badge badge-ok">Evet: ${evet}</span>
+                <span class="badge" style="margin-left:6px;">Hayır: ${hayir}</span>
+            `;
+        };
 
-                if (!data.length) {
-                    isteklerTableBody.innerHTML = '<tr><td colspan="7" class="empty-state">Henüz istek/şikayet yok. 🎉</td></tr>';
-                    return;
-                }
+        const filterIstekRows = (rows) => {
+            const mode = istekFilterKategori?.value || 'all';
+            if (mode === 'Giriş Anketi') {
+                return rows.filter(i => i.kategori === GIRIS_ANKETI_KATEGORI);
+            }
+            if (mode === 'other') {
+                return rows.filter(i => i.kategori !== GIRIS_ANKETI_KATEGORI);
+            }
+            return rows;
+        };
 
-                isteklerTableBody.innerHTML = data.map(i => `
+        const renderIsteklerTable = () => {
+            const data = filterIstekRows(istekCache);
+            renderIsteklerStats(istekCache);
+
+            if (!data.length) {
+                isteklerTableBody.innerHTML = '<tr><td colspan="8" class="empty-state">Kayıt bulunamadı.</td></tr>';
+                return;
+            }
+
+            isteklerTableBody.innerHTML = data.map(i => {
+                const adsCell = i.kategori === GIRIS_ANKETI_KATEGORI
+                    ? escapeHTML(i.google_ads_oy || '-')
+                    : '—';
+                return `
                     <tr>
                         <td>#${i.id}</td>
                         <td>
@@ -1610,6 +1654,7 @@
                         </td>
                         <td style="font-weight: 600; max-width: 220px;">${escapeHTML(i.baslik)}</td>
                         <td><span class="badge">${escapeHTML(i.kategori || 'Genel')}</span></td>
+                        <td>${adsCell}</td>
                         <td><span class="badge badge-wait">${escapeHTML(i.durum || 'Gönderildi')}</span></td>
                         <td>${escapeHTML(i.tarih || '-')}</td>
                         <td class="flex-actions">
@@ -1617,20 +1662,42 @@
                             <button class="btn btn-danger" style="padding:6px 10px;font-size:0.8rem;" onclick="deleteIstek(${i.id})">Sil</button>
                         </td>
                     </tr>
-                `).join('');
+                `;
+            }).join('');
+        };
+
+        const loadIstekler = async () => {
+            try {
+                const res = await fetch('/api/admin/istekler');
+                const data = await res.json();
+                istekCache = data;
+
+                if (!data.length) {
+                    if (isteklerStats) isteklerStats.style.display = 'none';
+                    isteklerTableBody.innerHTML = '<tr><td colspan="8" class="empty-state">Henüz istek/şikayet yok. 🎉</td></tr>';
+                    return;
+                }
+
+                renderIsteklerTable();
             } catch (e) {
                 console.error(e);
-                isteklerTableBody.innerHTML = '<tr><td colspan="7" class="empty-state" style="color:red;">Hata oluştu.</td></tr>';
+                isteklerTableBody.innerHTML = '<tr><td colspan="8" class="empty-state" style="color:red;">Hata oluştu.</td></tr>';
             }
         };
+
+        istekFilterKategori?.addEventListener('change', () => renderIsteklerTable());
 
         const showIstekDetail = (id) => {
             const i = istekCache.find(x => x.id === id);
             if (!i) return;
+            const adsLine = i.kategori === GIRIS_ANKETI_KATEGORI && i.google_ads_oy
+                ? `<p style="margin-top:10px;"><strong>Google Ads:</strong> ${escapeHTML(i.google_ads_oy)}</p>`
+                : '';
             document.getElementById('istekDetailBody').innerHTML = `
                 <p><strong>Gönderen:</strong> ${escapeHTML(i.kullanici_ad)} (${escapeHTML(i.kullanici_email)})</p>
                 <p style="margin-top:10px;"><strong>Başlık:</strong> ${escapeHTML(i.baslik)}</p>
                 <p style="margin-top:10px;"><strong>Kategori:</strong> ${escapeHTML(i.kategori || 'Genel')}</p>
+                ${adsLine}
                 <p style="margin-top:10px;"><strong>Durum:</strong> ${escapeHTML(i.durum || 'Gönderildi')}</p>
                 <p style="margin-top:10px;"><strong>Tarih:</strong> ${escapeHTML(i.tarih || '-')}</p>
                 <p style="margin-top:14px; padding:12px; background:#f7fafc; border-radius:8px; white-space:pre-wrap;">${escapeHTML(i.aciklama || '')}</p>

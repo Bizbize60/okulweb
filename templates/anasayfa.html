@@ -79,9 +79,153 @@
     body.legal-overlay-open {
       overflow: hidden;
     }
-    body.legal-overlay-open .floating-feedback-btn {
+    body.legal-overlay-open .floating-feedback-btn,
+    body.survey-overlay-open .floating-feedback-btn {
       display: none !important;
     }
+    body.survey-overlay-open {
+      overflow: hidden;
+    }
+    .survey-overlay {
+      position: fixed; inset: 0; z-index: 10045;
+      background: rgba(2,2,3,0.94);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding:
+        max(12px, env(safe-area-inset-top))
+        max(12px, env(safe-area-inset-right))
+        max(12px, env(safe-area-inset-bottom))
+        max(12px, env(safe-area-inset-left));
+      overflow-y: auto;
+    }
+    .survey-overlay.hidden { display: none; }
+    .survey-modal {
+      width: min(560px, 100%);
+      max-height: min(720px, calc(100dvh - 24px));
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+      background: #0d0d10;
+      border: 1px solid var(--border-accent);
+      border-radius: 20px;
+      box-shadow: 0 32px 64px rgba(0,0,0,.6);
+      overflow: hidden;
+    }
+    .survey-modal-body {
+      overflow-y: auto;
+      padding: 24px 22px 12px;
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+    .survey-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--fg);
+      margin-bottom: 10px;
+    }
+    .survey-lead {
+      font-size: 0.88rem;
+      line-height: 1.65;
+      color: var(--fg-muted);
+      margin-bottom: 18px;
+    }
+    .survey-label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--fg);
+      margin-bottom: 8px;
+    }
+    .survey-textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--fg);
+      font-family: inherit;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      resize: vertical;
+    }
+    .survey-textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .survey-word-hint {
+      font-size: 0.78rem;
+      color: var(--fg-muted);
+      margin-top: 6px;
+    }
+    .survey-word-hint.ok { color: #34d399; }
+    .survey-word-hint.warn { color: #fbbf24; }
+    .survey-ads-question {
+      margin-top: 20px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(94,106,210,.06);
+    }
+    .survey-ads-btns {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .survey-ads-btn {
+      flex: 1;
+      min-width: 120px;
+      min-height: 44px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--fg);
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all .15s ease;
+    }
+    .survey-ads-btn.selected {
+      border-color: var(--accent);
+      background: rgba(94,106,210,.22);
+      color: #fff;
+    }
+    .survey-error {
+      margin-top: 12px;
+      font-size: 0.82rem;
+      color: #f87171;
+      display: none;
+    }
+    .survey-error.visible { display: block; }
+    .survey-modal-actions {
+      flex-shrink: 0;
+      padding: 12px 16px calc(14px + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--border);
+    }
+    .survey-submit {
+      width: 100%;
+      min-height: 48px;
+      border: none;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      font-family: inherit;
+      opacity: 0.45;
+      pointer-events: none;
+    }
+    .survey-submit.ready {
+      opacity: 1;
+      pointer-events: auto;
+      box-shadow: 0 4px 16px rgba(94,106,210,.35);
+    }
+    .survey-submit:disabled { cursor: not-allowed; }
     .legal-modal {
       width: min(560px, 100%);
       max-height: min(680px, calc(100dvh - 24px));
@@ -1068,6 +1212,37 @@
     </div>
   </div>
 
+  <!-- GİRİŞ ANKETİ (giriş yapmış kullanıcı, tek sefer, zorunlu) -->
+  <div class="survey-overlay hidden" id="surveyOverlay" aria-hidden="true">
+    <div class="survey-modal" role="dialog" aria-modal="true" aria-labelledby="surveyTitle">
+      <div class="survey-modal-body">
+        <div class="legal-icon" style="margin-bottom:14px;">💬</div>
+        <h2 class="survey-title" id="surveyTitle">Site hakkında kısa anket</h2>
+        <p class="survey-lead">
+          Veritabanı büyüdüğü için sunucuda daha güçlü bir makine kiralamamız gerekiyor.
+          Bunun maliyetini karşılamak için Google Ads eklemeyi düşünüyoruz; yönetimi zor olabilir diye de endişelerimiz var.
+          Lütfen siteyle ilgili düşüncelerini yaz (Google Ads hakkındaki fikrin de aynı metinde olabilir) ve aşağıdaki soruyu yanıtla.
+          <strong>Anketi göndermeden siteyi kullanamazsın.</strong>
+        </p>
+        <label class="survey-label" for="surveySiteYorumu">Site yorumun (en az 10 kelime)</label>
+        <textarea id="surveySiteYorumu" class="survey-textarea" maxlength="4000" placeholder="Örn: Forum ve ders notları çok işime yarıyor; reklam gelirse sunucu maliyetini karşılayabilir ama arayüzün sade kalması önemli..."></textarea>
+        <p class="survey-word-hint warn" id="surveyWordHint">0 / 10 kelime</p>
+        <div class="survey-ads-question">
+          <p class="survey-label" style="margin-bottom:4px;">Google Ads ekleyelim mi?</p>
+          <p style="font-size:0.84rem;color:var(--fg-muted);line-height:1.55;">Sunucu kirasını desteklemek için sitede Google reklamları olsun mu?</p>
+          <div class="survey-ads-btns" role="group" aria-label="Google Ads tercihi">
+            <button type="button" class="survey-ads-btn" data-ads="evet">Evet</button>
+            <button type="button" class="survey-ads-btn" data-ads="hayir">Hayır</button>
+          </div>
+        </div>
+        <p class="survey-error" id="surveyError" role="alert"></p>
+      </div>
+      <div class="survey-modal-actions">
+        <button type="button" class="survey-submit" id="surveySubmitBtn" disabled>Gönder ve siteye devam et</button>
+      </div>
+    </div>
+  </div>
+
   <!-- HERO -->
   <section class="hero">
     <div class="hero-content">
@@ -1346,6 +1521,7 @@
 {% block scripts %}
 <script>
 const isLoggedIn = {{ 'true' if is_logged_in else 'false' }};
+    const currentUserId = {{ current_user.id if current_user else 'null' }};
     const showContributors = {{ 'true' if show_contributors else 'false' }};
 
     const escapeHTML = s => {
@@ -1378,7 +1554,147 @@ const isLoggedIn = {{ 'true' if is_logged_in else 'false' }};
         /* private mode */
       }
       closeLegalOverlay();
+      maybeOpenGirisAnketi();
     });
+
+    // Giriş anketi (PostgreSQL kaydı tamamlanana kadar zorunlu; sunucu da diğer sayfaları kilitler)
+    const surveyOverlay = document.getElementById('surveyOverlay');
+    const surveySiteYorumu = document.getElementById('surveySiteYorumu');
+    const surveyWordHint = document.getElementById('surveyWordHint');
+    const surveySubmitBtn = document.getElementById('surveySubmitBtn');
+    const surveyError = document.getElementById('surveyError');
+    const surveyAdsBtns = document.querySelectorAll('.survey-ads-btn');
+    let surveyAdsChoice = null;
+
+    const girisAnketiLsKey = () => (
+      currentUserId ? `thku_giris_anketi_v1:u${currentUserId}` : null
+    );
+
+    const countSurveyWords = (text) => {
+      if (!text || !String(text).trim()) return 0;
+      return String(text).trim().split(/\s+/).filter(p => /[\w\d]/u.test(p)).length;
+    };
+
+    const openSurveyOverlay = () => {
+      if (!surveyOverlay) return;
+      surveyOverlay.classList.remove('hidden');
+      surveyOverlay.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('survey-overlay-open');
+    };
+
+    const closeSurveyOverlay = () => {
+      if (!surveyOverlay) return;
+      surveyOverlay.classList.add('hidden');
+      surveyOverlay.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('survey-overlay-open');
+      const lsKey = girisAnketiLsKey();
+      if (lsKey) {
+        try { localStorage.setItem(lsKey, '1'); } catch (e) { /* private mode */ }
+      }
+    };
+
+    const updateSurveyFormState = () => {
+      const words = countSurveyWords(surveySiteYorumu?.value || '');
+      const okWords = words >= 10;
+      const okAds = surveyAdsChoice === 'evet' || surveyAdsChoice === 'hayir';
+      if (surveyWordHint) {
+        surveyWordHint.textContent = `${words} / 10 kelime`;
+        surveyWordHint.classList.toggle('ok', okWords);
+        surveyWordHint.classList.toggle('warn', !okWords);
+      }
+      if (surveySubmitBtn) {
+        const ready = okWords && okAds;
+        surveySubmitBtn.disabled = !ready;
+        surveySubmitBtn.classList.toggle('ready', ready);
+      }
+    };
+
+    surveySiteYorumu?.addEventListener('input', updateSurveyFormState);
+    surveyAdsBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        surveyAdsChoice = btn.getAttribute('data-ads');
+        surveyAdsBtns.forEach(b => b.classList.toggle('selected', b === btn));
+        updateSurveyFormState();
+      });
+    });
+
+    const fetchGirisAnketiDurum = async () => {
+      const res = await fetch('/api/giris-anketi/durum', { credentials: 'same-origin' });
+      if (!res.ok) return { tamamlandi: false, giris_anketi_gerekli: true };
+      return res.json();
+    };
+
+    const maybeOpenGirisAnketi = async () => {
+      if (!isLoggedIn || !surveyOverlay) return;
+      if (legalOverlay && !legalOverlay.classList.contains('hidden')) return;
+
+      let durum = { tamamlandi: false };
+      try {
+        durum = await fetchGirisAnketiDurum();
+      } catch (e) {
+        openSurveyOverlay();
+        return;
+      }
+
+      if (durum.tamamlandi) {
+        closeSurveyOverlay();
+        return;
+      }
+
+      const lsKey = girisAnketiLsKey();
+      if (lsKey) {
+        try {
+          if (localStorage.getItem(lsKey) === '1') {
+            /* önbellek eski; sunucu kaynağına güven */
+          }
+        } catch (e) { /* ignore */ }
+      }
+      openSurveyOverlay();
+    };
+
+    surveySubmitBtn?.addEventListener('click', async () => {
+      if (surveySubmitBtn.disabled) return;
+      if (surveyError) {
+        surveyError.textContent = '';
+        surveyError.classList.remove('visible');
+      }
+      surveySubmitBtn.disabled = true;
+      surveySubmitBtn.textContent = 'Gönderiliyor...';
+
+      try {
+        const res = await fetch('/api/giris-anketi', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            site_yorumu: surveySiteYorumu?.value?.trim() || '',
+            google_ads_evet: surveyAdsChoice === 'evet',
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          if (surveyError) {
+            surveyError.textContent = data.message || 'Gönderilemedi, tekrar dene.';
+            surveyError.classList.add('visible');
+          }
+          updateSurveyFormState();
+          surveySubmitBtn.textContent = 'Gönder ve siteye devam et';
+          return;
+        }
+        closeSurveyOverlay();
+      } catch (e) {
+        if (surveyError) {
+          surveyError.textContent = 'Bağlantı hatası. Lütfen tekrar dene.';
+          surveyError.classList.add('visible');
+        }
+        updateSurveyFormState();
+        surveySubmitBtn.textContent = 'Gönder ve siteye devam et';
+      }
+    });
+
+    if (legalOverlay?.classList.contains('hidden')) {
+      maybeOpenGirisAnketi();
+    }
 
     // Mobil menü
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
