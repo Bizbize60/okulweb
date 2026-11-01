@@ -4,7 +4,8 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import jwt
-from flask import Flask, send_from_directory, jsonify, request, redirect, url_for
+from flask import Flask, send_from_directory, jsonify, request, redirect, url_for, render_template
+import config as app_config
 from config import (
     DATABASE_URI, SECRET_KEY, MAX_CONTENT_LENGTH,
     NOTES_UPLOAD_FOLDER, PAZAR_UPLOAD_FOLDER, KULUP_UPLOAD_FOLDER,
@@ -41,31 +42,29 @@ app.config['MAIL_USERNAME'] = MAIL_USERNAME
 app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
 app.config['MAIL_DEFAULT_SENDER'] = MAIL_DEFAULT_SENDER
 app.config['GOOGLE_ANALYTICS_ID'] = GOOGLE_ANALYTICS_ID
+app.config['GOOGLE_ADS_CLIENT_ID'] = getattr(app_config, 'GOOGLE_ADS_CLIENT_ID', '') or ''
 app.config['EXAM_WEEK_BLITZ_ENABLED'] = False
 
 
-def render_analytics_script():
-    tracking_id = app.config.get('GOOGLE_ANALYTICS_ID') or ''
-    if not tracking_id:
+@app.context_processor
+def inject_google_head_context():
+    return {
+        'google_analytics_id': app.config.get('GOOGLE_ANALYTICS_ID') or '',
+        'google_ads_client_id': app.config.get('GOOGLE_ADS_CLIENT_ID') or '',
+    }
+
+
+def render_google_head_snippet():
+    if not app.config.get('GOOGLE_ANALYTICS_ID') and not app.config.get('GOOGLE_ADS_CLIENT_ID'):
         return ''
-    return f"""
-    <script async src="https://www.googletagmanager.com/gtag/js?id={tracking_id}"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){{dataLayer.push(arguments);}}
-      gtag('js', new Date());
-      gtag('config', '{tracking_id}');
-    </script>
-    """
-
-
-app.jinja_env.globals['render_analytics'] = render_analytics_script
+    return render_template('components/header.html')
 
 
 @app.after_request
-def inject_analytics_script(response):
-    tracking_id = app.config.get('GOOGLE_ANALYTICS_ID') or ''
-    if not tracking_id or response.mimetype != 'text/html':
+def inject_google_head_tags(response):
+    if response.mimetype != 'text/html':
+        return response
+    if not app.config.get('GOOGLE_ANALYTICS_ID') and not app.config.get('GOOGLE_ADS_CLIENT_ID'):
         return response
 
     try:
@@ -73,14 +72,14 @@ def inject_analytics_script(response):
     except Exception:
         return response
 
-    if '</head>' not in html:
+    if '</head>' not in html or '<!-- thku-head-tags -->' in html:
         return response
 
-    script = render_analytics_script()
-    if not script:
+    snippet = render_google_head_snippet()
+    if not snippet.strip():
         return response
 
-    html = html.replace('</head>', f'{script}\n</head>', 1)
+    html = html.replace('</head>', f'{snippet}\n</head>', 1)
     response.set_data(html)
     return response
 

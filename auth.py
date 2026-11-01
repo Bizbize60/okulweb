@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for, make_response, session, current_app
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for, make_response, session, current_app, flash
 from functools import wraps
 import jwt
 from datetime import datetime, timedelta, timezone
@@ -248,6 +248,10 @@ def register():
             session['davet_kodu'] = ref_code
 
     if request.method == 'POST':
+        if request.form.get('privacy_accept') != '1':
+            flash('Kayıt olmak için Gizlilik Politikasını okuduğunuzu ve kabul ettiğinizi onaylamalısınız.')
+            return redirect(url_for('auth.register', ref=ref_code) if ref_code else url_for('auth.register'))
+
         email = request.form['email'].strip().lower()
 
         if User.query.filter_by(email=email).first():
