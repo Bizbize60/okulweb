@@ -337,7 +337,7 @@ def favicon():
 
 
 def _ads_txt_body():
-    """AdSense ads.txt — config override, ca-pub'dan üretim veya repo kökündeki dosya."""
+    """AdSense ads.txt — GOOGLE_ADS_TXT veya GOOGLE_ADS_CLIENT_ID (ca-pub → pub-) ile üretilir."""
     override = (getattr(app_config, 'GOOGLE_ADS_TXT', '') or '').strip()
     if override:
         return override if override.endswith('\n') else f'{override}\n'
@@ -349,16 +349,11 @@ def _ads_txt_body():
     elif client.startswith('pub-'):
         pub_id = client
 
-    if pub_id:
-        tag_id = getattr(app_config, 'GOOGLE_ADS_TAG_ID', 'f08c47fec0942fa0') or 'f08c47fec0942fa0'
-        return f'google.com, {pub_id}, DIRECT, {tag_id}\n'
+    if not pub_id:
+        return None
 
-    root_file = os.path.join(app.root_path, 'ads.txt')
-    if os.path.isfile(root_file):
-        with open(root_file, encoding='utf-8') as fh:
-            return fh.read()
-
-    return None
+    tag_id = getattr(app_config, 'GOOGLE_ADS_TAG_ID', 'f08c47fec0942fa0') or 'f08c47fec0942fa0'
+    return f'google.com, {pub_id}, DIRECT, {tag_id}\n'
 
 
 @app.route('/ads.txt')

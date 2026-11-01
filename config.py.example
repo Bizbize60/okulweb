@@ -95,5 +95,5 @@ YEMEK_DUYURU_URL = "https://www.thk.edu.tr/en/announcements/announcements-3062"
 # Boş bırakırsanız ilgili scriptler yüklenmez.
 GOOGLE_ANALYTICS_ID = ""  # GA4 ölçüm kimliği, örn. G-XXXXXXXXXX
 GOOGLE_ADS_CLIENT_ID = ""   # AdSense yayıncı kimliği, örn. ca-pub-XXXXXXXXXXXXXXXX
-# İsteğe bağlı: ads.txt satırını elle ver (yoksa ca-pub → pub- otomatik üretilir veya repo/ads.txt)
+# İsteğe bağlı: /ads.txt route içeriği (yoksa GOOGLE_ADS_CLIENT_ID'den otomatik üretilir)
 # GOOGLE_ADS_TXT = "google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0"
