@@ -1923,7 +1923,7 @@ def giris_anketi_gonder(current_user):
         }), 400
     if comment_is_gibberish(yorum):
         return jsonify({
-            'message': 'Lütfen site hakkında kısa ve anlaşılır bir cümle yazın. Rastgele harf dizileri kabul edilmez.',
+            'message': 'Ciddi olun. Bu alan rastgele harf dizmek için değil. Site hakkında gerçek, okunabilir bir cümle yazın.',
         }), 400
 
     yeni_istek = Istek(
