@@ -1,6 +1,6 @@
 {# Ortak head: Google Analytics (GA4) + Google AdSense.
    Tüm HTML yanıtlarına backend.py inject_google_head_tags ile otomatik eklenir;
-   şablonlarda {% include %} gerekmez. ID'ler config.py içindedir. #}
+   şablonlarda {% include %} gerekmez. GA/AdSense ID'leri sunucu config.py'de (opsiyonel). #}
 <!-- thku-head-tags -->
 {% if google_analytics_id %}
 <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
