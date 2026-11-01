@@ -1182,7 +1182,7 @@
         };
 
         const deleteUser = async (id) => {
-            const isConfirmed = confirm("Bu kullanıcıyı kalıcı olarak silmek istediğinize emin misiniz?\n\nDİKKAT: Kullanıcının sisteme yüklediği veriler varsa silme işlemi başarısız olabilir.");
+            const isConfirmed = confirm("Bu kullanıcıyı ve ona bağlı kayıtları (forum, not, ilan, anket vb.) kalıcı olarak silmek istediğinize emin misiniz?");
             if (!isConfirmed) return;
 
             try {

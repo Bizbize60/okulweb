@@ -70,6 +70,12 @@ class GirisAnketiTests(unittest.TestCase):
         })
         self.assertEqual(short.status_code, 400)
 
+        mash = self.client.post('/api/giris-anketi', json={
+            'site_yorumu': 'asdfasdf asdfasdf',
+            'google_ads_evet': True,
+        })
+        self.assertEqual(mash.status_code, 400)
+
         yorum = 'Güzel site, teşekkürler'
         ok = self.client.post('/api/giris-anketi', json={
             'site_yorumu': yorum,

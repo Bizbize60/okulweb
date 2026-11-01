@@ -35,6 +35,7 @@ from giris_anketi import (
     MIN_SITE_YORUM_KARAKTER,
     MAX_SITE_YORUM_KARAKTER,
     build_giris_anketi_baslik,
+    comment_is_gibberish,
     count_comment_characters,
     parse_google_ads_choice,
     user_completed_giris_anketi,
@@ -1615,13 +1616,14 @@ def delete_user(current_user, id):
         return jsonify({'message': 'Kendi yönetici hesabınızı silemezsiniz!'}), 400
 
     try:
-        WebPushSubscription.query.filter_by(user_id=user_to_delete.id).delete(synchronize_session=False)
-        db.session.delete(user_to_delete)
+        from user_purge import purge_user_account
+        purge_user_account(user_to_delete)
         db.session.commit()
-        return jsonify({'message': 'Kullanıcı başarıyla silindi!'}), 200
+        return jsonify({'message': 'Kullanıcı ve bağlı kayıtları silindi.'}), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({'message': 'Kullanıcı silinemedi! Bu öğrencinin sistemde aktif verileri (ders notu, forum mesajı vb.) olabilir.'}), 400
+        print(f'Kullanıcı silme hatası: {e}')
+        return jsonify({'message': 'Kullanıcı silinemedi. Bağlı kayıtlar temizlenirken hata oluştu.'}), 400
 
 
 @api_bp.put('/api/admin/users/<int:id>/kredi')
@@ -1918,6 +1920,10 @@ def giris_anketi_gonder(current_user):
         return jsonify({
             'message': f'Site yorumu en az {MIN_SITE_YORUM_KARAKTER} karakter olmalıdır (şu an {karakter}).',
             'karakter_sayisi': karakter,
+        }), 400
+    if comment_is_gibberish(yorum):
+        return jsonify({
+            'message': 'Ciddi olun. Bu alan rastgele harf dizmek için değil. Site hakkında gerçek, okunabilir bir cümle yazın.',
         }), 400
 
     yeni_istek = Istek(
