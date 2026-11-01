@@ -4,13 +4,12 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import jwt
-from flask import Flask, send_from_directory, jsonify, request, redirect, url_for, render_template
+from flask import Flask, send_from_directory, jsonify, request, redirect, url_for, render_template, Response
 import config as app_config
 from config import (
     DATABASE_URI, SECRET_KEY, MAX_CONTENT_LENGTH,
     NOTES_UPLOAD_FOLDER, PAZAR_UPLOAD_FOLDER, KULUP_UPLOAD_FOLDER,
     DEBUG, HOST, PORT, MAIL_SERVER, MAIL_PORT, MAIL_USE_TLS, MAIL_USERNAME, MAIL_PASSWORD, MAIL_DEFAULT_SENDER,
-    GOOGLE_ANALYTICS_ID
 )
 
 from database.initdb import db
@@ -41,7 +40,7 @@ app.config['MAIL_USE_TLS'] = MAIL_USE_TLS
 app.config['MAIL_USERNAME'] = MAIL_USERNAME
 app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
 app.config['MAIL_DEFAULT_SENDER'] = MAIL_DEFAULT_SENDER
-app.config['GOOGLE_ANALYTICS_ID'] = GOOGLE_ANALYTICS_ID
+app.config['GOOGLE_ANALYTICS_ID'] = getattr(app_config, 'GOOGLE_ANALYTICS_ID', '') or ''
 app.config['GOOGLE_ADS_CLIENT_ID'] = getattr(app_config, 'GOOGLE_ADS_CLIENT_ID', '') or ''
 app.config['EXAM_WEEK_BLITZ_ENABLED'] = False
 
@@ -113,7 +112,7 @@ with app.app_context():
         print(f"[backend] RBAC varsayılan roller yüklenemedi: {e}")
 
 _SKIP_PREFIXES = (
-    '/static', '/uploads', '/sw.js', '/favicon.ico',
+    '/static', '/uploads', '/sw.js', '/favicon.ico', '/ads.txt',
 )
 
 _GIRIS_ANKETI_EXEMPT_PATHS = frozenset({
@@ -334,6 +333,34 @@ def sw():
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'kedi.ico', mimetype='image/vnd.microsoft.icon')
+
+
+def _ads_txt_body():
+    """AdSense ads.txt — GOOGLE_ADS_TXT veya GOOGLE_ADS_CLIENT_ID (ca-pub → pub-) ile üretilir."""
+    override = (getattr(app_config, 'GOOGLE_ADS_TXT', '') or '').strip()
+    if override:
+        return override if override.endswith('\n') else f'{override}\n'
+
+    client = (app.config.get('GOOGLE_ADS_CLIENT_ID') or '').strip()
+    pub_id = ''
+    if client.startswith('ca-pub-'):
+        pub_id = f'pub-{client[len("ca-pub-"):]}'
+    elif client.startswith('pub-'):
+        pub_id = client
+
+    if not pub_id:
+        return None
+
+    tag_id = getattr(app_config, 'GOOGLE_ADS_TAG_ID', 'f08c47fec0942fa0') or 'f08c47fec0942fa0'
+    return f'google.com, {pub_id}, DIRECT, {tag_id}\n'
+
+
+@app.route('/ads.txt')
+def ads_txt():
+    body = _ads_txt_body()
+    if not body:
+        return Response('Not found\n', status=404, mimetype='text/plain; charset=utf-8')
+    return Response(body, mimetype='text/plain; charset=utf-8')
 
 @app.route('/uploads/katkida/<path:filename>')
 def katkida_gorsel_indir(filename):
