@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}İletişim · THKÜ Öğrenci Portalı{% endblock %}
+
+{% block head %}
+<style>
+  .contact-page {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 1.75rem 1.25rem 3rem;
+    color: var(--app-ink, #f1f5f9);
+  }
+  .contact-page h1 {
+    font-size: clamp(1.5rem, 3vw, 1.85rem);
+    letter-spacing: -0.02em;
+    margin: 0 0 0.5rem;
+  }
+  .contact-page .lead {
+    color: var(--app-muted, #94a3b8);
+    line-height: 1.6;
+    margin-bottom: 1.75rem;
+  }
+  .contact-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 1.35rem 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+  .contact-card h2 {
+    font-size: 1rem;
+    margin: 0 0 0.65rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .contact-card p {
+    margin: 0 0 0.75rem;
+    color: var(--app-muted, #cbd5e1);
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+  .contact-card a.email {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: #93c5fd;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 1.05rem;
+  }
+  .contact-card a.email:hover { color: #bfdbfe; text-decoration: underline; }
+  .contact-card a.btn-link {
+    display: inline-block;
+    margin-top: 0.25rem;
+    padding: 0.55rem 1rem;
+    border-radius: 10px;
+    background: rgba(99, 102, 241, 0.2);
+    border: 1px solid rgba(99, 102, 241, 0.35);
+    color: #c7d2fe;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .contact-card a.btn-link:hover {
+    background: rgba(99, 102, 241, 0.32);
+    color: #e0e7ff;
+  }
+  .contact-note {
+    font-size: 0.88rem;
+    color: var(--app-muted, #64748b);
+    line-height: 1.55;
+    margin-top: 1.5rem;
+  }
+  .contact-note a { color: #93c5fd; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="contact-page">
+  <h1>İletişim</h1>
+  <p class="lead">
+    THKÜ Öğrenci Portalı gönüllü öğrenciler tarafından yürütülen bağımsız bir topluluk projesidir.
+    Sorularınız, önerileriniz, şikâyetleriniz ve KVKK başvurularınız için aşağıdaki kanalları kullanabilirsiniz.
+  </p>
+
+  <section class="contact-card" aria-labelledby="email-heading">
+    <h2 id="email-heading">📧 E-posta</h2>
+    <p>Doğrudan yazmak için:</p>
+    <a class="email" href="mailto:600tuna@gmail.com">600tuna@gmail.com</a>
+  </section>
+
+  <section class="contact-card" aria-labelledby="istek-heading">
+    <h2 id="istek-heading">💡 İstek, öneri ve şikâyet</h2>
+    <p>
+      Platform içinden de bize ulaşabilirsiniz. Giriş yaptıktan sonra
+      <strong>İstek &amp; Öneri Bildir</strong> sayfasından talep, öneri veya şikâyet gönderebilir;
+      gönderdiğiniz kayıtları aynı sayfada takip edebilirsiniz.
+    </p>
+    <a class="btn-link" href="{{ url_for('pages.istekler_page') }}">İstek / şikâyet bölümüne git →</a>
+  </section>
+
+  <section class="contact-card" aria-labelledby="privacy-heading">
+    <h2 id="privacy-heading">🔒 Gizlilik</h2>
+    <p>Kişisel verilerinizin işlenmesi hakkında ayrıntılı bilgi için:</p>
+    <a class="btn-link" href="{{ url_for('pages.gizlilik_politikasi_page') }}">Gizlilik Politikası</a>
+  </section>
+
+  <p class="contact-note">
+    Bu site THK Üniversitesi’nin resmi web sitesi değildir. Resmi akademik ve idari işlemler için
+    <a href="https://www.thk.edu.tr" target="_blank" rel="noopener noreferrer">thk.edu.tr</a> adresini kullanın.
+  </p>
+</div>
+{% endblock %}

@@ -198,6 +198,18 @@ def moderatorler_page():
     return render_template('moderatorler.html')
 
 
+@pages.route('/gizlilik-politikasi')
+def gizlilik_politikasi_page():
+    """KVKK kapsamında gizlilik politikası (herkese açık)."""
+    return render_template('gizlilik-politikasi.html')
+
+
+@pages.route('/iletisim')
+def iletisim_page():
+    """İletişim bilgileri (herkese açık)."""
+    return render_template('iletisim.html')
+
+
 # ============================================================================
 # OGRENCI ELÇISI SİSTEMİ SAYFALARI
 # ============================================================================

@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}Gizlilik Politikası · THKÜ Öğrenci Portalı{% endblock %}
+
+{% block head %}
+<style>
+  .legal-page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 1.75rem 1.25rem 3rem;
+    color: var(--app-ink, #f1f5f9);
+    line-height: 1.65;
+    font-size: 0.95rem;
+  }
+  .legal-page h1 {
+    font-size: clamp(1.5rem, 3vw, 1.85rem);
+    letter-spacing: -0.02em;
+    margin: 0 0 0.5rem;
+  }
+  .legal-page .legal-meta {
+    color: var(--app-muted, #94a3b8);
+    font-size: 0.88rem;
+    margin-bottom: 1.75rem;
+  }
+  .legal-page h2 {
+    font-size: 1.05rem;
+    margin: 1.75rem 0 0.65rem;
+    color: var(--app-ink, #f1f5f9);
+  }
+  .legal-page p, .legal-page li {
+    color: var(--app-muted, #cbd5e1);
+    margin: 0 0 0.75rem;
+  }
+  .legal-page ul {
+    margin: 0 0 1rem 1.25rem;
+    padding: 0;
+  }
+  .legal-page a {
+    color: #93c5fd;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .legal-page a:hover { color: #bfdbfe; }
+  .legal-page .legal-notice {
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    border-radius: 12px;
+    padding: 1rem 1.15rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    color: #fde68a;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<article class="legal-page">
+  <h1>Gizlilik Politikası</h1>
+  <p class="legal-meta">Son güncelleme: 1 Kasım 2026 · 6698 sayılı Kişisel Verilerin Korunması Kanunu (“KVKK”) kapsamında hazırlanmıştır.</p>
+
+  <div class="legal-notice" role="note">
+    <strong>Önemli:</strong> thkuogrenci.com, THK Üniversitesi’nin resmi sitesi değildir; bağımsız öğrenci topluluğu tarafından işletilen gayriresmi bir platformdur.
+  </div>
+
+  <p>
+    Bu Gizlilik Politikası, THKÜ Öğrenci Portalı (“Platform”, “biz”) üzerinden sunulan hizmetler kapsamında
+    kişisel verilerinizin hangi amaçlarla, hangi hukuki sebeplere dayanılarak işlendiğini ve KVKK kapsamındaki
+    haklarınızı açıklar.
+  </p>
+
+  <h2>1. Veri Sorumlusu</h2>
+  <p>
+    KVKK uyarınca veri sorumlusu: <strong>THKÜ Öğrenci Portalı</strong> (thkuogrenci.com).<br>
+    İletişim: <a href="mailto:600tuna@gmail.com">600tuna@gmail.com</a> ·
+    <a href="{{ url_for('pages.iletisim_page') }}">İletişim sayfası</a>
+  </p>
+
+  <h2>2. İşlenen Kişisel Veriler</h2>
+  <p>Platformu kullanımınıza bağlı olarak aşağıdaki veri kategorileri işlenebilir:</p>
+  <ul>
+    <li><strong>Kimlik ve hesap bilgileri:</strong> ad-soyad, e-posta adresi, okul e-postası (kayıt/doğrulama sürecinde), profil bilgileri.</li>
+    <li><strong>İşlem güvenliği:</strong> oturum çerezleri, JWT tabanlı kimlik doğrulama kayıtları, IP adresi ve tarayıcı/ cihaz bilgileri (güvenlik ve kötüye kullanımın önlenmesi amacıyla sınırlı ölçüde).</li>
+    <li><strong>Kullanıcı içerikleri:</strong> forum mesajları, ders notu yüklemeleri, ilanlar, kayıp eşya bildirimleri, değerlendirmeler, istek/şikayet kayıtları.</li>
+    <li><strong>Elçi / puan sistemi:</strong> davet kodları, puan ve seviye bilgileri (ilgili modülleri kullanıyorsanız).</li>
+    <li><strong>İletişim kayıtları:</strong> bize e-posta veya istek/şikayet formu üzerinden ilettiğiniz mesajlar.</li>
+  </ul>
+
+  <h2>3. Kişisel Verilerin İşlenme Amaçları ve Hukuki Sebepler</h2>
+  <p>Verileriniz KVKK’nın 5. ve 6. maddelerinde belirtilen şartlara uygun olarak şu amaçlarla işlenir:</p>
+  <ul>
+    <li>Üyelik oluşturma, kimlik doğrulama ve hesap yönetimi (sözleşmenin kurulması ve ifası).</li>
+    <li>Platform hizmetlerinin sunulması (not paylaşımı, forum, pazar, duyurular vb.).</li>
+    <li>Topluluk güvenliği, moderasyon ve hukuka aykırı kullanımın önlenmesi (meşru menfaat / hukuki yükümlülük).</li>
+    <li>İstek, öneri ve şikâyetlerin değerlendirilmesi ve size dönüş yapılması.</li>
+    <li>İstatistiksel analiz ve hizmet iyileştirme (mümkün olduğunca anonimleştirilmiş veya toplu veri düzeyinde).</li>
+    <li>Açık rızanızın gerektiği hallerde (ör. isteğe bağlı bildirimler) yalnızca onayınızla.</li>
+  </ul>
+
+  <h2>4. Kişisel Verilerin Aktarılması</h2>
+  <p>
+    Verileriniz, hizmetin sunulması için zorunlu olduğu ölçüde barındırma (hosting), e-posta ve analiz
+    hizmeti sağlayıcıları gibi yurt içi veya yurt dışındaki tedarikçilere aktarılabilir. Aktarımlarda
+    KVKK’nın 8. ve 9. maddelerine uygun teknik ve idari tedbirler alınmaya çalışılır.
+    Kanunen yetkili kamu kurumlarına yalnızca yasal zorunluluk halinde bilgi verilebilir.
+  </p>
+
+  <h2>5. Toplama Yöntemi</h2>
+  <p>
+    Veriler; kayıt formları, oturum çerezleri, Platform üzerindeki etkileşimleriniz ve doğrudan iletişim
+    kanalları (e-posta, istek/şikâyet bölümü) aracılığıyla otomatik veya kısmen otomatik yollarla toplanır.
+  </p>
+
+  <h2>6. Saklama Süreleri</h2>
+  <p>
+    Kişisel veriler, işleme amacının gerektirdiği süre boyunca ve ilgili mevzuattaki zamanaşımı süreleri
+    dikkate alınarak saklanır. Hesabınızı silmeniz veya silme talebiniz halinde, yasal saklama zorunluluğu
+    bulunmayan veriler makul süre içinde silinir, yok edilir veya anonim hale getirilir.
+  </p>
+
+  <h2>7. Çerezler (Cookies)</h2>
+  <p>
+    Platform, oturumunuzun sürdürülmesi için zorunlu çerezler kullanır (ör. kimlik doğrulama jetonu).
+    Tarayıcı ayarlarınızdan çerezleri kısıtlayabilirsiniz; bu durumda bazı özellikler çalışmayabilir.
+  </p>
+
+  <h2>8. KVKK Kapsamındaki Haklarınız (Madde 11)</h2>
+  <p>KVKK’nın 11. maddesi uyarınca veri sorumlusuna başvurarak:</p>
+  <ul>
+    <li>Kişisel verilerinizin işlenip işlenmediğini öğrenme,</li>
+    <li>İşlenmişse buna ilişkin bilgi talep etme,</li>
+    <li>İşlenme amacını ve amacına uygun kullanılıp kullanılmadığını öğrenme,</li>
+    <li>Yurt içinde veya yurt dışında aktarıldığı üçüncü kişileri bilme,</li>
+    <li>Eksik veya yanlış işlenmişse düzeltilmesini isteme,</li>
+    <li>KVKK’nın 7. maddesinde öngörülen şartlar çerçevesinde silinmesini veya yok edilmesini isteme,</li>
+    <li>Düzeltme, silme ve yok etme işlemlerinin aktarıldığı üçüncü kişilere bildirilmesini isteme,</li>
+    <li>Münhasıran otomatik sistemler vasıtasıyla analiz edilmesi suretiyle aleyhinize bir sonucun ortaya çıkmasına itiraz etme,</li>
+    <li>Kanuna aykırı işlenmesi sebebiyle zarara uğramanız hâlinde zararın giderilmesini talep etme</li>
+  </ul>
+  <p>haklarına sahipsiniz.</p>
+
+  <h2>9. Başvuru Yöntemi</h2>
+  <p>
+    Haklarınıza ilişkin taleplerinizi <a href="mailto:600tuna@gmail.com">600tuna@gmail.com</a> adresine
+    iletebilirsiniz. Başvurularınız, KVKK ve ilgili tebliğlerde öngörülen süreler içinde değerlendirilir.
+    Ayrıca kişisel veri ihlali, şikâyet veya genel geri bildirimleriniz için Platform’daki
+    <a href="{{ url_for('pages.istekler_page') }}">İstek &amp; Öneri / Şikâyet</a> bölümünü de kullanabilirsiniz
+    (giriş yapmış kullanıcılar için).
+  </p>
+
+  <h2>10. Politika Güncellemeleri</h2>
+  <p>
+    Bu metin güncellenebilir. Önemli değişiklikler Platform üzerinde duyurulur. Güncel sürüm her zaman
+    bu sayfada yayımlanır.
+  </p>
+</article>
+{% endblock %}
