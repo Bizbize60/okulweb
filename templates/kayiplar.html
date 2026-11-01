@@ -223,7 +223,7 @@
 
         .items-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
             gap: 20px;
         }
 
@@ -649,6 +649,16 @@
             .info-banner {
                 flex-direction: column;
                 text-align: center;
+            }
+        }
+
+        @media (max-width: 639px) {
+            .items-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            body {
+                padding-bottom: 24px;
             }
         }
     </style>

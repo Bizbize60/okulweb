@@ -59,9 +59,14 @@ def render_google_head_snippet():
     return render_template('components/header.html')
 
 
+def _mobile_css_link():
+    href = url_for('static', filename='css/mobile.css')
+    return f'<link rel="stylesheet" href="{href}">\n<!-- thku-mobile-css -->'
+
+
 @app.after_request
-def inject_google_head_tags(response):
-    """Tüm HTML sayfalarına ortak Google head parçasını ekler (yeni şablonda include gerekmez)."""
+def inject_global_head_assets(response):
+    """Google head + mobile.css — tüm HTML sayfalarına otomatik."""
     if response.mimetype != 'text/html':
         return response
 
@@ -70,11 +75,19 @@ def inject_google_head_tags(response):
     except Exception:
         return response
 
-    if '</head>' not in html or '<!-- thku-head-tags -->' in html:
+    if '</head>' not in html:
         return response
 
-    snippet = render_google_head_snippet()
-    html = html.replace('</head>', f'{snippet}\n</head>', 1)
+    inject = []
+    if '<!-- thku-head-tags -->' not in html:
+        inject.append(render_google_head_snippet())
+    if 'css/mobile.css' not in html:
+        inject.append(_mobile_css_link())
+
+    if not inject:
+        return response
+
+    html = html.replace('</head>', '\n'.join(inject) + '\n</head>', 1)
     response.set_data(html)
     return response
 

@@ -37,9 +37,13 @@
     p.lead { color: var(--fg-muted); margin-top: 8px; max-width: 560px; line-height: 1.6; }
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
       gap: 18px;
       margin-top: 32px;
+    }
+    @media (max-width: 639px) {
+      .wrap { padding: 28px 14px 64px; }
+      .top { flex-direction: column; align-items: flex-start; }
     }
     .card {
       background: var(--surface);

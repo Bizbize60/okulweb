@@ -525,6 +525,17 @@ body.app-shell.app-lock {
   margin: 4px 0 0;
 }
 
+@media (max-width: 639px) {
+  .app-header__inner {
+    padding: 0 10px;
+    gap: 8px;
+  }
+
+  .app-header__tools {
+    gap: 4px;
+  }
+}
+
 @media (max-width: 1199px) {
   .app-nav,
   .app-auth .app-btn span,

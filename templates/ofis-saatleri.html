@@ -3,6 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ofis Saatleri - THKÜ</title>
 <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='kedi.ico') }}">
   <style>
@@ -222,7 +223,21 @@
 
       .container {
         margin-left: 0;
-        padding: 20px;
+        padding: 16px 14px 32px;
+      }
+
+      header h1 {
+        font-size: 1.35rem;
+      }
+
+      .content-card {
+        padding: 18px 14px;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
       }
     }
   </style>
