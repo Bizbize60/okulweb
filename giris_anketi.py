@@ -35,10 +35,10 @@ def user_completed_giris_anketi(user_id: int) -> bool:
 def parse_google_ads_choice(baslik: str) -> str | None:
     if not baslik:
         return None
-    m = re.search(r'Google Ads:\s*(Evet|Hayır)\s*$', baslik)
+    m = re.search(r'(?:Google Ads|Sitede reklam):\s*(Evet|Hayır)\s*$', baslik)
     return m.group(1) if m else None
 
 
 def build_giris_anketi_baslik(google_ads_evet: bool) -> str:
     oy = 'Evet' if google_ads_evet else 'Hayır'
-    return f'Giriş anketi · Google Ads: {oy}'
+    return f'Giriş anketi · Sitede reklam: {oy}'

@@ -594,7 +594,7 @@
                             <th>Gönderen</th>
                             <th>Başlık</th>
                             <th>Kategori</th>
-                            <th>Google Ads</th>
+                            <th>Reklam fikri</th>
                             <th>Durum</th>
                             <th>Tarih</th>
                             <th>İşlem</th>
@@ -1691,7 +1691,7 @@
             const i = istekCache.find(x => x.id === id);
             if (!i) return;
             const adsLine = i.kategori === GIRIS_ANKETI_KATEGORI && i.google_ads_oy
-                ? `<p style="margin-top:10px;"><strong>Google Ads:</strong> ${escapeHTML(i.google_ads_oy)}</p>`
+                ? `<p style="margin-top:10px;"><strong>Sitede reklam:</strong> ${escapeHTML(i.google_ads_oy)}</p>`
                 : '';
             document.getElementById('istekDetailBody').innerHTML = `
                 <p><strong>Gönderen:</strong> ${escapeHTML(i.kullanici_ad)} (${escapeHTML(i.kullanici_email)})</p>

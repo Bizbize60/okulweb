@@ -1908,7 +1908,7 @@ def giris_anketi_gonder(current_user):
     data = request.get_json() or {}
     yorum = (data.get('site_yorumu') or data.get('aciklama') or '').strip()
     if 'google_ads_evet' not in data:
-        return jsonify({'message': 'Google Ads tercihi (Evet/Hayır) zorunludur.'}), 400
+        return jsonify({'message': '“Sitede reklam olsun mu?” sorusunu Evet veya Hayır ile yanıtlamanız gerekir.'}), 400
 
     google_ads_evet = bool(data.get('google_ads_evet'))
     if len(yorum) > MAX_SITE_YORUM_KARAKTER:
