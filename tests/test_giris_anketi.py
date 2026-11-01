@@ -13,7 +13,7 @@ from database.user import User
 from database.istek import Istek
 from giris_anketi import (
     GIRIS_ANKETI_KATEGORI,
-    count_words,
+    count_comment_characters,
     user_completed_giris_anketi,
 )
 
@@ -50,10 +50,11 @@ class GirisAnketiTests(unittest.TestCase):
             )
             self.client.set_cookie(key='jwt_token', value=token)
 
-    def test_count_words_requires_ten(self):
-        self.assertEqual(count_words(''), 0)
-        self.assertEqual(count_words('bir iki uc dort bes alti yedi sekiz dokuz'), 9)
-        self.assertEqual(count_words('bir iki uc dort bes alti yedi sekiz dokuz on'), 10)
+    def test_count_comment_characters_requires_ten(self):
+        self.assertEqual(count_comment_characters(''), 0)
+        self.assertEqual(count_comment_characters('123456789'), 9)
+        self.assertEqual(count_comment_characters('1234567890'), 10)
+        self.assertEqual(count_comment_characters('  merhaba  '), 7)
 
     def test_gate_blocks_forum_until_survey(self):
         self._auth_cookie()
@@ -69,7 +70,7 @@ class GirisAnketiTests(unittest.TestCase):
         })
         self.assertEqual(short.status_code, 400)
 
-        yorum = ' '.join([f'kelime{i}' for i in range(10)])
+        yorum = 'Güzel site, teşekkürler'
         ok = self.client.post('/api/giris-anketi', json={
             'site_yorumu': yorum,
             'google_ads_evet': False,
@@ -87,7 +88,7 @@ class GirisAnketiTests(unittest.TestCase):
 
     def test_istekler_endpoint_rejects_giris_anketi_category(self):
         self._auth_cookie()
-        yorum = ' '.join([f'kelime{i}' for i in range(10)])
+        yorum = 'Güzel site, teşekkürler'
         self.client.post('/api/giris-anketi', json={
             'site_yorumu': yorum,
             'google_ads_evet': True,

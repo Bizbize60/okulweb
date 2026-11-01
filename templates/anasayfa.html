@@ -1280,9 +1280,9 @@
           Lütfen siteyle ilgili düşüncelerini yaz (reklam konusunda ne hissettiğini de aynı metne ekleyebilirsin) ve aşağıdaki soruyu yanıtla.
           <strong>Anketi göndermeden siteyi kullanamazsın.</strong>
         </p>
-        <label class="survey-label" for="surveySiteYorumu">Site hakkındaki yorumun (en az 10 kelime)</label>
+        <label class="survey-label" for="surveySiteYorumu">Site hakkındaki yorumun (en az 10 karakter)</label>
         <textarea id="surveySiteYorumu" class="survey-textarea" maxlength="4000" placeholder="Örn: Ders notları ve forum benim için çok faydalı. Sunucu masrafı için sitede reklam olması bence mantıklı ama reklamlar çok sık olmasın, sayfa karışmasın istiyorum..."></textarea>
-        <p class="survey-word-hint warn" id="surveyWordHint">0 / 10 kelime</p>
+        <p class="survey-word-hint warn" id="surveyWordHint">0 / 10 karakter</p>
         <div class="survey-ads-question">
           <p class="survey-label" style="margin-bottom:4px;">Sitede reklam gösterelim mi?</p>
           <p style="font-size:0.84rem;color:var(--fg-muted);line-height:1.55;">Sunucu kirasını ödeyebilmek için (siteyi ayakta tutmak zorundayız) sayfalarda reklam çıkmasına razı mısın? Teknik tarafı biz hallederiz; sen yalnızca “evet, masraf için olabilir” veya “hayır, reklam istemem” diye fikrini söylüyorsun.</p>
@@ -1631,9 +1631,9 @@ const isLoggedIn = {{ 'true' if is_logged_in else 'false' }};
       currentUserId ? `thku_giris_anketi_v1:u${currentUserId}` : null
     );
 
-    const countSurveyWords = (text) => {
-      if (!text || !String(text).trim()) return 0;
-      return String(text).trim().split(/\s+/).filter(p => /[\w\d]/u.test(p)).length;
+    const countSurveyChars = (text) => {
+      if (text == null) return 0;
+      return String(text).trim().length;
     };
 
     const openSurveyOverlay = () => {
@@ -1655,16 +1655,16 @@ const isLoggedIn = {{ 'true' if is_logged_in else 'false' }};
     };
 
     const updateSurveyFormState = () => {
-      const words = countSurveyWords(surveySiteYorumu?.value || '');
-      const okWords = words >= 10;
+      const chars = countSurveyChars(surveySiteYorumu?.value || '');
+      const okChars = chars >= 10;
       const okAds = surveyAdsChoice === 'evet' || surveyAdsChoice === 'hayir';
       if (surveyWordHint) {
-        surveyWordHint.textContent = `${words} / 10 kelime`;
-        surveyWordHint.classList.toggle('ok', okWords);
-        surveyWordHint.classList.toggle('warn', !okWords);
+        surveyWordHint.textContent = `${chars} / 10 karakter`;
+        surveyWordHint.classList.toggle('ok', okChars);
+        surveyWordHint.classList.toggle('warn', !okChars);
       }
       if (surveySubmitBtn) {
-        const ready = okWords && okAds;
+        const ready = okChars && okAds;
         surveySubmitBtn.disabled = !ready;
         surveySubmitBtn.classList.toggle('ready', ready);
       }
@@ -1720,7 +1720,7 @@ const isLoggedIn = {{ 'true' if is_logged_in else 'false' }};
         surveyError.classList.remove('visible');
       }
       surveySubmitBtn.disabled = true;
-      surveySubmitBtn.textContent = 'Gönderiliyor...';
+      surveySubmitBtn.textContent = 'Gönderiliyor…';
 
       try {
         const res = await fetch('/api/giris-anketi', {
@@ -1739,7 +1739,7 @@ const isLoggedIn = {{ 'true' if is_logged_in else 'false' }};
             surveyError.classList.add('visible');
           }
           updateSurveyFormState();
-          surveySubmitBtn.textContent = 'Gönder ve siteye devam et';
+          surveySubmitBtn.innerHTML = SURVEY_SUBMIT_DEFAULT_HTML;
           return;
         }
         closeSurveyOverlay();
@@ -1749,7 +1749,7 @@ const isLoggedIn = {{ 'true' if is_logged_in else 'false' }};
           surveyError.classList.add('visible');
         }
         updateSurveyFormState();
-        surveySubmitBtn.textContent = 'Gönder ve siteye devam et';
+        surveySubmitBtn.innerHTML = SURVEY_SUBMIT_DEFAULT_HTML;
       }
     });
 
