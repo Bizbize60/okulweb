@@ -91,6 +91,9 @@ YEMEK_DUYURU_URL = "https://www.thk.edu.tr/en/announcements/announcements-3062"
 # =============================================================================
 # Google Analytics & AdSense (templates/components/header.html)
 # =============================================================================
+# Tüm HTML sayfalarına otomatik eklenir; şablonlarda ayrıca include etmeyin.
 # Boş bırakırsanız ilgili scriptler yüklenmez.
 GOOGLE_ANALYTICS_ID = ""  # GA4 ölçüm kimliği, örn. G-XXXXXXXXXX
 GOOGLE_ADS_CLIENT_ID = ""   # AdSense yayıncı kimliği, örn. ca-pub-XXXXXXXXXXXXXXXX
+# İsteğe bağlı: ads.txt satırını elle ver (yoksa ca-pub → pub- otomatik üretilir veya repo/ads.txt)
+# GOOGLE_ADS_TXT = "google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0"

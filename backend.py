@@ -4,7 +4,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import jwt
-from flask import Flask, send_from_directory, jsonify, request, redirect, url_for, render_template
+from flask import Flask, send_from_directory, jsonify, request, redirect, url_for, render_template, Response
 import config as app_config
 from config import (
     DATABASE_URI, SECRET_KEY, MAX_CONTENT_LENGTH,
@@ -113,7 +113,7 @@ with app.app_context():
         print(f"[backend] RBAC varsayılan roller yüklenemedi: {e}")
 
 _SKIP_PREFIXES = (
-    '/static', '/uploads', '/sw.js', '/favicon.ico',
+    '/static', '/uploads', '/sw.js', '/favicon.ico', '/ads.txt',
 )
 
 _GIRIS_ANKETI_EXEMPT_PATHS = frozenset({
@@ -334,6 +334,39 @@ def sw():
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'kedi.ico', mimetype='image/vnd.microsoft.icon')
+
+
+def _ads_txt_body():
+    """AdSense ads.txt — config override, ca-pub'dan üretim veya repo kökündeki dosya."""
+    override = (getattr(app_config, 'GOOGLE_ADS_TXT', '') or '').strip()
+    if override:
+        return override if override.endswith('\n') else f'{override}\n'
+
+    client = (app.config.get('GOOGLE_ADS_CLIENT_ID') or '').strip()
+    pub_id = ''
+    if client.startswith('ca-pub-'):
+        pub_id = f'pub-{client[len("ca-pub-"):]}'
+    elif client.startswith('pub-'):
+        pub_id = client
+
+    if pub_id:
+        tag_id = getattr(app_config, 'GOOGLE_ADS_TAG_ID', 'f08c47fec0942fa0') or 'f08c47fec0942fa0'
+        return f'google.com, {pub_id}, DIRECT, {tag_id}\n'
+
+    root_file = os.path.join(app.root_path, 'ads.txt')
+    if os.path.isfile(root_file):
+        with open(root_file, encoding='utf-8') as fh:
+            return fh.read()
+
+    return None
+
+
+@app.route('/ads.txt')
+def ads_txt():
+    body = _ads_txt_body()
+    if not body:
+        return Response('Not found\n', status=404, mimetype='text/plain; charset=utf-8')
+    return Response(body, mimetype='text/plain; charset=utf-8')
 
 @app.route('/uploads/katkida/<path:filename>')
 def katkida_gorsel_indir(filename):
