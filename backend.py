@@ -55,16 +55,14 @@ def inject_google_head_context():
 
 
 def render_google_head_snippet():
-    if not app.config.get('GOOGLE_ANALYTICS_ID') and not app.config.get('GOOGLE_ADS_CLIENT_ID'):
-        return ''
+    """Tek kaynak: templates/components/header.html (GA4 + AdSense)."""
     return render_template('components/header.html')
 
 
 @app.after_request
 def inject_google_head_tags(response):
+    """Tüm HTML sayfalarına ortak Google head parçasını ekler (yeni şablonda include gerekmez)."""
     if response.mimetype != 'text/html':
-        return response
-    if not app.config.get('GOOGLE_ANALYTICS_ID') and not app.config.get('GOOGLE_ADS_CLIENT_ID'):
         return response
 
     try:
@@ -76,9 +74,6 @@ def inject_google_head_tags(response):
         return response
 
     snippet = render_google_head_snippet()
-    if not snippet.strip():
-        return response
-
     html = html.replace('</head>', f'{snippet}\n</head>', 1)
     response.set_data(html)
     return response

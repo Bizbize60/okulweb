@@ -1,4 +1,6 @@
-{# Ortak head etiketleri: Google Analytics (GA4) + Google AdSense. Tek yerden yönetilir. #}
+{# Ortak head: Google Analytics (GA4) + Google AdSense.
+   Tüm HTML yanıtlarına backend.py inject_google_head_tags ile otomatik eklenir;
+   şablonlarda {% include %} gerekmez. ID'ler config.py içindedir. #}
 <!-- thku-head-tags -->
 {% if google_analytics_id %}
 <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
