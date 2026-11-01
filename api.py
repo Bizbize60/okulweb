@@ -32,10 +32,10 @@ from database.istek import Istek
 from giris_anketi import (
     GIRIS_ANKETI_KATEGORI,
     GIRIS_ANKETI_DURUM_TAMAMLANDI,
-    MIN_SITE_YORUM_KELIME,
+    MIN_SITE_YORUM_KARAKTER,
     MAX_SITE_YORUM_KARAKTER,
     build_giris_anketi_baslik,
-    count_words,
+    count_comment_characters,
     parse_google_ads_choice,
     user_completed_giris_anketi,
 )
@@ -1913,11 +1913,11 @@ def giris_anketi_gonder(current_user):
     google_ads_evet = bool(data.get('google_ads_evet'))
     if len(yorum) > MAX_SITE_YORUM_KARAKTER:
         return jsonify({'message': f'Yorum en fazla {MAX_SITE_YORUM_KARAKTER} karakter olabilir.'}), 400
-    kelime = count_words(yorum)
-    if kelime < MIN_SITE_YORUM_KELIME:
+    karakter = count_comment_characters(yorum)
+    if karakter < MIN_SITE_YORUM_KARAKTER:
         return jsonify({
-            'message': f'Site yorumu en az {MIN_SITE_YORUM_KELIME} kelime olmalıdır (şu an {kelime}).',
-            'kelime_sayisi': kelime,
+            'message': f'Site yorumu en az {MIN_SITE_YORUM_KARAKTER} karakter olmalıdır (şu an {karakter}).',
+            'karakter_sayisi': karakter,
         }), 400
 
     yeni_istek = Istek(

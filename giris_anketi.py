@@ -8,15 +8,14 @@ from database.istek import Istek
 
 GIRIS_ANKETI_KATEGORI = 'Giriş Anketi'
 GIRIS_ANKETI_DURUM_TAMAMLANDI = 'Gönderildi'
-MIN_SITE_YORUM_KELIME = 10
+MIN_SITE_YORUM_KARAKTER = 10
 MAX_SITE_YORUM_KARAKTER = 4000
 
 
-def count_words(text: str) -> int:
-    if not text or not str(text).strip():
+def count_comment_characters(text: str) -> int:
+    if text is None:
         return 0
-    parts = str(text).split()
-    return sum(1 for p in parts if re.search(r'[\w\d]', p, re.UNICODE))
+    return len(str(text).strip())
 
 
 def user_completed_giris_anketi(user_id: int) -> bool:
