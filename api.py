@@ -29,6 +29,16 @@ from database.kulupyonetim import KulupYonetim
 from database.kulupler import Kulupler
 from database.dersnotu import DersNotuBekleyen, DersNotu
 from database.istek import Istek
+from giris_anketi import (
+    GIRIS_ANKETI_KATEGORI,
+    GIRIS_ANKETI_DURUM_TAMAMLANDI,
+    MIN_SITE_YORUM_KELIME,
+    MAX_SITE_YORUM_KARAKTER,
+    build_giris_anketi_baslik,
+    count_words,
+    parse_google_ads_choice,
+    user_completed_giris_anketi,
+)
 from database.katkida import KatkidaBulunan
 from database.moderator import Moderator
 from database.daily_active import DailyActiveUser
@@ -1832,11 +1842,17 @@ def admin_istekleri_listele(current_user):
     rows = db.session.query(Istek, User.name, User.email)\
         .outerjoin(User, Istek.user_id == User.id)\
         .order_by(Istek.tarih.desc()).all()
-    return jsonify([{
-        **i.to_dict(),
-        'kullanici_ad': name or 'Anonim',
-        'kullanici_email': email or '-'
-    } for i, name, email in rows]), 200
+    payload = []
+    for i, name, email in rows:
+        row = {
+            **i.to_dict(),
+            'kullanici_ad': name or 'Anonim',
+            'kullanici_email': email or '-',
+        }
+        if i.kategori == GIRIS_ANKETI_KATEGORI:
+            row['google_ads_oy'] = parse_google_ads_choice(i.baslik)
+        payload.append(row)
+    return jsonify(payload), 200
 
 
 @api_bp.delete('/api/admin/istekler/<int:istek_id>')
@@ -1873,6 +1889,55 @@ def admin_istek_durum(current_user, istek_id):
         return jsonify({'message': 'Durum güncellenirken bir hata oluştu.'}), 500
 
 
+@api_bp.get('/api/giris-anketi/durum')
+@token_required()
+def giris_anketi_durum(current_user):
+    tamam = user_completed_giris_anketi(current_user.id)
+    return jsonify({
+        'tamamlandi': tamam,
+        'giris_anketi_gerekli': not tamam,
+    }), 200
+
+
+@api_bp.post('/api/giris-anketi')
+@token_required()
+def giris_anketi_gonder(current_user):
+    if user_completed_giris_anketi(current_user.id):
+        return jsonify({'message': 'Giriş anketi zaten tamamlandı.', 'tamamlandi': True}), 200
+
+    data = request.get_json() or {}
+    yorum = (data.get('site_yorumu') or data.get('aciklama') or '').strip()
+    if 'google_ads_evet' not in data:
+        return jsonify({'message': '“Sitede reklam olsun mu?” sorusunu Evet veya Hayır ile yanıtlamanız gerekir.'}), 400
+
+    google_ads_evet = bool(data.get('google_ads_evet'))
+    if len(yorum) > MAX_SITE_YORUM_KARAKTER:
+        return jsonify({'message': f'Yorum en fazla {MAX_SITE_YORUM_KARAKTER} karakter olabilir.'}), 400
+    kelime = count_words(yorum)
+    if kelime < MIN_SITE_YORUM_KELIME:
+        return jsonify({
+            'message': f'Site yorumu en az {MIN_SITE_YORUM_KELIME} kelime olmalıdır (şu an {kelime}).',
+            'kelime_sayisi': kelime,
+        }), 400
+
+    yeni_istek = Istek(
+        baslik=build_giris_anketi_baslik(google_ads_evet),
+        aciklama=yorum,
+        kategori=GIRIS_ANKETI_KATEGORI,
+        durum=GIRIS_ANKETI_DURUM_TAMAMLANDI,
+        user_id=current_user.id,
+    )
+    db.session.add(yeni_istek)
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        print(f'Giriş anketi kayıt hatası: {e}')
+        return jsonify({'message': 'Anket kaydedilirken bir hata oluştu.'}), 500
+
+    return jsonify({'message': 'Teşekkürler, anketiniz kaydedildi.', 'tamamlandi': True}), 201
+
+
 @api_bp.post('/api/istekler')
 @token_required()
 def istek_olustur(current_user):
@@ -1880,10 +1945,14 @@ def istek_olustur(current_user):
     if not data or not data.get('baslik') or not data.get('aciklama'):
         return jsonify({'message': 'Başlık ve açıklama alanları zorunludur.'}), 400
 
+    kategori = data.get('kategori', 'Genel')
+    if kategori == GIRIS_ANKETI_KATEGORI:
+        return jsonify({'message': 'Giriş anketi yalnızca ana sayfadaki formdan gönderilebilir.'}), 400
+
     yeni_istek = Istek(
         baslik=data['baslik'],
         aciklama=data['aciklama'],
-        kategori=data.get('kategori', 'Genel'),
+        kategori=kategori,
         user_id=current_user.id
     )
     db.session.add(yeni_istek)

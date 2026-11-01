@@ -4,7 +4,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import jwt
-from flask import Flask, send_from_directory, jsonify, request
+from flask import Flask, send_from_directory, jsonify, request, redirect, url_for
 from config import (
     DATABASE_URI, SECRET_KEY, MAX_CONTENT_LENGTH,
     NOTES_UPLOAD_FOLDER, PAZAR_UPLOAD_FOLDER, KULUP_UPLOAD_FOLDER,
@@ -21,6 +21,7 @@ from extensions import mail
 from routes import pages
 from auth import auth_bp, token_required
 from api import api_bp
+from giris_anketi import user_completed_giris_anketi
 
 app = Flask(__name__)
 
@@ -108,6 +109,40 @@ _SKIP_PREFIXES = (
     '/static', '/uploads', '/sw.js', '/favicon.ico',
 )
 
+_GIRIS_ANKETI_EXEMPT_PATHS = frozenset({
+    '/',
+    '/login',
+    '/signup',
+    '/verify',
+    '/logout',
+})
+
+_GIRIS_ANKETI_EXEMPT_PREFIXES = (
+    '/static',
+    '/uploads',
+    '/api/giris-anketi',
+)
+
+
+def _jwt_user_from_request():
+    token = request.cookies.get('jwt_token')
+    if not token:
+        return None
+    try:
+        data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        public_id = data.get('public_id')
+        if not public_id:
+            return None
+        return User.query.filter_by(public_id=public_id).first()
+    except Exception:
+        return None
+
+
+def _giris_anketi_path_exempt(path: str) -> bool:
+    if path in _GIRIS_ANKETI_EXEMPT_PATHS:
+        return True
+    return any(path.startswith(prefix) for prefix in _GIRIS_ANKETI_EXEMPT_PREFIXES)
+
 
 def _track_daily_active():
     """JWT cookie varsa Europe/Istanbul günü için unique aktif kullanıcı kaydı."""
@@ -150,6 +185,29 @@ def _track_daily_active():
 @app.before_request
 def before_request_track_active():
     _track_daily_active()
+
+
+@app.before_request
+def before_request_giris_anketi_gate():
+    if request.method == 'OPTIONS':
+        return None
+    path = request.path or ''
+    if _giris_anketi_path_exempt(path):
+        return None
+
+    user = _jwt_user_from_request()
+    if not user:
+        return None
+    if user_completed_giris_anketi(user.id):
+        return None
+
+    if path.startswith('/api/'):
+        return jsonify({
+            'message': 'Siteyi kullanmak için giriş anketini tamamlamanız gerekir.',
+            'giris_anketi_gerekli': True,
+        }), 403
+
+    return redirect(url_for('pages.main_page'))
 
 
 def seed_default_market_listings():
