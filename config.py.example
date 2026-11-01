@@ -87,3 +87,10 @@ VAPID_PRIVATE_KEY = "test_vapid_private_key"
 
 # Yemekhane menüsü PDF duyuru sayfası (THK resmi site)
 YEMEK_DUYURU_URL = "https://www.thk.edu.tr/en/announcements/announcements-3062"
+
+# =============================================================================
+# Google Analytics & AdSense (templates/components/header.html)
+# =============================================================================
+# Boş bırakırsanız ilgili scriptler yüklenmez.
+GOOGLE_ANALYTICS_ID = ""  # GA4 ölçüm kimliği, örn. G-XXXXXXXXXX
+GOOGLE_ADS_CLIENT_ID = ""   # AdSense yayıncı kimliği, örn. ca-pub-XXXXXXXXXXXXXXXX

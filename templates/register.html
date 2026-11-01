@@ -204,6 +204,27 @@
     .official-notice-text { flex: 1; }
     .official-notice-label { font-size: .68rem; font-weight: 700; color: #60a5fa; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 2px; }
     .official-notice-url { font-size: .8rem; color: var(--fg-muted); }
+
+    .privacy-consent {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin: 4px 0 18px;
+      font-size: .8rem;
+      line-height: 1.45;
+      color: var(--fg-muted);
+    }
+    .privacy-consent input {
+      margin-top: 3px;
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+    .privacy-consent label { margin: 0; font-weight: 400; cursor: pointer; }
+    .privacy-consent a { color: #818cf8; text-decoration: none; }
+    .privacy-consent a:hover { color: #a5b4fc; text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -268,6 +289,15 @@
         <input type="password" id="password" name="password" required placeholder="En az 6 karakter" minlength="6" autocomplete="new-password">
       </div>
 
+      <div class="privacy-consent">
+        <input type="checkbox" id="privacy_accept" name="privacy_accept" value="1" required
+          aria-describedby="privacy_accept_desc">
+        <label for="privacy_accept" id="privacy_accept_desc">
+          <a href="{{ url_for('pages.gizlilik_politikasi_page') }}" target="_blank" rel="noopener noreferrer">Gizlilik Politikası</a>'nı
+          okudum ve kişisel verilerimin bu metinde açıklandığı şekilde işlenmesini kabul ediyorum.
+        </label>
+      </div>
+
       <button type="submit" class="submit-btn">Doğrulama Kodu Gönder</button>
     </form>
 
@@ -294,6 +324,11 @@
     }
 
     document.getElementById('registerForm').addEventListener('submit', function(e) {
+      if (!document.getElementById('privacy_accept').checked) {
+        e.preventDefault();
+        alert('Devam etmek için Gizlilik Politikasını kabul etmelisiniz.');
+        return;
+      }
       const email = document.getElementById('email').value.trim();
       if (!email.endsWith('@stu.thk.edu.tr')) {
         e.preventDefault();
