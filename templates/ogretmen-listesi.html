@@ -92,8 +92,29 @@
 
         .teachers-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
             gap: 24px;
+        }
+
+        @media (max-width: 639px) {
+            body {
+                padding: 20px 14px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 18px 16px;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+            }
+
+            .nav-buttons .btn {
+                width: 100%;
+                text-align: center;
+            }
         }
 
         .teacher-card {

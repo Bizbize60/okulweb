@@ -3,6 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>THKÜ Yemekhane Menüsü</title>
   <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='kedi.ico') }}">
   <style>
@@ -143,13 +144,24 @@
 
     .loading { color: #718096; }
     .error { color: #dc2626; }
+
+    @media (max-width: 639px) {
+      body {
+        margin: 16px auto;
+        padding: 12px;
+      }
+
+      h1 {
+        font-size: 1.25rem;
+      }
+    }
   </style>
 </head>
 
 <body>
   <div style="max-width: 1400px; margin: 0 auto; padding: 20px;">
-    <div
-      style="background: white; border-radius: 12px; padding: 20px 32px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+    <div class="page-topbar thku-page-header"
+      style="background: white; border-radius: 12px; padding: 20px 32px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0;">
       <h1 style="margin: 0; flex-shrink: 0; font-size: 1.5em;">🍽️ Yemekhane Menüsü</h1>
       <nav style="display: flex; gap: 8px; flex: 1; justify-content: center; flex-wrap: wrap;">
         <a href="/"

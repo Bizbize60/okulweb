@@ -1,0 +1,270 @@
+/* THKÜ Portal — global mobile foundations (all pages via auto-inject) */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  overflow-x: clip;
+}
+
+img,
+video,
+svg:not(.lucide),
+canvas,
+iframe,
+object {
+  max-width: 100%;
+  height: auto;
+}
+
+/* iOS zoom fix on focus */
+@media (max-width: 1023px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Touch-friendly primary controls */
+@media (max-width: 1023px) {
+  button,
+  input[type="submit"],
+  input[type="button"],
+  .submit-btn,
+  .custom-btn,
+  .app-btn,
+  .news-btn,
+  .contact-btn,
+  .header-actions a,
+  .btn-primary,
+  .btn-danger,
+  .btn {
+    min-height: 44px;
+  }
+}
+
+/* Stack common page headers */
+@media (max-width: 639px) {
+  .header,
+  header.header,
+  .page-header,
+  .thku-page-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    text-align: left;
+  }
+
+  .header-actions,
+  .header-actions-row {
+    width: 100%;
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .header-actions a,
+  .header-actions button {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+/* Responsive table wrapper — add class thku-table-wrap on parent if needed */
+@media (max-width: 639px) {
+  .thku-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -4px;
+    padding: 0 4px;
+  }
+
+  table.thku-stack {
+    border: 0;
+  }
+
+  table.thku-stack thead {
+    display: none;
+  }
+
+  table.thku-stack tbody tr {
+    display: block;
+    margin-bottom: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: #fff;
+  }
+
+  table.thku-stack tbody td {
+    display: block;
+    text-align: left !important;
+    padding: 6px 0 !important;
+    border: none !important;
+  }
+
+  table.thku-stack tbody td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748b;
+    margin-bottom: 2px;
+  }
+}
+
+/* Dark pages: stacked table rows */
+@media (max-width: 639px) {
+  body:not(.bg-layered) table.thku-stack tbody tr,
+  .app-shell table.thku-stack tbody tr {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Safe area for fixed bottom UI */
+@supports (padding: env(safe-area-inset-bottom)) {
+  body.app-shell {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* App shell mobile tweaks */
+@media (max-width: 639px) {
+  .app-notice {
+    font-size: 0.72rem;
+    padding: 8px 12px;
+    gap: 6px;
+  }
+
+  .app-notice a {
+    flex-basis: 100%;
+  }
+
+  .app-brand__title {
+    font-size: 0.88rem;
+  }
+
+  .app-footer__inner {
+    flex-direction: column;
+  }
+}
+
+/* Yemekhane / menu columns */
+@media (max-width: 639px) {
+  .menu-container {
+    flex-direction: column !important;
+  }
+
+  .menu-container .day-column,
+  .day-column {
+    min-width: 0 !important;
+    width: 100% !important;
+    flex: 1 1 auto !important;
+  }
+}
+
+/* News / announcement cards */
+@media (max-width: 639px) {
+  .news-card {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .news-grid {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
+/* Kroki / wide images */
+@media (max-width: 639px) {
+  .kroki-map,
+  .map-container img,
+  #campus-map,
+  .kroki-grid img {
+    max-width: 100%;
+    overflow-x: auto;
+    display: block;
+  }
+}
+
+/* Shared top bar (yemekhane, otobüs, vb.) */
+.page-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+@media (max-width: 639px) {
+  .page-topbar {
+    flex-direction: column;
+    align-items: stretch !important;
+    padding: 16px !important;
+  }
+
+  .page-topbar h1 {
+    font-size: 1.2rem !important;
+  }
+
+  .page-topbar nav {
+    justify-content: flex-start !important;
+    width: 100%;
+  }
+
+  .page-topbar .page-topbar-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .page-topbar .page-topbar-actions a,
+  .page-topbar .page-topbar-actions button {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 639px) {
+  .teachers-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .duyuru-grid,
+  .duyurular-grid {
+    margin-left: 0 !important;
+    padding: 0 12px;
+  }
+
+  .duyuru-card {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .grid-cards,
+  .listings-grid,
+  #pazar-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Admin: horizontal scroll for wide tables */
+@media (max-width: 1023px) {
+  .admin-table-wrap,
+  .panel-section .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sidebar-nav {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+}
