@@ -11,6 +11,7 @@ from database.kampusten import Enstantane, EnstantaneLike
 from database.subscription import WebPushSubscription
 from database.dersnotu import DersNotu, DersNotuBekleyen
 from database.pazar import PazarIlani
+from database.saatler import OfisSaatKatkisi, SaatlerPending
 from database.degerlendirme import OgretmenDegerlendirme
 from database.istek import Istek
 from database.kulupicerik import Kulupicerik
@@ -23,6 +24,13 @@ from database.admin_rbac import UserRole, ModerationCase, ModerationAction, Admi
 def _tables():
     try:
         return set(inspect(db.engine).get_table_names())
+    except Exception:
+        return set()
+
+
+def _columns(table_name):
+    try:
+        return {col["name"] for col in inspect(db.engine).get_columns(table_name)}
     except Exception:
         return set()
 
@@ -107,6 +115,10 @@ def purge_user_account(user: User) -> None:
         KayipEsya.query.filter_by(user_id=uid).delete(synchronize_session=False)
     if 'pazar_ilanlari' in tables:
         PazarIlani.query.filter_by(user_id=uid).delete(synchronize_session=False)
+    if 'ofis_saat_katkilari' in tables:
+        OfisSaatKatkisi.query.filter_by(user_id=uid).delete(synchronize_session=False)
+    if 'ofis_saatleri_pending' in tables and 'user_id' in _columns('ofis_saatleri_pending'):
+        SaatlerPending.query.filter_by(user_id=uid).delete(synchronize_session=False)
     if 'ders_notlari' in tables:
         DersNotu.query.filter_by(user_id=uid).delete(synchronize_session=False)
     if 'ders_notlari_bekleyen' in tables:

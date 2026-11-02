@@ -383,6 +383,7 @@
                     });
 
                     const result = await response.json();
+                    if (window.ToplulukKapisi && ToplulukKapisi.consume(result)) return;
 
                     if (response.ok) {
                         showAlert('Değerlendirmeniz başarıyla gönderildi!', 'success');

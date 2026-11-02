@@ -58,7 +58,11 @@ class AdminRbacApiTests(unittest.TestCase):
                 algorithm='HS256',
             )
             self.client.set_cookie(key='jwt_token', value=token)
-            return token
+        self.client.post('/api/giris-anketi', json={
+            'site_yorumu': 'Güzel site, teşekkürler',
+            'google_ads_evet': True,
+        })
+        return token
 
     def test_session_endpoint_exposes_role_and_permissions(self):
         self._auth_cookie('owner@localhost')

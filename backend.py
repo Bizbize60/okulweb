@@ -83,10 +83,17 @@ def inject_global_head_assets(response):
     if 'css/mobile.css' not in html:
         inject.append(_mobile_css_link())
 
+    if inject:
+        html = html.replace('</head>', '\n'.join(inject) + '\n</head>', 1)
+
+    if 'topluluk-kapisi.js' not in html and '</body>' in html:
+        src = url_for('static', filename='js/topluluk-kapisi.js')
+        html = html.replace('</body>', f'<script src="{src}"></script>\n</body>', 1)
+        inject.append('kapisi')
+
     if not inject:
         return response
 
-    html = html.replace('</head>', '\n'.join(inject) + '\n</head>', 1)
     response.set_data(html)
     return response
 
@@ -293,8 +300,16 @@ def seed_default_market_listings():
 @app.route('/uploads/notes/<path:filename>', methods=['GET', 'POST'])
 @token_required(next_location='/ders-notlari')
 def download_note(current_user, filename):
+    from aktivite_kapisi import download_block_response
+    blocked = download_block_response(current_user)
+    if blocked:
+        return blocked
+
     if current_user.kredi < 1:
-        return jsonify({'message': 'Yetersiz kredi! Dosya indirmek için dosya yüklemelisiniz.'}), 403
+        return jsonify({
+            'code': 'insufficient_credit',
+            'message': 'Yetersiz kredi! Dosya indirmek için dosya yüklemelisiniz.',
+        }), 403
 
     uploads = os.path.join(app.root_path, app.config['UPLOAD_FOLDER'])
 

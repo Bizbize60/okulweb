@@ -1062,8 +1062,16 @@
       try {
         const response = await fetch(`/uploads/notes/${filename}`);
 
-        // Yetersiz kredi durumunu kontrol et
         if (response.status === 403) {
+          const data = await response.json().catch(() => ({}));
+          if (data.code === 'activity_required' && window.ToplulukKapisi) {
+            window.ToplulukKapisi.showActivity(data);
+            return;
+          }
+          if (data.code === 'account_removed' && window.ToplulukKapisi) {
+            window.ToplulukKapisi.showRemoved(data.message);
+            return;
+          }
           alert("⚠️ Yetersiz Kredi!\n\nBakiyenizde yeterli kredi yok (Gerekli: 1 Kredi). Lütfen not yükleyerek kredi kazanın.");
           return;
         }

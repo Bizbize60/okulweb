@@ -254,6 +254,10 @@ def register():
 
         email = request.form['email'].strip().lower()
 
+        from aktivite_kapisi import email_is_blacklisted
+        if email_is_blacklisted(email):
+            return "Kara listedesiniz.", 403
+
         if User.query.filter_by(email=email).first():
             return "Bu email zaten kayıtlı!", 400
             
@@ -286,6 +290,10 @@ def verify_email():
     email = temp_user_data.get('email', '')
     if not re.match(r'^s\d{9,10}@stu\.thk\.edu\.tr$', email):
         return "Geçersiz email formatı! Lütfen THKÜ öğrenci emailinizi kullanın.", 400
+
+    from aktivite_kapisi import email_is_blacklisted
+    if email_is_blacklisted(email):
+        return "Kara listedesiniz.", 403
 
     if request.method == 'POST':
         user_code = request.form['code'].strip().upper()
