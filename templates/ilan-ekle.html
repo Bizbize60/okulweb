@@ -138,12 +138,14 @@
                     method: 'POST',
                     body: formData
                 });
+                const data = await res.json().catch(() => ({}));
+                if (window.ToplulukKapisi && ToplulukKapisi.consume(data)) return;
 
                 if (res.ok) {
                     alert('İlan başarıyla eklendi!');
                     window.location.href = '/bit-pazari';
                 } else {
-                    alert('Hata oluştu!');
+                    alert(data.message || 'Hata oluştu!');
                 }
             } catch (err) {
                 console.error(err);
