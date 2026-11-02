@@ -21,7 +21,8 @@ from database.kayip_esya import KayipEsya
 from database.kulupicerik import Kulupicerik
 from database.kulupler import Kulupler
 from database.kulupyonetim import KulupYonetim
-from database.saatler import Saatler, SaatlerPending
+from database.saatler import Saatler, SaatlerPending, OfisSaatKatkisi
+from database.email_blacklist import EmailBlacklist
 from database.subscription import WebPushSubscription
 from database.istek import Istek
 from database.katkida import KatkidaBulunan

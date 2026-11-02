@@ -1200,6 +1200,7 @@
 
                         if (!res.ok) {
                             const err = await res.json();
+                            if (window.ToplulukKapisi && ToplulukKapisi.consume(err)) return;
                             throw new Error(err.message || 'Bilinmeyen hata');
                         }
 

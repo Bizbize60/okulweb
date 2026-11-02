@@ -44,6 +44,16 @@ from database.katkida import KatkidaBulunan
 from database.moderator import Moderator
 from database.daily_active import DailyActiveUser
 from database.admin_rbac import assign_role_to_user, remove_role_from_user
+from aktivite_kapisi import (
+    gate_forum_post,
+    gate_forum_comment,
+    gate_listing,
+    gate_name,
+    gate_hours,
+    gate_photo,
+    record_office_contribution,
+    email_is_blacklisted,
+)
 
 from config import VAPID_PRIVATE_KEY, ADMIN_EMAILS
 try:
@@ -411,6 +421,10 @@ def api_forum_create_post(current_user):
     if not mesaj_icerigi and not gif_url:
         return jsonify({'message': 'Mesaj icerigi veya GIF URL alanlarindan biri gereklidir.'}), 400
 
+    blocked = gate_forum_post(current_user, konu, mesaj_icerigi, gif_url)
+    if blocked:
+        return blocked
+
     post = ForumMessage(
         konu=konu,
         mesaj_icerigi=mesaj_icerigi,
@@ -531,6 +545,10 @@ def api_forum_add_comment(current_user, post_id):
         if parent_comment.silindi:
             return jsonify({'message': 'Silinmis yoruma cevap verilemez.'}), 400
 
+    blocked = gate_forum_comment(current_user, yorum_icerigi)
+    if blocked:
+        return blocked
+
     comment = ForumComment(
         message_id=post_id,
         parent_comment_id=parent_comment_id,
@@ -595,6 +613,10 @@ def api_kayip_ekle(current_user):
 
         if not baslik or not tip:
             return jsonify({'message': 'Başlık ve Tip zorunludur.'}), 400
+
+        blocked = gate_listing(current_user, baslik, aciklama)
+        if blocked:
+            return blocked
 
         foto_path = None
         if 'file' in request.files:
@@ -719,6 +741,13 @@ def api_enstantane_yukle(current_user):
     aciklama = request.form.get('aciklama', '')
     
     if file and allowed_image(file.filename):
+        file.seek(0, os.SEEK_END)
+        photo_size = file.tell()
+        file.seek(0)
+        blocked = gate_photo(current_user, photo_size, aciklama)
+        if blocked:
+            return blocked
+
         filename = secure_filename(f"{current_user.id}_{uuid.uuid4().hex[:8]}_{file.filename}")
         save_path = enstantane_upload_path(filename)
         file.save(save_path)
@@ -1225,6 +1254,10 @@ def api_degerlendirme_ekle(current_user):
     
     if not all([ad, soyad, ders_anlatma, sinav_zorlugu]):
         return jsonify({'message': 'Tüm alanlar gereklidir!'}), 400
+
+    blocked = gate_name(current_user, ad, soyad)
+    if blocked:
+        return blocked
     
     try:
         yeni_degerlendirme = degerlendirme.OgretmenDegerlendirme(
@@ -1260,6 +1293,10 @@ def api_ilan_ekle(current_user):
 
         if 'file' not in request.files:
             return jsonify({'message': 'Fotoğraf yüklenmedi!'}), 400
+
+        blocked = gate_listing(current_user, baslik, aciklama)
+        if blocked:
+            return blocked
         
         file = request.files['file']
         
@@ -1336,17 +1373,29 @@ def api_abonelik_kaydet(current_user):
     
 
 @api_bp.post('/ogretmen-ekle')
-def ogretmen_ekle():
-    data = request.json
-    name = data.get("ad")
-    surname = data.get("soyad")
+@token_required(next_location='/ofis-saatleri')
+def ogretmen_ekle(current_user):
+    data = request.json or {}
+    name = (data.get("ad") or "").strip()
+    surname = (data.get("soyad") or "").strip()
     days = data.get("gun")
+    if not name or not surname:
+        return jsonify({"message": "Ad ve soyad gerekli."}), 400
+
+    blocked = gate_name(current_user, name, surname)
+    if blocked:
+        return blocked
+    blocked = gate_hours(current_user, days)
+    if blocked:
+        return blocked
     
     instructor = saatler.SaatlerPending(
-        name=f"{name} {surname}",
-        days=days
+        name=f"{name} {surname}"[:50],
+        days=days,
+        user_id=current_user.id,
     )
     db.session.add(instructor)
+    record_office_contribution(current_user.id)
     db.session.commit()
     return jsonify({"message": "Öğretim Görevlisi Başarıyla Eklendi!--Onay Bekliyor."}), 201
 
@@ -1587,6 +1636,10 @@ def add_new_user(current_user):
 
     if not name or not email or not password:
         return jsonify({'message': 'Tüm alanları doldurmanız gerekmektedir!'}), 400
+
+    email = email.strip().lower()
+    if email_is_blacklisted(email):
+        return jsonify({'message': 'Kara listedesiniz.'}), 403
 
     if User.query.filter_by(email=email).first():
         return jsonify({'message': 'Bu email adresi ile zaten bir kayıt mevcut!'}), 400

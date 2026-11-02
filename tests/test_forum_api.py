@@ -46,8 +46,12 @@ class ForumApiTests(unittest.TestCase):
                 algorithm='HS256',
             )
             self.client.set_cookie(key='jwt_token', value=token)
+        self.client.post('/api/giris-anketi', json={
+            'site_yorumu': 'Güzel site, teşekkürler',
+            'google_ads_evet': True,
+        })
 
-    def _create_post(self, konu='Forum Konusu', mesaj='Merhaba millet', isim_gorunsun=True, gif_url=None):
+    def _create_post(self, konu='Forum Konusu', mesaj='Merhaba millet, kampüste bugün ders ve yemekhane hakkında konuşalım.', isim_gorunsun=True, gif_url=None):
         payload = {
             'konu': konu,
             'mesaj_icerigi': mesaj,
@@ -74,7 +78,10 @@ class ForumApiTests(unittest.TestCase):
         self._auth_cookie('ali@localhost')
 
         for i in range(10):
-            res = self._create_post(konu=f'Konu {i}', mesaj=f'Mesaj {i}')
+            res = self._create_post(
+                konu=f'Konu {i}',
+                mesaj=f'Mesaj {i}: kampüste bugün ders ve yemekhane hakkında konuşalım.',
+            )
             self.assertEqual(res.status_code, 201)
 
         first_page = self.client.get('/api/forum/posts?page=1&page_size=4')
@@ -115,7 +122,7 @@ class ForumApiTests(unittest.TestCase):
 
         top_comment_res = self.client.post(
             f'/api/forum/posts/{post_id}/comments',
-            json={'yorum_icerigi': 'Ilk yorum', 'isim_gorunsun': True},
+            json={'yorum_icerigi': 'İlk yorumum, bu başlık hakkında şunu merak ediyorum.', 'isim_gorunsun': True},
         )
         self.assertEqual(top_comment_res.status_code, 201)
         top_comment_id = top_comment_res.get_json()['comment']['id']
@@ -123,7 +130,7 @@ class ForumApiTests(unittest.TestCase):
         reply_res = self.client.post(
             f'/api/forum/posts/{post_id}/comments',
             json={
-                'yorum_icerigi': 'Yanit yorum',
+                'yorum_icerigi': 'Yanıt olarak şunu eklemek istiyorum, derste bunu konuşmuştuk.',
                 'parent_comment_id': top_comment_id,
                 'isim_gorunsun': True,
             },

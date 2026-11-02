@@ -363,13 +363,14 @@
 
             try {
                 const res = await fetch('/api/enstantane-yukle', { method: 'POST', body: formData });
+                const errorData = await res.json().catch(() => ({}));
+                if (window.ToplulukKapisi && ToplulukKapisi.consume(errorData)) return;
                 if (res.ok) {
                     closeModal();
                     loadPosts('yeni');
                     if (fileInput) fileInput.value = '';
                     if (descInput) descInput.value = '';
                 } else {
-                    const errorData = await res.json();
                     alert("Yükleme başarısız: " + escapeHTML(errorData.message || 'Bilinmeyen hata'));
                 }
             } catch (e) {

@@ -416,8 +416,9 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-
-        if (!res.ok) throw new Error("Ekleme başarısız.");
+        const data = await res.json().catch(() => ({}));
+        if (window.ToplulukKapisi && ToplulukKapisi.consume(data)) return;
+        if (!res.ok) throw new Error(data.message || "Ekleme başarısız.");
 
         mesaj.style.color = "green";
         mesaj.textContent = "Ekleme başarılı.";
