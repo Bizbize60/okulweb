@@ -377,7 +377,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 18px;
-      margin-top: 28px;
+      margin-bottom: 20px;
       padding: 14px 18px;
       background: rgba(245, 166, 35, 0.06);
       border: 1px solid rgba(245, 166, 35, 0.14);
@@ -840,6 +840,22 @@
       </div>
     </header>
 
+    <aside class="kopuk-support" aria-label="Projeye gönüllü destek">
+      <div class="kopuk-support-body">
+        <p class="kopuk-kicker">☕ Projeye destek ol</p>
+        <p class="kopuk-text">Portalın küçük sunucu masrafları için bir kahve ısmarlayabilirsin — tamamen isteğe bağlı.</p>
+        <p class="kopuk-name">Tunahan Turgut</p>
+        <code class="kopuk-iban" id="supportIban">TR910006701000000079916372</code>
+        <button type="button" class="kopuk-copy" id="kopukCopyBtn">IBAN'ı kopyala</button>
+      </div>
+      <figure class="kopuk-figure">
+        <img src="{{ url_for('static', filename='kopuk.jpg') }}" alt="Köpük" width="72" height="72" loading="lazy" decoding="async">
+        <figcaption class="kopuk-seq" aria-hidden="true">
+          <span>köpük</span><span>·</span><span>köpük</span><span>·</span><span>köpük</span>
+        </figcaption>
+      </figure>
+    </aside>
+
     <div class="alert-box">
       <strong class="title">⚡ Ödül Sistemi</strong>
       <p>100 puana ulaştığınızda <strong>1000 TL ödül</strong> kazanacaksınız!</p>
@@ -901,22 +917,6 @@
         Notlar yükleniyor...
       </div>
     </div>
-
-    <aside class="kopuk-support" aria-label="Projeye gönüllü destek">
-      <div class="kopuk-support-body">
-        <p class="kopuk-kicker">☕ Projeye destek ol</p>
-        <p class="kopuk-text">Portalın küçük sunucu masrafları için bir kahve ısmarlayabilirsin — tamamen isteğe bağlı.</p>
-        <p class="kopuk-name">Tunahan Turgut</p>
-        <code class="kopuk-iban" id="supportIban">TR910006701000000079916372</code>
-        <button type="button" class="kopuk-copy" id="kopukCopyBtn">IBAN'ı kopyala</button>
-      </div>
-      <figure class="kopuk-figure">
-        <img src="{{ url_for('static', filename='kopuk.jpg') }}" alt="Köpük" width="72" height="72" loading="lazy" decoding="async">
-        <figcaption class="kopuk-seq" aria-hidden="true">
-          <span>köpük</span><span>·</span><span>köpük</span><span>·</span><span>köpük</span>
-        </figcaption>
-      </figure>
-    </aside>
   </div>
 
   <script>
