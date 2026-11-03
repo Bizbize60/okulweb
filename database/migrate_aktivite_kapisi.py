@@ -4,6 +4,7 @@ Eklenenler:
 - email_blacklist
 - ofis_saat_katkilari
 - ofis_saatleri_pending.user_id
+- users.activity_unlock_credited
 
 Çalıştırma:
     python -m database.migrate_aktivite_kapisi
@@ -52,6 +53,16 @@ def migrate():
                         print("ofis_saatleri_pending.user_id zaten var")
                 else:
                     print("ofis_saatleri_pending yok, create_all bekleniyor")
+                if inspector.has_table('users'):
+                    user_cols = _columns(conn, 'users')
+                    if 'activity_unlock_credited' not in user_cols:
+                        default = 'FALSE' if conn.engine.dialect.name == 'postgresql' else '0'
+                        conn.execute(db.text(
+                            f"ALTER TABLE users ADD COLUMN activity_unlock_credited BOOLEAN DEFAULT {default} NOT NULL"
+                        ))
+                        print("users.activity_unlock_credited eklendi")
+                    else:
+                        print("users.activity_unlock_credited zaten var")
                 trans.commit()
             except Exception:
                 trans.rollback()
