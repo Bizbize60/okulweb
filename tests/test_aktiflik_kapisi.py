@@ -39,7 +39,7 @@ class AktiflikKapisiTests(unittest.TestCase):
                 name='Ayse Demir',
                 email='s123456789@stu.thk.edu.tr',
                 password='pw',
-                kredi=2,
+                kredi=0,
             )
             db.session.add(self.user)
             db.session.commit()
@@ -97,7 +97,7 @@ class AktiflikKapisiTests(unittest.TestCase):
 
         with self.app.app_context():
             user = self._user()
-            self.assertEqual(user.kredi, 2)
+            self.assertEqual(user.kredi, 0)
             db.session.add(OgretmenDegerlendirme(
                 ogretmen_adi='Ayse',
                 ogretmen_soyadi='Yilmaz',
@@ -113,7 +113,7 @@ class AktiflikKapisiTests(unittest.TestCase):
 
         with self.app.app_context():
             user = self._user()
-            self.assertEqual(user.kredi, 2)
+            self.assertEqual(user.kredi, 0)
             db.session.add(ForumMessage(
                 konu='Ders',
                 mesaj_icerigi=GOOD_POST,
@@ -124,11 +124,37 @@ class AktiflikKapisiTests(unittest.TestCase):
         allowed = self.client.get('/uploads/notes/kapinot.pdf')
         self.assertEqual(allowed.status_code, 200)
         with self.app.app_context():
-            self.assertEqual(self._user().kredi, 1)
+            user = self._user()
+            self.assertTrue(user.activity_unlock_credited)
+            self.assertEqual(user.kredi, 0)
+
+    def test_unlock_grants_one_credit_once(self):
+        with self.app.app_context():
+            user = self._user()
+            db.session.add(OgretmenDegerlendirme(
+                ogretmen_adi='Ayse',
+                ogretmen_soyadi='Yilmaz',
+                ders_anlatma_notu=4,
+                sinav_zorlugu_notu=3,
+                user_id=user.id,
+            ))
+            db.session.commit()
+
+        post = self.client.post('/api/forum/posts', json={
+            'konu': 'Ders notu',
+            'mesaj_icerigi': GOOD_POST,
+        })
+        self.assertEqual(post.status_code, 201)
+        with self.app.app_context():
+            user = self._user()
+            self.assertTrue(user.activity_unlock_credited)
+            self.assertEqual(user.kredi, 1)
 
     def test_staff_can_download_without_activities(self):
         with self.app.app_context():
             user = self._user()
+            user.kredi = 1
+            db.session.commit()
             role = Role(name='moderator', label='Moderator', description='mod')
             db.session.add(role)
             db.session.flush()

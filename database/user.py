@@ -11,7 +11,8 @@ class User(db.Model):
     name = db.Column(db.String(100))
     email = db.Column(db.String(70), unique=True)
     password = db.Column(db.String(255))
-    kredi = db.Column(db.Integer, default=1)
+    kredi = db.Column(db.Integer, default=0)
+    activity_unlock_credited = db.Column(db.Boolean, default=False, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=True)
 
     # ---- Ogrenci Elcisi Sistemi ----

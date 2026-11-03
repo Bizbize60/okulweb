@@ -300,10 +300,13 @@ def seed_default_market_listings():
 @app.route('/uploads/notes/<path:filename>', methods=['GET', 'POST'])
 @token_required(next_location='/ders-notlari')
 def download_note(current_user, filename):
-    from aktivite_kapisi import download_block_response
+    from aktivite_kapisi import download_block_response, maybe_grant_activity_unlock_credit
     blocked = download_block_response(current_user)
     if blocked:
         return blocked
+
+    if maybe_grant_activity_unlock_credit(current_user):
+        db.session.commit()
 
     if current_user.kredi < 1:
         return jsonify({

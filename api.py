@@ -53,6 +53,7 @@ from aktivite_kapisi import (
     gate_photo,
     record_office_contribution,
     email_is_blacklisted,
+    maybe_grant_activity_unlock_credit,
 )
 
 from config import VAPID_PRIVATE_KEY, ADMIN_EMAILS
@@ -433,6 +434,8 @@ def api_forum_create_post(current_user):
         gif_url=gif_url,
     )
     db.session.add(post)
+    db.session.flush()
+    maybe_grant_activity_unlock_credit(current_user)
     db.session.commit()
 
     _aktivite_puan_ver(current_user, 20, 'forum')
@@ -557,6 +560,8 @@ def api_forum_add_comment(current_user, post_id):
         isim_gorunsun=isim_gorunsun,
     )
     db.session.add(comment)
+    db.session.flush()
+    maybe_grant_activity_unlock_credit(current_user)
     db.session.commit()
 
     return jsonify({
@@ -638,6 +643,8 @@ def api_kayip_ekle(current_user):
         )
 
         db.session.add(yeni_ilan)
+        db.session.flush()
+        maybe_grant_activity_unlock_credit(current_user)
         db.session.commit()
 
         try:
@@ -758,6 +765,8 @@ def api_enstantane_yukle(current_user):
             aciklama=aciklama
         )
         db.session.add(yeni)
+        db.session.flush()
+        maybe_grant_activity_unlock_credit(current_user)
         db.session.commit()
         return jsonify({'message': 'Paylaşıldı!'}), 201
         
@@ -1274,6 +1283,8 @@ def api_degerlendirme_ekle(current_user):
             user_id=current_user.id
         )
         db.session.add(yeni_degerlendirme)
+        db.session.flush()
+        maybe_grant_activity_unlock_credit(current_user)
         db.session.commit()
         _aktivite_puan_ver(current_user, 60, 'degerlendirme')
         return jsonify({'message': 'Değerlendirme başarıyla eklendi!'}), 201
@@ -1320,6 +1331,8 @@ def api_ilan_ekle(current_user):
             )
             
             db.session.add(yeni_ilan)
+            db.session.flush()
+            maybe_grant_activity_unlock_credit(current_user)
             db.session.commit()
             return jsonify({'message': 'İlan başarıyla yayınlandı!'}), 201
             
@@ -1396,6 +1409,8 @@ def ogretmen_ekle(current_user):
     )
     db.session.add(instructor)
     record_office_contribution(current_user.id)
+    db.session.flush()
+    maybe_grant_activity_unlock_credit(current_user)
     db.session.commit()
     return jsonify({"message": "Öğretim Görevlisi Başarıyla Eklendi!--Onay Bekliyor."}), 201
 
@@ -1650,7 +1665,7 @@ def add_new_user(current_user):
             name=name,
             email=email,
             password=generate_password_hash(password),
-            kredi=1
+            kredi=0
         )
         db.session.add(new_user)
         db.session.commit()

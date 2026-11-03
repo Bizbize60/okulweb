@@ -312,7 +312,7 @@ def verify_email():
                 name=temp_user_data['name'],
                 email=temp_user_data['email'],
                 password=temp_user_data['password'],
-                kredi=3,
+                kredi=0,
                 referral_code=ref_kodu,
                 streak_gun=1,
                 son_giris_tarihi=datetime.now(ZoneInfo('Europe/Istanbul')).date(),

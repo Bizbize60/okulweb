@@ -19,6 +19,7 @@ from metin_kalite import classify_name, classify_office_hours, classify_prose
 from user_purge import purge_user_account
 
 REQUIRED_TYPES = 2
+ACTIVITY_UNLOCK_CREDIT = 1
 MIN_PHOTO_BYTES = 8 * 1024
 STAFF_ROLES = {"owner", "developer", "moderator"}
 
@@ -80,6 +81,19 @@ def needs_quality_gate(user) -> bool:
     if is_staff(user):
         return False
     return len(qualifying_types(user.id)) < REQUIRED_TYPES
+
+
+def maybe_grant_activity_unlock_credit(user) -> bool:
+    """İki farklı katkı tamamlanınca bir kez 1 kredi verir."""
+    if not user or is_staff(user):
+        return False
+    if getattr(user, 'activity_unlock_credited', False):
+        return False
+    if len(qualifying_types(user.id)) < REQUIRED_TYPES:
+        return False
+    user.activity_unlock_credited = True
+    user.kredi = (user.kredi or 0) + ACTIVITY_UNLOCK_CREDIT
+    return True
 
 
 def email_is_blacklisted(email: str) -> bool:
