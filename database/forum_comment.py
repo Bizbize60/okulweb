@@ -9,7 +9,7 @@ class ForumComment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     message_id = db.Column(db.Integer, db.ForeignKey('forum_messages.id'), nullable=False)
     parent_comment_id = db.Column(db.Integer, db.ForeignKey('forum_comments.id'), nullable=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
     yorum_icerigi = db.Column(db.Text, nullable=False)
     isim_gorunsun = db.Column(db.Boolean, default=True, nullable=False)
     gonderilme_tarihi = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)

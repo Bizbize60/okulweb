@@ -21,7 +21,7 @@ class OgretmenDegerlendirme(db.Model):
     alinan_harf_notu = db.Column(db.String(2), nullable=True)  # AA, BA, BB, CB, CC, DC, DD, FD, FF
     
     degerlendirme_tarihi = db.Column(db.DateTime, default=datetime.now)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
     
     def __repr__(self):
         return f'<Degerlendirme {self.ogretmen_adi} {self.ogretmen_soyadi}>'

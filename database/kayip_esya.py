@@ -3,7 +3,7 @@ from database.initdb import db
 class KayipEsya(db.Model):
     __tablename__ = 'kayip_esya'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
     
     # Tasarıma uygun yeni alanlar
     baslik = db.Column(db.String(128), nullable=False)

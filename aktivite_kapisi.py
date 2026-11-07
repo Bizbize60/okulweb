@@ -58,23 +58,57 @@ def is_staff(user) -> bool:
     return bool(roles & STAFF_ROLES)
 
 
+_ACTIVITY_INDEXES = (
+    ("ix_ogretmen_degerlendirmeleri_user_id", "ogretmen_degerlendirmeleri", "user_id"),
+    ("ix_forum_messages_user_id", "forum_messages", "user_id"),
+    ("ix_forum_comments_user_id", "forum_comments", "user_id"),
+    ("ix_enstantaneler_user_id", "enstantaneler", "user_id"),
+    ("ix_kayip_esya_user_id", "kayip_esya", "user_id"),
+    ("ix_pazar_ilanlari_user_id", "pazar_ilanlari", "user_id"),
+    ("ix_ofis_saat_katkilari_user_id", "ofis_saat_katkilari", "user_id"),
+)
+
+
+def ensure_activity_lookup_indexes() -> None:
+    """Aktiflik kontrolü her indirmede user_id arar; indeks yoksa sorgu tabloyu tarar."""
+    inspector = db.inspect(db.engine)
+    tables = set(inspector.get_table_names())
+    with db.engine.begin() as conn:
+        for name, table, column in _ACTIVITY_INDEXES:
+            if table not in tables:
+                continue
+            conn.execute(db.text(
+                f"CREATE INDEX IF NOT EXISTS {name} ON {table} ({column})"
+            ))
+
+
 def qualifying_types(user_id: int) -> set[str]:
-    found = set()
-    if OgretmenDegerlendirme.query.filter_by(user_id=user_id).first():
-        found.add("degerlendirme")
-    has_post = ForumMessage.query.filter_by(user_id=user_id, silindi=False).first()
-    has_comment = ForumComment.query.filter_by(user_id=user_id, silindi=False).first()
-    if has_post or has_comment:
-        found.add("forum")
-    if Enstantane.query.filter_by(user_id=user_id).first():
-        found.add("enstantane")
-    if KayipEsya.query.filter_by(user_id=user_id).first():
-        found.add("kayip")
-    if PazarIlani.query.filter_by(user_id=user_id).first():
-        found.add("pazar")
-    if OfisSaatKatkisi.query.filter_by(user_id=user_id).first():
-        found.add("ofis")
-    return found
+    """Tek sorguda hangi katkı türlerinin dolduğunu döner.
+
+    Eski hali altı tabloya sırayla gider, indirme cevabı bu tur bitene kadar
+    başlamazdı. EXISTS alt sorguları tek gidiş-dönüşte biter.
+    """
+    from sqlalchemy import exists, or_
+
+    row = db.session.query(
+        exists().where(OgretmenDegerlendirme.user_id == user_id).label("degerlendirme"),
+        or_(
+            exists().where(
+                ForumMessage.user_id == user_id,
+                ForumMessage.silindi.is_(False),
+            ),
+            exists().where(
+                ForumComment.user_id == user_id,
+                ForumComment.silindi.is_(False),
+            ),
+        ).label("forum"),
+        exists().where(Enstantane.user_id == user_id).label("enstantane"),
+        exists().where(KayipEsya.user_id == user_id).label("kayip"),
+        exists().where(PazarIlani.user_id == user_id).label("pazar"),
+        exists().where(OfisSaatKatkisi.user_id == user_id).label("ofis"),
+    ).one()
+    names = ("degerlendirme", "forum", "enstantane", "kayip", "pazar", "ofis")
+    return {name for name in names if getattr(row, name)}
 
 
 def needs_quality_gate(user) -> bool:
@@ -83,13 +117,15 @@ def needs_quality_gate(user) -> bool:
     return len(qualifying_types(user.id)) < REQUIRED_TYPES
 
 
-def maybe_grant_activity_unlock_credit(user) -> bool:
+def maybe_grant_activity_unlock_credit(user, done: set[str] | None = None) -> bool:
     """İki farklı katkı tamamlanınca bir kez 1 kredi verir."""
     if not user or is_staff(user):
         return False
     if getattr(user, 'activity_unlock_credited', False):
         return False
-    if len(qualifying_types(user.id)) < REQUIRED_TYPES:
+    if done is None:
+        done = qualifying_types(user.id)
+    if len(done) < REQUIRED_TYPES:
         return False
     user.activity_unlock_credited = True
     user.kredi = (user.kredi or 0) + ACTIVITY_UNLOCK_CREDIT
@@ -122,10 +158,18 @@ def thin_response(kind: str):
     }), 400
 
 
-def download_block_response(user):
-    if is_staff(user):
+def activity_progress(user) -> set[str] | None:
+    """Personel için None. Diğerlerinde tamamlanan türler; indirme ikinci kez sormasın."""
+    if not user or is_staff(user):
         return None
-    done = qualifying_types(user.id)
+    return qualifying_types(user.id)
+
+
+def download_block_response(user, done: set[str] | None = None):
+    if not user or is_staff(user):
+        return None
+    if done is None:
+        done = qualifying_types(user.id)
     if len(done) >= REQUIRED_TYPES:
         return None
     return jsonify({

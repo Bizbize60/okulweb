@@ -296,6 +296,50 @@ class AktiflikKapisiTests(unittest.TestCase):
         self.assertEqual(rejected.status_code, 400)
         self.assertEqual(rejected.get_json()['code'], 'contribution_rejected')
 
+    def test_probe_does_not_open_the_gate_or_charge(self):
+        blocked = self.client.get('/uploads/notes/kapinot.pdf?probe=1')
+        self.assertEqual(blocked.status_code, 403)
+        self.assertEqual(blocked.get_json()['code'], 'activity_required')
+        with self.app.app_context():
+            user = self._user()
+            self.assertEqual(user.kredi, 0)
+            self.assertFalse(user.activity_unlock_credited)
+
+        self._unlock()
+        probe = self.client.get('/uploads/notes/kapinot.pdf?probe=1')
+        self.assertEqual(probe.status_code, 200)
+        self.assertEqual(probe.get_json(), {'ok': True})
+        self.assertIn('application/json', probe.content_type)
+        with self.app.app_context():
+            user = self._user()
+            self.assertEqual(user.kredi, 0)
+            self.assertFalse(user.activity_unlock_credited)
+
+        downloaded = self.client.get('/uploads/notes/kapinot.pdf')
+        self.assertEqual(downloaded.status_code, 200)
+        self.assertIn('attachment', downloaded.headers.get('Content-Disposition', ''))
+        self.assertIn('no-store', downloaded.headers.get('Cache-Control', ''))
+        with self.app.app_context():
+            user = self._user()
+            self.assertTrue(user.activity_unlock_credited)
+            self.assertEqual(user.kredi, 0)
+
+        again = self.client.get('/uploads/notes/kapinot.pdf?probe=1')
+        self.assertEqual(again.status_code, 403)
+        self.assertEqual(again.get_json()['code'], 'insufficient_credit')
+
+    def test_note_path_cannot_escape_upload_dir(self):
+        self._unlock()
+        with self.app.app_context():
+            user = self._user()
+            user.kredi = 2
+            user.activity_unlock_credited = True
+            db.session.commit()
+        escaped = self.client.get('/uploads/notes/..%2F..%2Fconfig.py.example')
+        self.assertEqual(escaped.status_code, 404)
+        with self.app.app_context():
+            self.assertEqual(self._user().kredi, 2)
+
     def test_small_photo_is_rejected_without_ban(self):
         rejected = self.client.post('/api/enstantane-yukle', data={
             'aciklama': 'kütüphane akşam ışığı',

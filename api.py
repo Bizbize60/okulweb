@@ -809,7 +809,11 @@ def ofis_saatleri():
 @api_bp.get('/api/ders-notlari')
 @token_required(next_location='/api/ders-notlari')
 def api_ders_notlari(current_user):
-    notlar = dersnotu.DersNotu.query.all()
+    notlar = (
+        dersnotu.DersNotu.query
+        .order_by(dersnotu.DersNotu.yuklenme_tarihi.desc(), dersnotu.DersNotu.id.desc())
+        .all()
+    )
     return jsonify([
         {
             "id": not_item.id,
