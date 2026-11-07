@@ -117,6 +117,11 @@ with app.app_context():
         ensure_default_roles()
     except Exception as e:
         print(f"[backend] RBAC varsayılan roller yüklenemedi: {e}")
+    try:
+        from aktivite_kapisi import ensure_activity_lookup_indexes
+        ensure_activity_lookup_indexes()
+    except Exception as e:
+        print(f"[backend] Aktiflik indeksleri hazırlanamadı: {e}")
 
 _SKIP_PREFIXES = (
     '/static', '/uploads', '/sw.js', '/favicon.ico', '/ads.txt',
@@ -300,30 +305,64 @@ def seed_default_market_listings():
 @app.route('/uploads/notes/<path:filename>', methods=['GET', 'POST'])
 @token_required(next_location='/ders-notlari')
 def download_note(current_user, filename):
-    from aktivite_kapisi import download_block_response, maybe_grant_activity_unlock_credit
-    blocked = download_block_response(current_user)
+    from werkzeug.security import safe_join
+    from aktivite_kapisi import (
+        ACTIVITY_UNLOCK_CREDIT,
+        REQUIRED_TYPES,
+        activity_progress,
+        download_block_response,
+        maybe_grant_activity_unlock_credit,
+    )
+
+    # Kapı kontrolü dosyadan önce: eksik dosya, kapalı kapıyı 404 ile ele vermesin.
+    done = activity_progress(current_user)
+    blocked = download_block_response(current_user, done)
     if blocked:
         return blocked
 
-    if maybe_grant_activity_unlock_credit(current_user):
+    uploads = os.path.join(app.root_path, app.config['UPLOAD_FOLDER'])
+    full_path = safe_join(uploads, filename)
+    if not full_path or not os.path.isfile(full_path):
+        return jsonify({'message': 'Dosya bulunamadı'}), 404
+
+    will_grant = (
+        done is not None
+        and not getattr(current_user, 'activity_unlock_credited', False)
+        and len(done) >= REQUIRED_TYPES
+    )
+    projected = (current_user.kredi or 0) + (ACTIVITY_UNLOCK_CREDIT if will_grant else 0)
+
+    # probe=1 dosyayı ve krediyi oynatmaz. Tarayıcı asıl dosyayı kendisi akar;
+    # JS tüm PDF'i belleğe alıp sayfayı dondurmasın.
+    if request.args.get('probe') == '1':
+        if projected < 1:
+            return jsonify({
+                'code': 'insufficient_credit',
+                'message': 'Yetersiz kredi! Dosya indirmek için dosya yüklemelisiniz.',
+            }), 403
+        return jsonify({'ok': True})
+
+    if maybe_grant_activity_unlock_credit(current_user, done):
         db.session.commit()
 
-    if current_user.kredi < 1:
+    if (current_user.kredi or 0) < 1:
         return jsonify({
             'code': 'insufficient_credit',
             'message': 'Yetersiz kredi! Dosya indirmek için dosya yüklemelisiniz.',
         }), 403
 
-    uploads = os.path.join(app.root_path, app.config['UPLOAD_FOLDER'])
-
-    if not os.path.exists(os.path.join(uploads, filename)):
-         return jsonify({'message': 'Dosya bulunamadı'}), 404
-     
     try:
         current_user.kredi -= 1
         db.session.commit()
-        return send_from_directory(uploads, filename)
-    except Exception as e:
+        response = send_from_directory(
+            uploads,
+            filename,
+            as_attachment=True,
+            download_name=os.path.basename(filename),
+        )
+        response.headers['Cache-Control'] = 'no-store'
+        return response
+    except Exception:
         current_user.kredi += 1
         db.session.commit()
         return jsonify({'message': 'İndirme sırasında hata oluştu'}), 500

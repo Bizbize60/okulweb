@@ -10,7 +10,7 @@ class ForumMessage(db.Model):
     mesaj_icerigi = db.Column(db.Text, nullable=True)
     gonderilme_tarihi = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     begeni_sayisi = db.Column(db.Integer, default=0, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
     isim_gorunsun = db.Column(db.Boolean, default=True, nullable=False)
     gif_url = db.Column(db.String(500), nullable=True)
     silindi = db.Column(db.Boolean, default=False, nullable=False)

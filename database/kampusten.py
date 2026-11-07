@@ -5,7 +5,7 @@ class Enstantane(db.Model):
     __tablename__ = 'enstantaneler'
     
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
     foto = db.Column(db.String(256), nullable=False)
     aciklama = db.Column(db.String(256), nullable=True)
     tarih = db.Column(db.DateTime, default=datetime.now)
